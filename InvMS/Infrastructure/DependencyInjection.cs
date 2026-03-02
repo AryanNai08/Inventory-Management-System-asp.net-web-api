@@ -1,0 +1,22 @@
+﻿using Domain.Entities;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace Infrastructure
+{
+    public static class DependencyInjection
+    {
+        public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration config)
+        {
+            services.AddDbContext<InventoryDbContext>(options =>
+                options.UseSqlServer(
+                    config.GetConnectionString("InventoryDb")));
+
+            return services;
+        }
+    }
+}
