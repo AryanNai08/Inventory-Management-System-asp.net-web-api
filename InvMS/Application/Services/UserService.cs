@@ -1,0 +1,89 @@
+﻿using Application.DTOs;
+using Application.Interfaces;
+using AutoMapper;
+using Domain.Exceptions;
+using Domain.Entities;
+using System;
+using System.Collections.Generic;
+using System.Net.Http.Headers;
+using System.Runtime.CompilerServices;
+using System.Text;
+
+namespace Application.Services
+{
+    public class UserService : IUserService
+    {
+        private readonly IMapper _mapper;
+        private readonly IUserRepository _userRepository;
+
+        public UserService(IMapper mapper,IUserRepository userRepository) 
+        {
+            _mapper=mapper;
+            _userRepository=userRepository;
+        }
+        public async Task<List<UserDto>> GetAllAsync()
+        {
+            var users = await _userRepository.GetAllAsync();
+
+            if (users.Count <= 0) 
+            {
+                throw new NotFoundException("Table is empty!!");
+            }
+
+
+            return _mapper.Map<List<UserDto>>(users);
+        }
+
+        public async Task<UserDto> GetByIdAsync(int id)
+        {
+            if(id <= 0)
+            {
+                throw new BadRequestException("Id must be greater than 0");
+            }
+
+            var user=await _userRepository.GetByIdAsync(id);
+
+            if (user == null) 
+            {
+                throw new NotFoundException($"User with id:{id} not found");
+            }
+
+            return _mapper.Map<UserDto>(user);
+        }
+
+        public async Task<bool> SoftDeleteAsync(int id)
+        {
+            if (id <= 0)
+            {
+                throw new BadRequestException("Id must be greater than 0");
+            }
+
+            await _userRepository.SoftDeleteAsync(id);
+
+            return true;
+            
+        }
+
+        public async Task<bool> UpdateAsync(int id, UpdateUserDto dto)
+        {
+            if (id <= 0)
+            {
+                 throw new BadRequestException("Id must be greater than 0");
+            }
+
+            var user = await _userRepository.GetByIdAsync(id);
+
+            if (user == null) 
+            {
+                throw new NotFoundException($"User with id:{id} not found");
+            }
+
+            //without any returntype
+            _mapper.Map(dto, user);
+            user.ModifiedDate=DateTime.Now;
+
+            await _userRepository.UpdateAsync(user);
+            return true;
+        }
+    }
+}
