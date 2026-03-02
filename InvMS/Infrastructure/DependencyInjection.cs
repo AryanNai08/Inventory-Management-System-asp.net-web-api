@@ -1,4 +1,8 @@
-﻿using Domain.Entities;
+﻿using Application.Interfaces;
+using Application.Services;
+using Domain.Entities;
+using Infrastructure.Data;
+using Infrastructure.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -16,6 +20,10 @@ namespace Infrastructure
                 options.UseSqlServer(
                     config.GetConnectionString("InventoryDb")));
 
+            //repository
+            services.AddScoped<IUserRepository, UserRepository>();
+
+            
             return services;
         }
     }
