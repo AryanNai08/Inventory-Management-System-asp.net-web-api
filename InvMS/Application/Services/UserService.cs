@@ -1,13 +1,8 @@
 ﻿using Application.DTOs;
 using Application.Interfaces;
 using AutoMapper;
-using Domain.Exceptions;
 using Domain.Entities;
-using System;
-using System.Collections.Generic;
-using System.Net.Http.Headers;
-using System.Runtime.CompilerServices;
-using System.Text;
+using Domain.Exceptions;
 
 namespace Application.Services
 {

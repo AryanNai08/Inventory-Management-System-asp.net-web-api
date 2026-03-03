@@ -1,11 +1,8 @@
 ﻿using Application.Interfaces;
 using Domain.Entities;
+using Domain.Exceptions;
 using Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace Infrastructure.Repositories
 {
@@ -35,14 +32,14 @@ namespace Infrastructure.Repositories
 
         public async Task<User> GetByUsernameAsync(string username)
         {
-            return await _dbContext.Users.Where(u => u.Username == username).FirstOrDefaultAsync();
+            return await _dbContext.Users.Where(u => u.Username == username && !u.IsDeleted).FirstOrDefaultAsync();
         }
 
         public async Task SoftDeleteAsync(int id)
         {
             var user = await _dbContext.Users.FirstOrDefaultAsync(u => u.Id == id && !u.IsDeleted);
             if (user == null)
-                return;
+                throw new NotFoundException($"User with id:{id} not found");
             user.IsDeleted = true;
             user.ModifiedDate = DateTime.Now;
             _dbContext.Users.Update(user);
