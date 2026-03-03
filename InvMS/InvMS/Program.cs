@@ -2,7 +2,6 @@ using Application;
 using Infrastructure;
 using InvMS.Middleware;
 
-
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddTransient<ExceptionMiddleware>();
@@ -10,9 +9,10 @@ builder.Services.AddTransient<ExceptionMiddleware>();
 // Add services to the container.
 
 builder.Services.AddControllers();
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
-builder.Services.AddOpenApi();
 
+// Add Swagger/OpenAPI
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
 
 builder.Services.AddInfrastructure(builder.Configuration);
 builder.Services.AddApplication(builder.Configuration);
@@ -24,7 +24,12 @@ app.UseMiddleware<ExceptionMiddleware>();
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
-    app.MapOpenApi();
+    app.UseSwagger();
+    app.UseSwaggerUI(c =>
+    {
+        c.SwaggerEndpoint("/swagger/v1/swagger.json", "InvMS v1");
+        c.RoutePrefix = string.Empty; // Swagger UI at root URL
+    });
 }
 
 app.UseHttpsRedirection();

@@ -1,4 +1,5 @@
-﻿using Application.Interfaces;
+﻿using Application.Common;
+using Application.Interfaces;
 using Application.Mappings;
 using Application.Services;
 using Microsoft.Extensions.Configuration;
@@ -16,7 +17,9 @@ namespace Application
 
             //services
             services.AddScoped<IUserService, UserService>();
-            
+
+            //register api response
+            //services.AddScoped<APIResponse>();
 
             //automapper register
             services.AddAutoMapper(typeof(UserProfile));

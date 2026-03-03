@@ -1,7 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using Domain.Entities;
+using Domain.Enums;
 using Microsoft.EntityFrameworkCore;
-using Domain.Entities;
+using System;
+using System.Collections.Generic;
 
 namespace Infrastructure.Data;
 
@@ -40,7 +41,11 @@ public partial class InventoryDbContext : DbContext
             entity.Property(e => e.CreatedDate).HasDefaultValueSql("(sysdatetime())", "DF_Users_CreatedDate");
             entity.Property(e => e.Email).HasMaxLength(100);
             entity.Property(e => e.FullName).HasMaxLength(100);
-            entity.Property(e => e.UserType).HasConversion<int>().HasDefaultValue(2, "DF_Users_UserType");
+
+            entity.Property(e => e.UserType)
+      .HasDefaultValue(UserType.Staff);
+
+
             entity.Property(e => e.Username).HasMaxLength(50);
         });
 
