@@ -11,6 +11,7 @@ namespace Application.Interfaces
         Task<User> GetByIdAsync(int id);
 
         Task<User> GetByUsernameAsync(string username);
+        Task<User> GetByUseremailAsync(string email);
 
         Task AddAsync(User user);
 

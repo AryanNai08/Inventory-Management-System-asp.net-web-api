@@ -30,6 +30,11 @@ namespace Infrastructure.Repositories
             return await _dbContext.Users.Where(u => u.Id == id && !u.IsDeleted).FirstOrDefaultAsync();
         }
 
+        public async Task<User> GetByUseremailAsync(string email)
+        {
+            return await _dbContext.Users.Where(u => u.Email == email && !u.IsDeleted).FirstOrDefaultAsync();
+        }
+
         public async Task<User> GetByUsernameAsync(string username)
         {
             return await _dbContext.Users.Where(u => u.Username == username && !u.IsDeleted).FirstOrDefaultAsync();

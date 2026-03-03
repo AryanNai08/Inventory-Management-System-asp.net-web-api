@@ -17,6 +17,7 @@ namespace Application
 
             //services
             services.AddScoped<IUserService, UserService>();
+            services.AddScoped<IAuthService, AuthService>();
 
             //register api response
             services.AddScoped<APIResponse>();
