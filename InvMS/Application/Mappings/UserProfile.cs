@@ -20,7 +20,14 @@ namespace Application.Mappings
                     .ForMember(dest => dest.IsDeleted, opt => opt.Ignore())
                     .ForMember(dest => dest.CreatedDate, opt => opt.Ignore())
                     .ForMember(dest => dest.ModifiedDate, opt => opt.Ignore());
-            CreateMap<UpdateUserDto, User>();
+            CreateMap<UpdateUserDto, User>()
+                    .ForMember(dest => dest.Id, opt => opt.Ignore())
+                    .ForMember(dest => dest.Username, opt => opt.Ignore())
+                    .ForMember(dest => dest.PasswordHash, opt => opt.Ignore())
+                    .ForMember(dest => dest.PasswordSalt, opt => opt.Ignore())
+                    .ForMember(dest => dest.IsDeleted, opt => opt.Ignore())
+                    .ForMember(dest => dest.CreatedDate, opt => opt.Ignore())
+                    .ForMember(dest => dest.ModifiedDate, opt => opt.Ignore());
 
 
         }

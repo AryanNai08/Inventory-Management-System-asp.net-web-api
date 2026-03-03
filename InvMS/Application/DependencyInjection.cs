@@ -19,7 +19,7 @@ namespace Application
             services.AddScoped<IUserService, UserService>();
 
             //register api response
-            //services.AddScoped<APIResponse>();
+            services.AddScoped<APIResponse>();
 
             //automapper register
             services.AddAutoMapper(typeof(UserProfile));
