@@ -43,7 +43,8 @@ public partial class InventoryDbContext : DbContext
             entity.Property(e => e.FullName).HasMaxLength(100);
 
             entity.Property(e => e.UserType)
-      .HasDefaultValue(UserType.Staff);
+                .HasConversion<int>()
+                .HasDefaultValue(UserType.Staff);
 
 
             entity.Property(e => e.Username).HasMaxLength(50);

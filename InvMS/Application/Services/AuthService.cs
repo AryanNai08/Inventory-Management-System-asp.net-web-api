@@ -84,6 +84,7 @@ namespace Application.Services
                 throw new UnauthorizedException("Account is deactivated");
             }
 
+
             // Verify Password
 
             byte[] saltBytes = Convert.FromBase64String(user.PasswordSalt);
@@ -113,7 +114,7 @@ namespace Application.Services
             var key = new SymmetricSecurityKey(
                 Encoding.UTF8.GetBytes(_configuration["Jwt:SecretKey"]));
 
-            var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha512Signature);
+            var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
             var tokenDescriptor = new JwtSecurityToken(
                 issuer: _configuration["Jwt:Issuer"],
