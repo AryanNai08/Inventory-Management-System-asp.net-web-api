@@ -44,7 +44,7 @@ namespace Infrastructure.Repositories
         {
             var category= await _dbContext.Categories.Where(c => c.Id == id && !c.IsDeleted).FirstOrDefaultAsync();
             if (category == null)
-                throw new NotFoundException($"User with id:{id} not found");
+                throw new NotFoundException($"Category with id:{id} not found");
             category.IsDeleted=true;
             category.ModifiedDate= DateTime.Now;
             await _dbContext.SaveChangesAsync();

@@ -13,13 +13,11 @@ namespace Application.Mappings
         {
             CreateMap<Category,CategoryDto>();
             CreateMap<CreateCategoryDto,Category>()
-                .ForMember(dest => dest.Id, opt => opt.Ignore())
                     .ForMember(dest => dest.Id, opt => opt.Ignore())
                     .ForMember(dest => dest.IsDeleted, opt => opt.Ignore())
                     .ForMember(dest => dest.CreatedDate, opt => opt.Ignore())
                     .ForMember(dest => dest.ModifiedDate, opt => opt.Ignore()); 
             CreateMap<UpdateCategoryDto, Category>()
-                    .ForMember(dest => dest.Id, opt => opt.Ignore())
                     .ForMember(dest => dest.Id, opt => opt.Ignore())
                     .ForMember(dest => dest.IsDeleted, opt => opt.Ignore())
                     .ForMember(dest => dest.CreatedDate, opt => opt.Ignore())

@@ -56,29 +56,31 @@ namespace InvMS.Controller
 
         [HttpPost]
         [Route("CreateCategory")]
-        [Authorize(Roles ="Admin")]
+        [Authorize(Roles = "Admin,Manager")]
         [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<APIResponse>> CreateCategory([FromBody] CreateCategoryDto dto)
         {
+
             _apiResponse.Data = await _categoryService.CreateAsync(dto);
             _apiResponse.StatusCode = HttpStatusCode.Created;
             _apiResponse.Status = true;
 
-            return CreatedAtRoute("GetCategoryById", dto);
+            return CreatedAtRoute("GetCategoryById", new { id = ((CategoryDto)_apiResponse.Data).Id }, dto);
         }
 
         [HttpPut]
         [Route("{id:int}",Name ="UpdateCategory")]
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin,Manager")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<APIResponse>> UpdateCategory(int id,UpdateCategoryDto dto)
+        public async Task<ActionResult<APIResponse>> UpdateCategory(int id,[FromBody] UpdateCategoryDto dto)
         {
             _apiResponse.Data = await _categoryService.UpdateAsync(id,dto);
             _apiResponse.StatusCode = HttpStatusCode.OK;
@@ -87,7 +89,7 @@ namespace InvMS.Controller
             return Ok(_apiResponse);
         }
 
-        [HttpPut]
+        [HttpDelete]
         [Route("{id:int}", Name = "DeleteCategory")]
         [Authorize(Roles = "Admin")]
         [ProducesResponseType(StatusCodes.Status200OK)]

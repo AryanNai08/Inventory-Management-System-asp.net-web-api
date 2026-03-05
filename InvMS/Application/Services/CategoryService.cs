@@ -15,7 +15,11 @@ namespace Application.Services
 
         private readonly ICategoryRepository _categoryRepository;
         private readonly IMapper _mapper;
-        public CategoryService() { }
+        public CategoryService(ICategoryRepository categoryRepository,IMapper mapper) 
+        {
+            _categoryRepository = categoryRepository;
+            _mapper = mapper;
+        }
         public async Task<CategoryDto> CreateAsync(CreateCategoryDto dto)
         {
             var category = await _categoryRepository.GetByNameAsync(dto.Name);
