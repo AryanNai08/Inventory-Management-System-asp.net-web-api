@@ -11,7 +11,7 @@ namespace Application.DTOs
         public string Token { get; set; }
 
         public string Username { get; set; }
-   
-        public UserType UserType { get; set; }
+
+        public List<string>? Roles { get; set; }
     }
 }

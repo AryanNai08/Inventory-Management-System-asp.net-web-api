@@ -6,11 +6,9 @@ using Domain.Exceptions;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
-using System;
-using System.Collections.Generic;
 using System.Security.Claims;
-using System.Security.Cryptography;
 using System.Text;
+using static Application.Interfaces.IRoleRepository;
 
 namespace Application.Services
 {
@@ -19,12 +17,16 @@ namespace Application.Services
         private readonly IUserRepository _userRepository;
         private readonly IMapper _mapper;
         private readonly IConfiguration _configuration;
-        public AuthService(IUserRepository userRepository, IMapper mapper, IConfiguration configuration)
+        private readonly IRoleRepository _roleRepository;
+
+        public AuthService(IUserRepository userRepository, IMapper mapper, IConfiguration configuration, IRoleRepository roleRepository)
         {
             _userRepository = userRepository;
             _mapper = mapper;
             _configuration = configuration;
+            _roleRepository = roleRepository;
         }
+
         public async Task<bool> ChangePasswordAsync(int userId, ChangePasswordDto dto)
         {
             var user = await _userRepository.GetByIdAsync(userId);
@@ -32,38 +34,13 @@ namespace Application.Services
             if (user == null)
                 throw new NotFoundException("User not found");
 
-            //  — Verify old password
+            bool isValid = BCrypt.Net.BCrypt.Verify(dto.CurrentPassword, user.PasswordHash);
 
-            byte[] storedSalt = Convert.FromBase64String(user.PasswordSalt);
-
-            using var hmac = new HMACSHA512(storedSalt);
-
-            byte[] computedHash = hmac.ComputeHash(
-                Encoding.UTF8.GetBytes(dto.CurrentPassword));
-
-            byte[] storedHash = Convert.FromBase64String(user.PasswordHash);
-
-            if (!CryptographicOperations.FixedTimeEquals(computedHash, storedHash))
+            if (!isValid)
                 throw new BadRequestException("Current password is incorrect");
 
-            // Generate new hash & salt
-
-            using var newHmac = new HMACSHA512();
-
-            byte[] newPasswordBytes = Encoding.UTF8.GetBytes(dto.NewPassword);
-
-            byte[] newHash = newHmac.ComputeHash(newPasswordBytes);
-
-            string newSaltString = Convert.ToBase64String(newHmac.Key);
-            string newHashString = Convert.ToBase64String(newHash);
-
-            //  Update user
-
-            user.PasswordSalt = newSaltString;
-            user.PasswordHash = newHashString;
+            user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(dto.NewPassword);
             user.ModifiedDate = DateTime.UtcNow;
-
-            // Save changes
 
             await _userRepository.UpdateAsync(user);
 
@@ -75,41 +52,27 @@ namespace Application.Services
             var user = await _userRepository.GetByUsernameAsync(dto.Username);
 
             if (user == null)
-            {
                 throw new UnauthorizedException("Invalid username or password");
-            }
 
-            if (user.IsDeleted == true)
-            {
+            if (user.IsDeleted)
                 throw new UnauthorizedException("Account is deactivated");
-            }
 
+            bool isValid = BCrypt.Net.BCrypt.Verify(dto.Password, user.PasswordHash);
 
-            // Verify Password
-
-            byte[] saltBytes = Convert.FromBase64String(user.PasswordSalt);
-
-            var hmac = new HMACSHA512(saltBytes);
-
-            byte[] computedHash = hmac.ComputeHash(
-                Encoding.UTF8.GetBytes(dto.Password));
-
-            byte[] storedHash = Convert.FromBase64String(user.PasswordHash);
-
-            if (!computedHash.SequenceEqual(storedHash))
-            {
+            if (!isValid)
                 throw new UnauthorizedException("Invalid username or password");
-            }
-
-            // Generate JWT Token
 
             var claims = new List<Claim>
+    {
+        new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+        new Claim(ClaimTypes.Name, user.Username),
+        new Claim(ClaimTypes.Email, user.Email)
+    };
+
+            foreach (var role in user.Roles)
             {
-                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
-                new Claim(ClaimTypes.Name, user.Username),
-                new Claim(ClaimTypes.Email, user.Email),
-                new Claim(ClaimTypes.Role, user.UserType.ToString())
-            };
+                claims.Add(new Claim(ClaimTypes.Role, role.Name));
+            }
 
             var key = new SymmetricSecurityKey(
                 Encoding.UTF8.GetBytes(_configuration["Jwt:SecretKey"]));
@@ -127,13 +90,11 @@ namespace Application.Services
 
             var token = new JwtSecurityTokenHandler().WriteToken(tokenDescriptor);
 
-            // Return Response
-
             return new LoginResponseDto
             {
                 Username = user.Username,
-                UserType = user.UserType,
-                Token = token
+                Token = token,
+                Roles = user.Roles.Select(r => r.Name).ToList()
             };
         }
 
@@ -141,41 +102,26 @@ namespace Application.Services
         {
             var username = await _userRepository.GetByUsernameAsync(dto.Username);
             var useremail = await _userRepository.GetByUseremailAsync(dto.Email);
+
             if (username != null)
-            {
-                throw new BadRequestException("Username already taken!!");
-            }
+                throw new BadRequestException("Username already taken");
 
             if (useremail != null)
-            {
-                throw new BadRequestException("Email already taken!!");
-            }
+                throw new BadRequestException("Email already taken");
 
-            //  Generate Hash + Salt
-            var hmac = new HMACSHA512();
-
-            byte[] passwordBytes = Encoding.UTF8.GetBytes(dto.Password);
-
-            byte[] hashBytes = hmac.ComputeHash(passwordBytes);
-
-            string passwordSalt = Convert.ToBase64String(hmac.Key);
-            string passwordHash = Convert.ToBase64String(hashBytes);
-
-            // 4 Map DTO → User Entity
             var user = _mapper.Map<User>(dto);
 
-            // 5️ Manually assign security fields
-            user.PasswordSalt = passwordSalt;
-            user.PasswordHash = passwordHash;
-            user.CreatedDate = DateTime.Now;
+            user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(dto.Password);
+            user.CreatedDate = DateTime.UtcNow;
             user.IsDeleted = false;
 
-            // 6 Save
             await _userRepository.AddAsync(user);
 
-            //  Map back → UserDto
-            return _mapper.Map<UserDto>(user);
+            var role = await _roleRepository.GetByIdAsync(dto.RoleId);
+            user.Roles.Add(role);
+            await _userRepository.UpdateAsync(user);
 
+            return _mapper.Map<UserDto>(user);
         }
     }
 }

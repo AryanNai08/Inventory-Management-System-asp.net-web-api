@@ -20,7 +20,10 @@ namespace Application.DTOs
         [EmailAddress]
         [Required]
         public string Email { get; set; }
+
         [Required]
-        public UserType UserType { get; set; }
+
+        public int RoleId { get; set; }
+
     }
 }

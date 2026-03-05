@@ -1,10 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 
-
 namespace Domain.Entities;
 
-public partial class Category
+public partial class Privilege
 {
     public int Id { get; set; }
 
@@ -12,9 +11,5 @@ public partial class Category
 
     public string? Description { get; set; }
 
-    public bool IsDeleted { get; set; }
-
-    public DateTime CreatedDate { get; set; }
-
-    public DateTime? ModifiedDate { get; set; }
+    public virtual ICollection<Role> Roles { get; set; } = new List<Role>();
 }
