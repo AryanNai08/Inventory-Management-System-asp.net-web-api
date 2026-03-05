@@ -18,12 +18,13 @@ namespace Application
             //services
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<IAuthService, AuthService>();
-
+            services.AddScoped<ICategoryService, CategoryService>();
             //register api response
             services.AddScoped<APIResponse>();
 
             //automapper register
             services.AddAutoMapper(typeof(UserProfile));
+            services.AddAutoMapper(typeof(CategoryProfile));
 
             return services;
         }

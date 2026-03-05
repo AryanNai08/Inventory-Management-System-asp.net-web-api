@@ -17,6 +17,7 @@ namespace Infrastructure
 
             //repository
             services.AddScoped<IUserRepository, UserRepository>();
+            services.AddScoped<ICategoryRepository, CategoryRepositories>();
 
             
             return services;
