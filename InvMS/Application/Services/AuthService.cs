@@ -3,14 +3,13 @@ using Application.Interfaces;
 using AutoMapper;
 using Domain.Entities;
 using Domain.Exceptions;
-using Infrastructure.Repositories;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
-using System.Security.Cryptography;
 using System.Text;
 using Microsoft.Extensions.Caching.Memory;
+using Infrastructure.Repositories;
 using static Application.Interfaces.IRoleRepository;
 
 namespace Application.Services
@@ -21,25 +20,17 @@ namespace Application.Services
         private readonly IMapper _mapper;
         private readonly IConfiguration _configuration;
         private readonly IRoleRepository _roleRepository;
-<<<<<<< Updated upstream
+        private readonly IMemoryCache _cache;
         private readonly IRefreshTokenRepository _refreshTokenRepository;
 
-        public AuthService(IUserRepository userRepository, IMapper mapper, IConfiguration configuration, IRoleRepository roleRepository,IRefreshTokenRepository refreshTokenRepository)
-=======
-        private readonly IMemoryCache _cache;
-
-        public AuthService(IUserRepository userRepository, IMapper mapper, IConfiguration configuration, IRoleRepository roleRepository, IMemoryCache cache)
->>>>>>> Stashed changes
+        public AuthService(IUserRepository userRepository, IMapper mapper, IConfiguration configuration, IRoleRepository roleRepository, IMemoryCache cache, IRefreshTokenRepository refreshTokenRepository)
         {
             _userRepository = userRepository;
             _mapper = mapper;
             _configuration = configuration;
             _roleRepository = roleRepository;
-<<<<<<< Updated upstream
-            _refreshTokenRepository = refreshTokenRepository;
-=======
             _cache = cache;
->>>>>>> Stashed changes
+            _refreshTokenRepository = refreshTokenRepository;
         }
 
         public async Task<bool> ChangePasswordAsync(int userId, ChangePasswordDto dto)
@@ -77,22 +68,18 @@ namespace Application.Services
             if (!isValid)
                 throw new UnauthorizedException("Invalid username or password");
 
-
-            // JWT claims
             var claims = new List<Claim>
-            {
-                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
-                new Claim(ClaimTypes.Name, user.Username),
-                new Claim(ClaimTypes.Email, user.Email)
-            };
+    {
+        new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+        new Claim(ClaimTypes.Name, user.Username),
+        new Claim(ClaimTypes.Email, user.Email)
+    };
 
             foreach (var role in user.Roles)
             {
                 claims.Add(new Claim(ClaimTypes.Role, role.Name));
             }
 
-
-            // Create access token
             var key = new SymmetricSecurityKey(
                 Encoding.UTF8.GetBytes(_configuration["Jwt:SecretKey"]));
 
@@ -107,41 +94,96 @@ namespace Application.Services
                 signingCredentials: creds
             );
 
-            var accessToken = new JwtSecurityTokenHandler().WriteToken(tokenDescriptor);
+            var token = new JwtSecurityTokenHandler().WriteToken(tokenDescriptor);
 
-                
-                
-            // Generate refresh token
-            var refreshToken = GenerateRefreshToken();
-
-            // Save refresh token in DB
-            var refreshEntity = new RefreshToken
+            var refreshTokenVal = GenerateRefreshToken();
+            var refreshTokenEntity = new RefreshToken
             {
+                Token = refreshTokenVal,
                 UserId = user.Id,
-                Token = refreshToken,
-                ExpiresAt = DateTime.UtcNow.AddDays(7),
-                IsRevoked = false
+                ExpiresAt = DateTime.UtcNow.AddMinutes(30),
+                IsRevoked = false,
+                CreatedAt = DateTime.UtcNow
             };
+            await _refreshTokenRepository.AddAsync(refreshTokenEntity);
 
-            await _refreshTokenRepository.AddAsync(refreshEntity);
-
-
-            // Response
             return new LoginResponseDto
             {
                 Username = user.Username,
-                Token = accessToken,
-                RefreshToken = refreshToken,
+                Token = token,
+                RefreshToken = refreshTokenVal,
                 Roles = user.Roles.Select(r => r.Name).ToList()
             };
         }
 
-        private string GenerateRefreshToken()
+        private static string GenerateRefreshToken()
         {
-            var randomBytes = new byte[64];
-            using var rng = RandomNumberGenerator.Create();
-            rng.GetBytes(randomBytes);
-            return Convert.ToBase64String(randomBytes);
+            var randomNumber = new byte[64];
+            using var rng = System.Security.Cryptography.RandomNumberGenerator.Create();
+            rng.GetBytes(randomNumber);
+            return Convert.ToBase64String(randomNumber);
+        }
+
+        public async Task<LoginResponseDto> RefreshTokenAsync(RefreshTokenDto dto)
+        {
+            var storedToken = await _refreshTokenRepository.GetByTokenAsync(dto.RefreshToken);
+
+            if (storedToken == null || storedToken.ExpiresAt <= DateTime.UtcNow)
+                throw new UnauthorizedException("Invalid or expired refresh token");
+
+            var user = await _userRepository.GetByIdAsync(storedToken.UserId);
+            if (user == null)
+                throw new UnauthorizedException("User not found");
+
+            storedToken.IsRevoked = true;
+            await _refreshTokenRepository.UpdateAsync(storedToken);
+
+            var claims = new List<Claim>
+            {
+                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+                new Claim(ClaimTypes.Name, user.Username),
+                new Claim(ClaimTypes.Email, user.Email)
+            };
+
+            foreach (var role in user.Roles)
+            {
+                claims.Add(new Claim(ClaimTypes.Role, role.Name));
+            }
+
+            var key = new SymmetricSecurityKey(
+                Encoding.UTF8.GetBytes(_configuration["Jwt:SecretKey"]));
+
+            var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+
+            var tokenDescriptor = new JwtSecurityToken(
+                issuer: _configuration["Jwt:Issuer"],
+                audience: _configuration["Jwt:Audience"],
+                claims: claims,
+                expires: DateTime.UtcNow.AddMinutes(
+                    Convert.ToDouble(_configuration["Jwt:ExpiryInMinutes"])),
+                signingCredentials: creds
+            );
+
+            var token = new JwtSecurityTokenHandler().WriteToken(tokenDescriptor);
+
+            var newRefreshTokenVal = GenerateRefreshToken();
+            var newRefreshTokenEntity = new RefreshToken
+            {
+                Token = newRefreshTokenVal,
+                UserId = user.Id,
+                ExpiresAt = DateTime.UtcNow.AddMinutes(30),
+                IsRevoked = false,
+                CreatedAt = DateTime.UtcNow
+            };
+            await _refreshTokenRepository.AddAsync(newRefreshTokenEntity);
+
+            return new LoginResponseDto
+            {
+                Username = user.Username,
+                Token = token,
+                RefreshToken = newRefreshTokenVal,
+                Roles = user.Roles.Select(r => r.Name).ToList()
+            };
         }
 
         public async Task<UserDto> RegisterAsync(RegisterDto dto)
@@ -170,65 +212,6 @@ namespace Application.Services
             return _mapper.Map<UserDto>(user);
         }
 
-<<<<<<< Updated upstream
-
-        public async Task<LoginResponseDto> RefreshTokenAsync(RefreshTokenDto dto)
-        {
-            var storedToken = await _refreshTokenRepository.GetByTokenAsync(dto.RefreshToken);
-
-            if (storedToken == null)
-                throw new UnauthorizedException("Invalid refresh token");
-
-            if (storedToken.ExpiresAt < DateTime.UtcNow)
-                throw new UnauthorizedException("Refresh token expired");
-
-            if (storedToken.IsRevoked == true)
-                throw new UnauthorizedException("Refresh token revoked");
-
-            var user = await _userRepository.GetByIdAsync(storedToken.UserId);
-
-            if (user == null || user.IsDeleted)
-                throw new UnauthorizedException("User not valid");
-
-
-            var claims = new List<Claim>
-    {
-        new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
-        new Claim(ClaimTypes.Name, user.Username),
-        new Claim(ClaimTypes.Email, user.Email)
-    };
-
-            foreach (var role in user.Roles)
-            {
-                claims.Add(new Claim(ClaimTypes.Role, role.Name));
-            }
-
-            var key = new SymmetricSecurityKey(
-                Encoding.UTF8.GetBytes(_configuration["Jwt:SecretKey"]));
-
-            var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
-
-            var tokenDescriptor = new JwtSecurityToken(
-                issuer: _configuration["Jwt:Issuer"],
-                audience: _configuration["Jwt:Audience"],
-                claims: claims,
-                expires: DateTime.UtcNow.AddMinutes(
-                    Convert.ToDouble(_configuration["Jwt:ExpiryInMinutes"])),
-                signingCredentials: creds
-            );
-
-            var accessToken = new JwtSecurityTokenHandler().WriteToken(tokenDescriptor);
-
-            return new LoginResponseDto
-            {
-                Username = user.Username,
-                Token = accessToken,
-                Roles = user.Roles.Select(r => r.Name).ToList()
-            };
-        }
-
-        
-=======
         public async Task<bool> ResetPasswordAsync(ResetPasswordDto dto)
         {
             var cacheKey = $"otp:{dto.Email}";
@@ -272,6 +255,5 @@ namespace Application.Services
 
             return true;
         }
->>>>>>> Stashed changes
     }
 }
