@@ -10,6 +10,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
+using Microsoft.Extensions.Caching.Memory;
 using static Application.Interfaces.IRoleRepository;
 
 namespace Application.Services
@@ -20,15 +21,25 @@ namespace Application.Services
         private readonly IMapper _mapper;
         private readonly IConfiguration _configuration;
         private readonly IRoleRepository _roleRepository;
+<<<<<<< Updated upstream
         private readonly IRefreshTokenRepository _refreshTokenRepository;
 
         public AuthService(IUserRepository userRepository, IMapper mapper, IConfiguration configuration, IRoleRepository roleRepository,IRefreshTokenRepository refreshTokenRepository)
+=======
+        private readonly IMemoryCache _cache;
+
+        public AuthService(IUserRepository userRepository, IMapper mapper, IConfiguration configuration, IRoleRepository roleRepository, IMemoryCache cache)
+>>>>>>> Stashed changes
         {
             _userRepository = userRepository;
             _mapper = mapper;
             _configuration = configuration;
             _roleRepository = roleRepository;
+<<<<<<< Updated upstream
             _refreshTokenRepository = refreshTokenRepository;
+=======
+            _cache = cache;
+>>>>>>> Stashed changes
         }
 
         public async Task<bool> ChangePasswordAsync(int userId, ChangePasswordDto dto)
@@ -159,6 +170,7 @@ namespace Application.Services
             return _mapper.Map<UserDto>(user);
         }
 
+<<<<<<< Updated upstream
 
         public async Task<LoginResponseDto> RefreshTokenAsync(RefreshTokenDto dto)
         {
@@ -216,5 +228,50 @@ namespace Application.Services
         }
 
         
+=======
+        public async Task<bool> ResetPasswordAsync(ResetPasswordDto dto)
+        {
+            var cacheKey = $"otp:{dto.Email}";
+
+            if (!_cache.TryGetValue(cacheKey, out var cachedOtp))
+                throw new BadRequestException("OTP expired or invalid");
+
+            if (cachedOtp?.ToString() != dto.Otp)
+                throw new BadRequestException("Invalid OTP");
+
+            var user = await _userRepository.GetByUseremailAsync(dto.Email);
+
+            if (user == null)
+                throw new NotFoundException("User not found");
+
+            user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(dto.NewPassword);
+            user.ModifiedDate = DateTime.UtcNow;
+
+            await _userRepository.UpdateAsync(user);
+
+            _cache.Remove(cacheKey);
+
+            return true;
+        }
+
+        public async Task<bool> SendOtpAsync(ForgotPasswordDto dto)
+        {
+            var user = await _userRepository.GetByUseremailAsync(dto.Email);
+
+            if (user == null)
+                throw new NotFoundException("User not found");
+
+            var otp = new Random().Next(100000, 999999).ToString();
+
+            var cacheKey = $"otp:{dto.Email}";
+
+            _cache.Set(cacheKey, otp, TimeSpan.FromMinutes(5));
+
+            // For now print OTP (replace with email later)
+            Console.WriteLine($"OTP for {dto.Email}: {otp}");
+
+            return true;
+        }
+>>>>>>> Stashed changes
     }
 }

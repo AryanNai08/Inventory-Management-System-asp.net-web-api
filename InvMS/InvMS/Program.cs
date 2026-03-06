@@ -12,6 +12,10 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddTransient<ExceptionMiddleware>();
 
+
+//Store OTP temporarily in server memory
+builder.Services.AddMemoryCache();
+
 // Add services to the container.
 
 builder.Services.AddControllers();
