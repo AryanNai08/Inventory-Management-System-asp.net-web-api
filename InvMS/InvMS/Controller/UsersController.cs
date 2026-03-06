@@ -24,7 +24,7 @@ namespace InvMS.Controller
 
         [HttpGet]
         [Route("GetAllUsers")]
-        [Authorize(Roles = "Admin")]
+        [Authorize(Policy = "ManageUsers")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
@@ -41,7 +41,7 @@ namespace InvMS.Controller
 
         [HttpGet]
         [Route("{id:int}", Name = "GetUserById")]
-        [Authorize(Roles = "Admin")]
+        [Authorize(Policy = "ManageUsers")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
@@ -59,7 +59,7 @@ namespace InvMS.Controller
 
         [HttpDelete]
         [Route("{id:int}", Name = "DeleteUser")]
-        [Authorize(Roles = "Admin")]
+        [Authorize(Policy = "ManageUsers")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
@@ -77,7 +77,7 @@ namespace InvMS.Controller
 
         [HttpPut]
         [Route("{id:int}", Name = "Update")]
-        [Authorize(Roles = "Admin")]
+        [Authorize(Policy = "ManageUsers")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]

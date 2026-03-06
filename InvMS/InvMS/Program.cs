@@ -1,14 +1,18 @@
 using Application;
+using Application.Security;
 using Infrastructure;
 using Infrastructure.Data;
 using InvMS.Middleware;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi;
 using Microsoft.OpenApi.Models;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
+
+
 
 builder.Services.AddTransient<ExceptionMiddleware>();
 
@@ -75,6 +79,29 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         };
     });
 
+
+//policys
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("ViewCategories",
+        policy => policy.Requirements.Add(new PermissionRequirement("ViewCategory")));
+
+    options.AddPolicy("CreateCategory",
+        policy => policy.Requirements.Add(new PermissionRequirement("CreateCategory")));
+
+    options.AddPolicy("UpdateCategory",
+        policy => policy.Requirements.Add(new PermissionRequirement("UpdateCategory")));
+
+    options.AddPolicy("DeleteCategory",
+        policy => policy.Requirements.Add(new PermissionRequirement("DeleteCategory")));
+
+    options.AddPolicy("ManageUsers",
+        policy => policy.Requirements.Add(new PermissionRequirement("ManageUsers")));
+});
+
+
+
+builder.Services.AddSingleton<IAuthorizationHandler, PermissionHandler>();
 
 var app = builder.Build();
 

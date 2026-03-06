@@ -10,7 +10,7 @@ using System.Security.Claims;
 using System.Text;
 using Microsoft.Extensions.Caching.Memory;
 using Infrastructure.Repositories;
-using static Application.Interfaces.IRoleRepository;
+using System.Linq;
 
 namespace Application.Services
 {
@@ -82,6 +82,17 @@ namespace Application.Services
                 claims.Add(new Claim(ClaimTypes.Role, role.Name));
             }
 
+            var privileges = user.Roles
+                .SelectMany(r => r.Privileges)
+                .Select(p => p.Name)
+                .Distinct();
+
+            foreach(var privilege in privileges)
+            {
+                claims.Add(new Claim("Permission", privilege));
+            }
+
+
             var key = new SymmetricSecurityKey(
                 Encoding.UTF8.GetBytes(_configuration["Jwt:SecretKey"]));
 
@@ -141,15 +152,27 @@ namespace Application.Services
             await _refreshTokenRepository.UpdateAsync(storedToken);
 
             var claims = new List<Claim>
-            {
-                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
-                new Claim(ClaimTypes.Name, user.Username),
-                new Claim(ClaimTypes.Email, user.Email)
-            };
+{
+    new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+    new Claim(ClaimTypes.Name, user.Username),
+    new Claim(ClaimTypes.Email, user.Email)
+};
 
             foreach (var role in user.Roles)
             {
                 claims.Add(new Claim(ClaimTypes.Role, role.Name));
+            }
+
+            /* ADDED PRIVILEGES HERE */
+
+            var privileges = user.Roles
+                .SelectMany(r => r.Privileges)
+                .Select(p => p.Name)
+                .Distinct();
+
+            foreach (var privilege in privileges)
+            {
+                claims.Add(new Claim("Permission", privilege));
             }
 
             var key = new SymmetricSecurityKey(
@@ -253,7 +276,7 @@ namespace Application.Services
             _cache.Set(cacheKey, otp, TimeSpan.FromMinutes(5));
 
             // For now print OTP (replace with email later)
-            Console.WriteLine($"OTP for {dto.Email}: {otp}");
+            //Console.WriteLine($"OTP for {dto.Email}: {otp}");
 
 
             await _emailService.SendEmailAsync(

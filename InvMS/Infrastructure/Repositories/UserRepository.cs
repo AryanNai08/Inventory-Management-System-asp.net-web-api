@@ -25,6 +25,7 @@ namespace Infrastructure.Repositories
         {
             return await _dbContext.Users
                 .Include(u => u.Roles)
+                .ThenInclude(u=>u.Privileges)
                 .Where(u => !u.IsDeleted)
                 .ToListAsync();
         }
@@ -33,6 +34,7 @@ namespace Infrastructure.Repositories
         {
             return await _dbContext.Users
                 .Include(u => u.Roles)
+                .ThenInclude(u => u.Privileges)
                 .FirstOrDefaultAsync(u => u.Id == id && !u.IsDeleted);
         }
 
@@ -40,13 +42,14 @@ namespace Infrastructure.Repositories
         {
             return await _dbContext.Users
                 .Include(u => u.Roles)
+                .ThenInclude(u => u.Privileges)
                 .FirstOrDefaultAsync(u => u.Email == email && !u.IsDeleted);
         }
 
         public async Task<User> GetByUsernameAsync(string username)
         {
             return await _dbContext.Users
-                .Include(u => u.Roles)
+                .Include(u => u.Roles).ThenInclude(u=>u.Privileges)
                 .FirstOrDefaultAsync(u => u.Username == username && !u.IsDeleted);
         }
 

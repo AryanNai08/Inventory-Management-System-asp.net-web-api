@@ -23,7 +23,8 @@ namespace InvMS.Controller
 
         [HttpGet]
         [Route("GetAllCategories")]
-        [Authorize]
+        //[Authorize(Policy= "ViewCategories")]
+        [Authorize(Roles ="Admin")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
@@ -39,7 +40,7 @@ namespace InvMS.Controller
 
         [HttpGet]
         [Route("{id:int}",Name="GetCategoryById")]
-        [Authorize]
+        [Authorize(Policy = "ViewCategories")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
@@ -56,7 +57,7 @@ namespace InvMS.Controller
 
         [HttpPost]
         [Route("CreateCategory")]
-        [Authorize(Roles = "Admin,Manager")]
+        [Authorize(Policy = "CreateCategory")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -74,7 +75,7 @@ namespace InvMS.Controller
 
         [HttpPut]
         [Route("{id:int}",Name ="UpdateCategory")]
-        [Authorize(Roles = "Admin,Manager")]
+        [Authorize(Policy = "UpdateCategory")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
@@ -91,7 +92,7 @@ namespace InvMS.Controller
 
         [HttpDelete]
         [Route("{id:int}", Name = "DeleteCategory")]
-        [Authorize(Roles = "Admin")]
+        [Authorize(Policy = "DeleteCategory")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
