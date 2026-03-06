@@ -22,8 +22,9 @@ namespace Application.Services
         private readonly IRoleRepository _roleRepository;
         private readonly IMemoryCache _cache;
         private readonly IRefreshTokenRepository _refreshTokenRepository;
+        private readonly IEmailService _emailService;
 
-        public AuthService(IUserRepository userRepository, IMapper mapper, IConfiguration configuration, IRoleRepository roleRepository, IMemoryCache cache, IRefreshTokenRepository refreshTokenRepository)
+        public AuthService(IUserRepository userRepository, IMapper mapper, IConfiguration configuration, IRoleRepository roleRepository, IMemoryCache cache, IRefreshTokenRepository refreshTokenRepository, IEmailService emailService)
         {
             _userRepository = userRepository;
             _mapper = mapper;
@@ -31,6 +32,7 @@ namespace Application.Services
             _roleRepository = roleRepository;
             _cache = cache;
             _refreshTokenRepository = refreshTokenRepository;
+            _emailService = emailService;
         }
 
         public async Task<bool> ChangePasswordAsync(int userId, ChangePasswordDto dto)
@@ -252,6 +254,13 @@ namespace Application.Services
 
             // For now print OTP (replace with email later)
             Console.WriteLine($"OTP for {dto.Email}: {otp}");
+
+
+            await _emailService.SendEmailAsync(
+                dto.Email,
+                "Password Reset OTP",
+                $"Your OTP for password reset is: {otp}. It expires in 5 minutes."
+            );
 
             return true;
         }
