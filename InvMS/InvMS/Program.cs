@@ -84,7 +84,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 builder.Services.AddAuthorization(options =>
 {
     options.AddPolicy("ViewCategories",
-        policy => policy.Requirements.Add(new PermissionRequirement("ViewCategory")));
+        policy => policy.Requirements.Add(new PermissionRequirement("ViewCategories")));
 
     options.AddPolicy("CreateCategory",
         policy => policy.Requirements.Add(new PermissionRequirement("CreateCategory")));

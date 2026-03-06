@@ -23,8 +23,7 @@ namespace InvMS.Controller
 
         [HttpGet]
         [Route("GetAllCategories")]
-        //[Authorize(Policy= "ViewCategories")]
-        [Authorize(Roles ="Admin")]
+        [Authorize(Policy= "ViewCategories")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
