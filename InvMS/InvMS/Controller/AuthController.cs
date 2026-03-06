@@ -72,6 +72,17 @@ namespace InvMS.Controller
             return Ok(_apiResponse);
         }
 
+        [HttpPost("refresh")]
+        [AllowAnonymous]
+        public async Task<ActionResult<APIResponse>> RefreshToken([FromBody] RefreshTokenDto dto)
+        {
+            _apiResponse.Data = await _authService.RefreshTokenAsync(dto);
+            _apiResponse.StatusCode = HttpStatusCode.OK;
+            _apiResponse.Status = true;
+
+            return Ok(_apiResponse);
+        }
+
 
     }
 }

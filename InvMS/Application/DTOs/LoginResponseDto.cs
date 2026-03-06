@@ -13,5 +13,7 @@ namespace Application.DTOs
         public string Username { get; set; }
 
         public List<string>? Roles { get; set; }
+
+        public string RefreshToken { get; set; }
     }
 }

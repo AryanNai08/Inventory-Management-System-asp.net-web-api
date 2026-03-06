@@ -15,6 +15,8 @@ public partial class InventoryDbContext : DbContext
     public virtual DbSet<Role> Roles { get; set; }
     public virtual DbSet<Privilege> Privileges { get; set; }
 
+    public virtual DbSet<RefreshToken> RefreshTokens { get; set; }
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<Category>(entity =>
@@ -83,6 +85,20 @@ public partial class InventoryDbContext : DbContext
 
             entity.Property(e => e.Name).HasMaxLength(100);
             entity.Property(e => e.Description).HasMaxLength(200);
+        });
+
+        modelBuilder.Entity<RefreshToken>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK__RefreshT__3214EC07CAB3DFD1");
+
+            entity.Property(e => e.CreatedAt).HasDefaultValueSql("(getutcdate())");
+            entity.Property(e => e.IsRevoked).HasDefaultValue(false);
+            entity.Property(e => e.Token).HasMaxLength(500);
+
+            entity.HasOne(d => d.User).WithMany(p => p.RefreshTokens)
+                .HasForeignKey(d => d.UserId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_RefreshTokens_Users");
         });
     }
 }

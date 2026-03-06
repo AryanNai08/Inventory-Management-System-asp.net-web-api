@@ -19,6 +19,8 @@ namespace Infrastructure
             services.AddScoped<IUserRepository, UserRepository>();
             services.AddScoped<ICategoryRepository, CategoryRepositories>();
             services.AddScoped<IRoleRepository, RoleRepository>();
+            services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
+
 
 
             return services;

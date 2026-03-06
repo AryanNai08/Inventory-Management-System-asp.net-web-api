@@ -10,5 +10,6 @@ namespace Application.Interfaces
         public Task<LoginResponseDto> LoginAsync(LoginDto dto);
 
         public Task<bool> ChangePasswordAsync(int userId, ChangePasswordDto dto);
+        Task<LoginResponseDto> RefreshTokenAsync(RefreshTokenDto dto);
     }
 }
