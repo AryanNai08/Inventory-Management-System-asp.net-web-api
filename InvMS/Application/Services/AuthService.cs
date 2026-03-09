@@ -237,7 +237,34 @@ namespace Application.Services
             return _mapper.Map<UserDto>(user);
         }
 
+        public async Task<bool> SendOtpAsync(ForgotPasswordDto dto)
+        {
+            var user = await _userRepository.GetByUseremailAsync(dto.Email);
+
+            if (user == null)
+                throw new NotFoundException("User not found");
+
+            var otp = new Random().Next(100000, 999999).ToString();
+
+            var cacheKey = $"otp:{dto.Email}";
+
+            _cache.Set(cacheKey, otp, TimeSpan.FromMinutes(2));
+
+            // For now print OTP (replace with email later)
+            //Console.WriteLine($"OTP for {dto.Email}: {otp}");
+
+
+            await _emailService.SendEmailAsync(
+                dto.Email,
+                "Password Reset OTP",
+                $"Your OTP for password reset is: {otp}. It expires in 2 minutes."
+            );
+
+            return true;
+        }
+
         public async Task<bool> ResetPasswordAsync(ResetPasswordDto dto)
+        
         {
             var cacheKey = $"otp:{dto.Email}";
 
@@ -262,30 +289,5 @@ namespace Application.Services
             return true;
         }
 
-        public async Task<bool> SendOtpAsync(ForgotPasswordDto dto)
-        {
-            var user = await _userRepository.GetByUseremailAsync(dto.Email);
-
-            if (user == null)
-                throw new NotFoundException("User not found");
-
-            var otp = new Random().Next(100000, 999999).ToString();
-
-            var cacheKey = $"otp:{dto.Email}";
-
-            _cache.Set(cacheKey, otp, TimeSpan.FromMinutes(5));
-
-            // For now print OTP (replace with email later)
-            //Console.WriteLine($"OTP for {dto.Email}: {otp}");
-
-
-            await _emailService.SendEmailAsync(
-                dto.Email,
-                "Password Reset OTP",
-                $"Your OTP for password reset is: {otp}. It expires in 5 minutes."
-            );
-
-            return true;
-        }
     }
 }
