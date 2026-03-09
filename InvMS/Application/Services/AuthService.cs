@@ -269,7 +269,7 @@ namespace Application.Services
             var cacheKey = $"otp:{dto.Email}";
 
             if (!_cache.TryGetValue(cacheKey, out var cachedOtp))
-                throw new BadRequestException("OTP expired or invalid");
+                throw new BadRequestException("OTP expired or invalid for this email");
 
             if (cachedOtp?.ToString() != dto.Otp)
                 throw new BadRequestException("Invalid OTP");
