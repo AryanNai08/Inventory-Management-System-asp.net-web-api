@@ -46,6 +46,15 @@ namespace Application.Mappings
             CreateMap<UpdateRoleDto, Role>()
                 .ForMember(dest => dest.Id, opt => opt.Ignore())
                 .ForMember(dest => dest.CreatedDate, opt => opt.Ignore());
+
+
+            //Privilege Mapping
+            // Read
+            CreateMap<Privilege, ReadPrivilegeDto>();
+            // Create & Update
+            CreateMap<PrivilegeDto, Privilege>()
+                .ForMember(dest => dest.Id, opt => opt.Ignore());
+
         }
     }
 }

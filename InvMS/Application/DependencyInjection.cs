@@ -20,6 +20,7 @@ namespace Application
             services.AddScoped<IAuthService, AuthService>();
             services.AddScoped<ICategoryService, CategoryService>();
             services.AddScoped<IRoleService, RoleService>();
+            services.AddScoped<IPrivilegeService, PrivilegeService>();
             //register api response
             services.AddScoped<APIResponse>();
 

@@ -75,7 +75,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 
             IssuerSigningKey = new SymmetricSecurityKey(
                 Encoding.UTF8.GetBytes(
-                    builder.Configuration["Jwt:SecretKey"]))
+                    File.ReadAllText(builder.Configuration["Jwt:SecretKey"]).Trim()))
         };
     });
 
@@ -100,6 +100,9 @@ builder.Services.AddAuthorization(options =>
 
     options.AddPolicy("ManageRoles",
         policy => policy.Requirements.Add(new PermissionRequirement("ManageRoles")));
+
+    options.AddPolicy("ManagePrivileges",
+        policy => policy.Requirements.Add(new PermissionRequirement("ManagePrivileges")));
 });
 
 

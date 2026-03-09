@@ -40,7 +40,7 @@ namespace Infrastructure.ThirdPartyServices
                 MailKit.Security.SecureSocketOptions.StartTls
             );
 
-            var readpass = File.ReadAllText(_config["EmailSettings:Password"]);
+            var readpass = File.ReadAllText(_config["EmailSettings:Password"]).Trim();
 
             await smtp.AuthenticateAsync(
                 _config["EmailSettings:SenderEmail"],
