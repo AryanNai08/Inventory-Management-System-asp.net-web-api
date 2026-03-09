@@ -92,9 +92,9 @@ namespace Application.Services
                 claims.Add(new Claim("Permission", privilege));
             }
 
-
+            var readkey = File.ReadAllText(_configuration["Jwt:SecretKey"]);
             var key = new SymmetricSecurityKey(
-                Encoding.UTF8.GetBytes(_configuration["Jwt:SecretKey"]));
+                Encoding.UTF8.GetBytes(readkey));
 
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
