@@ -24,9 +24,7 @@ namespace Application
             services.AddScoped<APIResponse>();
 
             //automapper register
-            services.AddAutoMapper(typeof(UserProfile));
-            services.AddAutoMapper(typeof(CategoryProfile));
-            services.AddAutoMapper(typeof(RoleProfile));
+            services.AddAutoMapper(typeof(MappingProfile));
 
             return services;
         }
