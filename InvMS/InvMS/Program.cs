@@ -103,6 +103,9 @@ builder.Services.AddAuthorization(options =>
 
     options.AddPolicy("ManagePrivileges",
         policy => policy.Requirements.Add(new PermissionRequirement("ManagePrivileges")));
+
+    options.AddPolicy("ManageRoleAndPrivilegeMapping",
+        policy => policy.Requirements.Add(new PermissionRequirement("ManageRoleAndPrivilegeMapping")));
 });
 
 

@@ -55,6 +55,9 @@ namespace Application.Mappings
             CreateMap<PrivilegeDto, Privilege>()
                 .ForMember(dest => dest.Id, opt => opt.Ignore());
 
+            //for roleprivilage
+            CreateMap<Privilege, PrivilegeDto>();
+
         }
     }
 }
