@@ -97,6 +97,9 @@ builder.Services.AddAuthorization(options =>
 
     options.AddPolicy("ManageUsers",
         policy => policy.Requirements.Add(new PermissionRequirement("ManageUsers")));
+
+    options.AddPolicy("ManageRoles",
+        policy => policy.Requirements.Add(new PermissionRequirement("ManageRoles")));
 });
 
 

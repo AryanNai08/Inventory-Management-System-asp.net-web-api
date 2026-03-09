@@ -1,5 +1,4 @@
-﻿using Application.DTOs;
-using Application.Interfaces;
+﻿using Application.Interfaces;
 using AutoMapper;
 using Domain.Entities;
 using Domain.Exceptions;
@@ -11,6 +10,7 @@ using System.Text;
 using Microsoft.Extensions.Caching.Memory;
 using Infrastructure.Repositories;
 using System.Linq;
+using Application.DTOs.Auth;
 
 namespace Application.Services
 {

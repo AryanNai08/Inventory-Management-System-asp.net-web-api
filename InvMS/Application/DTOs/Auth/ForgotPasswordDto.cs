@@ -3,16 +3,12 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Text;
 
-namespace Application.DTOs
+namespace Application.DTOs.Auth
 {
-    public class ResetPasswordDto
+    public class ForgotPasswordDto
     {
         [EmailAddress]
         [Required]
         public string Email { get; set; }
-        [Required]
-        public string Otp {  get; set; }
-        [Required]
-        public string NewPassword { get; set; }
     }
 }

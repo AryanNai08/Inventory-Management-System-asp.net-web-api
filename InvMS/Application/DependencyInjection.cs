@@ -19,12 +19,14 @@ namespace Application
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<IAuthService, AuthService>();
             services.AddScoped<ICategoryService, CategoryService>();
+            services.AddScoped<IRoleService, RoleService>();
             //register api response
             services.AddScoped<APIResponse>();
 
             //automapper register
             services.AddAutoMapper(typeof(UserProfile));
             services.AddAutoMapper(typeof(CategoryProfile));
+            services.AddAutoMapper(typeof(RoleProfile));
 
             return services;
         }

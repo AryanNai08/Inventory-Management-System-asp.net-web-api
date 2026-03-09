@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Text;
 
-namespace Application.DTOs
+namespace Application.DTOs.Auth
 {
     public class LoginResponseDto
     {

@@ -3,11 +3,12 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Text;
 
-namespace Application.DTOs
+namespace Application.DTOs.RolesAndPrivileges
 {
-    public class CreateCategoryDto
+    public class RoleDto
     {
-        [Required]
+
+        public int Id { get; set; }
         public string Name { get; set; }
         public string Description { get; set; }
     }

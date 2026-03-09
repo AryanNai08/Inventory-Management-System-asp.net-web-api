@@ -1,4 +1,5 @@
-﻿using Application.DTOs;
+﻿using Application.DTOs.Auth;
+using Application.DTOs.Category;
 using AutoMapper;
 using Domain.Entities;
 using System;

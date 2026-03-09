@@ -3,13 +3,13 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Text;
 
-namespace Application.DTOs
+namespace Application.DTOs.Auth
 {
-    public class ChangePasswordDto
+    public class LoginDto
     {
         [Required]
-        public string CurrentPassword { get; set; }
+        public string Username { get; set; }
         [Required]
-        public string NewPassword { get; set; }
+        public string Password { get; set; }
     }
 }

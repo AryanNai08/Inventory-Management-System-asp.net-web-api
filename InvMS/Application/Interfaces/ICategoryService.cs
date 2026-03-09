@@ -1,4 +1,5 @@
-﻿using Application.DTOs;
+﻿using Application.DTOs.Auth;
+using Application.DTOs.Category;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
