@@ -1,4 +1,5 @@
 ﻿using Application.Interfaces;
+using Application.Services;
 using Infrastructure.Data;
 using Infrastructure.Repositories;
 using Infrastructure.ThirdPartyServices;
@@ -23,6 +24,7 @@ namespace Infrastructure
             services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
             services.AddScoped<IPrivilegeRepository, PrivilegeRepository>();
             services.AddScoped<IRolePrivilegeRepository, RolePrivilegeRepository>();
+            services.AddScoped<ISupplierRepository, SupplierRepository>();
             services.AddScoped<IEmailService,EmailService>();
             
 

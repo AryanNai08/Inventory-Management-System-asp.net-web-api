@@ -1,6 +1,7 @@
 using Application.DTOs.Auth;
 using Application.DTOs.Category;
 using Application.DTOs.RolesAndPrivileges;
+using Application.DTOs.Supplier;
 using AutoMapper;
 using Domain.Entities;
 
@@ -57,6 +58,20 @@ namespace Application.Mappings
 
             //for roleprivilage
             CreateMap<Privilege, PrivilegeDto>();
+
+            //Supplier
+            CreateMap<Supplier, SupplierDto>();
+            CreateMap<CreateSupplierDto, Supplier>()
+                .ForMember(dest => dest.Id, opt => opt.Ignore())
+                .ForMember(dest => dest.IsDeleted, opt => opt.Ignore())
+                .ForMember(dest => dest.CreatedDate, opt => opt.Ignore())
+                .ForMember(dest => dest.ModifiedDate, opt => opt.Ignore());
+            CreateMap<UpdateSupplierDto, Supplier>()
+                .ForMember(dest => dest.Id, opt => opt.Ignore())
+                .ForMember(dest => dest.IsDeleted, opt => opt.Ignore())
+                .ForMember(dest => dest.CreatedDate, opt => opt.Ignore())
+                .ForMember(dest => dest.ModifiedDate, opt => opt.Ignore());
+
 
         }
     }
