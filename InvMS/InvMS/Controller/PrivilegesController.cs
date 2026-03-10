@@ -16,10 +16,10 @@ namespace InvMS.Controller
         private readonly IPrivilegeService _privilegeService;
         private APIResponse _apiResponse;
 
-        public PrivilegesController(IPrivilegeService privilegeService)
+        public PrivilegesController(IPrivilegeService privilegeService, APIResponse apiResponse)
         {
             _privilegeService = privilegeService;
-            _apiResponse = new();
+            _apiResponse = apiResponse;
         }
 
         [HttpGet("all")]
@@ -69,7 +69,7 @@ namespace InvMS.Controller
 
             await _privilegeService.CreatePrivilegeAsync(privilegeDto);
 
-            _apiResponse.Data = "Successfull";
+            _apiResponse.Data = "Successful";
             _apiResponse.Status = true;
             _apiResponse.StatusCode = HttpStatusCode.OK;
             return Ok(_apiResponse);
@@ -87,7 +87,7 @@ namespace InvMS.Controller
 
             await _privilegeService.UpdatePrivilegeAsync(id, privilegeDto);
 
-            _apiResponse.Data = "Successfull";
+            _apiResponse.Data = "Successful";
             _apiResponse.Status = true;
             _apiResponse.StatusCode = HttpStatusCode.OK;
             return Ok(_apiResponse);

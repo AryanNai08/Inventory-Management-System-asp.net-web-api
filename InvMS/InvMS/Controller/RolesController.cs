@@ -51,7 +51,7 @@ namespace InvMS.Controller
 
             await _roleService.CreateRoleAsync(roleDto);
 
-            _apiResponse.Data = "Successfull";
+            _apiResponse.Data = "Successful";
             _apiResponse.Status = true;
             _apiResponse.StatusCode = HttpStatusCode.OK;
             return Ok(_apiResponse);
@@ -69,7 +69,7 @@ namespace InvMS.Controller
 
             await _roleService.UpdateRoleAsync(id, roleDto);
 
-            _apiResponse.Data = "Successfull";
+            _apiResponse.Data = "Successful";
             _apiResponse.Status = true;
             _apiResponse.StatusCode = HttpStatusCode.OK;
             return Ok(_apiResponse);

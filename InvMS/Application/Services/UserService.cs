@@ -52,6 +52,9 @@ namespace Application.Services
             {
                 throw new BadRequestException("Id must be greater than 0");
             }
+            var userexist = await _userRepository.GetByIdAsync(id);
+            if (userexist == null)
+                throw new BadRequestException($"User with id:{id} not found");
 
             await _userRepository.SoftDeleteAsync(id);
 
@@ -75,7 +78,7 @@ namespace Application.Services
 
             //without any returntype
             _mapper.Map(dto, user);
-            user.ModifiedDate=DateTime.Now;
+            user.ModifiedDate=DateTime.UtcNow;
 
             await _userRepository.UpdateAsync(user);
             return true;

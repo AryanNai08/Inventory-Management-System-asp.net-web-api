@@ -9,11 +9,11 @@ using System.Text;
 
 namespace Infrastructure.Repositories
 {
-    public class CategoryRepositories : ICategoryRepository
+    public class CategoryRepository : ICategoryRepository
     {
         private readonly InventoryDbContext _dbContext;
 
-        public CategoryRepositories(InventoryDbContext dbContext) 
+        public CategoryRepository(InventoryDbContext dbContext) 
         {
             _dbContext = dbContext;
         }
@@ -46,7 +46,7 @@ namespace Infrastructure.Repositories
             if (category == null)
                 throw new NotFoundException($"Category with id:{id} not found");
             category.IsDeleted=true;
-            category.ModifiedDate= DateTime.Now;
+            category.ModifiedDate= DateTime.UtcNow;
             await _dbContext.SaveChangesAsync();
         }
 

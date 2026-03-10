@@ -222,14 +222,15 @@ namespace Application.Services
             if (useremail != null)
                 throw new BadRequestException("Email already taken");
 
+
             if (dto.RoleId < 0)
                 throw new BadRequestException("Role id cannot be negative");
 
-            Role role;
+            
 
             int roleId = dto.RoleId == 0 ? 6 : dto.RoleId;
 
-            role = await _roleRepository.GetByIdAsync(roleId);
+             var role = await _roleRepository.GetByIdAsync(roleId);
 
             if (role == null)
                 throw new NotFoundException("Role not found");

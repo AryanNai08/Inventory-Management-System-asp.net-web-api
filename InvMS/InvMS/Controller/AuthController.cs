@@ -35,7 +35,8 @@ namespace InvMS.Controller
             _apiResponse.StatusCode = HttpStatusCode.Created;
             _apiResponse.Status = true;
 
-            return CreatedAtRoute("GetUserById", new { id = ((UserDto)_apiResponse.Data).Id }, _apiResponse);
+            var result = (UserDto)_apiResponse.Data;
+            return CreatedAtRoute("GetUserById", new { id = result.Id }, _apiResponse);
         }
 
         [HttpPost]

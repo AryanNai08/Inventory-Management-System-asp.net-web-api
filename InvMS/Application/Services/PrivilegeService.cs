@@ -56,8 +56,11 @@ namespace Application.Services
             var privilege = await _privilegeRepository.GetPrivilegeByIdAsync(id);
             if (privilege == null) throw new NotFoundException("Privilege not found");
 
-            if (await _privilegeRepository.PrivilegeExistsAsync(dto.Name))
-                throw new BadRequestException("Privilege name already exists!");
+            if (!string.Equals(privilege.Name, dto.Name, StringComparison.OrdinalIgnoreCase))
+            {
+                if (await _privilegeRepository.PrivilegeExistsAsync(dto.Name))
+                    throw new BadRequestException("Privilege name already exists!");
+            }
 
             
             _mapper.Map(dto, privilege);

@@ -70,7 +70,7 @@ namespace InvMS.Controller
             _apiResponse.StatusCode = HttpStatusCode.Created;
             _apiResponse.Status = true;
 
-            return CreatedAtRoute("GetCategoryById", new { id = ((CategoryDto)_apiResponse.Data).Id }, dto);
+            return CreatedAtRoute("GetCategoryById", new { id = ((CategoryDto)_apiResponse.Data).Id }, _apiResponse);
         }
 
         [HttpPut]

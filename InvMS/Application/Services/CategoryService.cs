@@ -31,7 +31,7 @@ namespace Application.Services
             }
 
             var newcategory = _mapper.Map<Category>(dto);
-            newcategory.CreatedDate=DateTime.Now;
+            newcategory.CreatedDate=DateTime.UtcNow;
             await _categoryRepository.AddAsync(newcategory);
             return _mapper.Map<CategoryDto>(newcategory);
         }
@@ -97,8 +97,17 @@ namespace Application.Services
                 throw new NotFoundException($"Category with id:{id} not found");
             }
 
-            _mapper.Map(dto,category);
-            category.ModifiedDate= DateTime.Now;
+            if (!string.Equals(category.Name, dto.Name, StringComparison.OrdinalIgnoreCase))
+            {
+                var existingCategory = await _categoryRepository.GetByNameAsync(dto.Name);
+                if (existingCategory != null)
+                {
+                    throw new BadRequestException("Category name already exists");
+                }
+            }
+
+            _mapper.Map(dto, category);
+            category.ModifiedDate = DateTime.UtcNow;
 
             await _categoryRepository.UpdateAsync(category);
             return true;
