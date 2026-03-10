@@ -80,33 +80,9 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     });
 
 
-//policys
-builder.Services.AddAuthorization(options =>
-{
-    options.AddPolicy("ViewCategories",
-        policy => policy.Requirements.Add(new PermissionRequirement("ViewCategories")));
-
-    options.AddPolicy("CreateCategory",
-        policy => policy.Requirements.Add(new PermissionRequirement("CreateCategory")));
-
-    options.AddPolicy("UpdateCategory",
-        policy => policy.Requirements.Add(new PermissionRequirement("UpdateCategory")));
-
-    options.AddPolicy("DeleteCategory",
-        policy => policy.Requirements.Add(new PermissionRequirement("DeleteCategory")));
-
-    options.AddPolicy("ManageUsers",
-        policy => policy.Requirements.Add(new PermissionRequirement("ManageUsers")));
-
-    options.AddPolicy("ManageRoles",
-        policy => policy.Requirements.Add(new PermissionRequirement("ManageRoles")));
-
-    options.AddPolicy("ManagePrivileges",
-        policy => policy.Requirements.Add(new PermissionRequirement("ManagePrivileges")));
-
-    options.AddPolicy("ManageRoleAndPrivilegeMapping",
-        policy => policy.Requirements.Add(new PermissionRequirement("ManageRoleAndPrivilegeMapping")));
-});
+// Authorization
+builder.Services.AddAuthorization();
+builder.Services.AddSingleton<IAuthorizationPolicyProvider, DynamicPermissionPolicyProvider>();
 
 
 
