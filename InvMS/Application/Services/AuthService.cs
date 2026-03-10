@@ -222,17 +222,28 @@ namespace Application.Services
             if (useremail != null)
                 throw new BadRequestException("Email already taken");
 
+            if (dto.RoleId < 0)
+                throw new BadRequestException("Role id cannot be negative");
+
+            Role role;
+
+            int roleId = dto.RoleId == 0 ? 6 : dto.RoleId;
+
+            role = await _roleRepository.GetByIdAsync(roleId);
+
+            if (role == null)
+                throw new NotFoundException("Role not found");
+
             var user = _mapper.Map<User>(dto);
 
             user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(dto.Password);
             user.CreatedDate = DateTime.UtcNow;
             user.IsDeleted = false;
 
-            await _userRepository.AddAsync(user);
-
-            var role = await _roleRepository.GetByIdAsync(dto.RoleId);
             user.Roles.Add(role);
-            await _userRepository.UpdateAsync(user);
+
+            // Insert only after all validations succeed
+            await _userRepository.AddAsync(user);
 
             return _mapper.Map<UserDto>(user);
         }
