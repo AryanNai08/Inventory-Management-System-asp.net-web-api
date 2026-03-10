@@ -71,11 +71,11 @@ namespace Application.Services
                 throw new UnauthorizedException("Invalid username or password");
 
             var claims = new List<Claim>
-    {
-        new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
-        new Claim(ClaimTypes.Name, user.Username),
-        new Claim(ClaimTypes.Email, user.Email)
-    };
+            {
+                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+                new Claim(ClaimTypes.Name, user.Username),
+                new Claim(ClaimTypes.Email, user.Email)
+            };
 
             foreach (var role in user.Roles)
             {
@@ -110,15 +110,28 @@ namespace Application.Services
             var token = new JwtSecurityTokenHandler().WriteToken(tokenDescriptor);
 
             var refreshTokenVal = GenerateRefreshToken();
-            var refreshTokenEntity = new RefreshToken
+            var existingRefreshToken = await _refreshTokenRepository.GetByUserIdAsync(user.Id);
+
+            if (existingRefreshToken != null)
             {
-                Token = refreshTokenVal,
-                UserId = user.Id,
-                ExpiresAt = DateTime.UtcNow.AddMinutes(30),
-                IsRevoked = false,
-                CreatedAt = DateTime.UtcNow
-            };
-            await _refreshTokenRepository.AddAsync(refreshTokenEntity);
+                existingRefreshToken.Token = refreshTokenVal;
+                existingRefreshToken.ExpiresAt = DateTime.UtcNow.AddMinutes(30);
+                existingRefreshToken.IsRevoked = false;
+                existingRefreshToken.CreatedAt = DateTime.UtcNow;
+                await _refreshTokenRepository.UpdateAsync(existingRefreshToken);
+            }
+            else
+            {
+                var refreshTokenEntity = new RefreshToken
+                {
+                    Token = refreshTokenVal,
+                    UserId = user.Id,
+                    ExpiresAt = DateTime.UtcNow.AddMinutes(30),
+                    IsRevoked = false,
+                    CreatedAt = DateTime.UtcNow
+                };
+                await _refreshTokenRepository.AddAsync(refreshTokenEntity);
+            }
 
             return new LoginResponseDto
             {
@@ -145,25 +158,17 @@ namespace Application.Services
                 throw new UnauthorizedException("Invalid or expired refresh token");
 
             var user = await _userRepository.GetByIdAsync(storedToken.UserId);
-            if (user == null)
-                throw new UnauthorizedException("User not found");
-
-            storedToken.IsRevoked = true;
-            await _refreshTokenRepository.UpdateAsync(storedToken);
-
             var claims = new List<Claim>
-{
-    new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
-    new Claim(ClaimTypes.Name, user.Username),
-    new Claim(ClaimTypes.Email, user.Email)
-};
+            {
+                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+                new Claim(ClaimTypes.Name, user.Username),
+                new Claim(ClaimTypes.Email, user.Email)
+            };
 
             foreach (var role in user.Roles)
             {
                 claims.Add(new Claim(ClaimTypes.Role, role.Name));
             }
-
-            /* ADDED PRIVILEGES HERE */
 
             var privileges = user.Roles
                 .SelectMany(r => r.Privileges)
@@ -174,33 +179,29 @@ namespace Application.Services
             {
                 claims.Add(new Claim("Permission", privilege));
             }
-            var readkey = File.ReadAllText(_configuration["Jwt:SecretKey"]).Trim();
-            var key = new SymmetricSecurityKey(
-                Encoding.UTF8.GetBytes(readkey));
 
+            var readkey = File.ReadAllText(_configuration["Jwt:SecretKey"]).Trim();
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(readkey));
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
             var tokenDescriptor = new JwtSecurityToken(
                 issuer: _configuration["Jwt:Issuer"],
                 audience: _configuration["Jwt:Audience"],
                 claims: claims,
-                expires: DateTime.UtcNow.AddMinutes(
-                    Convert.ToDouble(_configuration["Jwt:ExpiryInMinutes"])),
+                expires: DateTime.UtcNow.AddMinutes(Convert.ToDouble(_configuration["Jwt:ExpiryInMinutes"])),
                 signingCredentials: creds
             );
 
             var token = new JwtSecurityTokenHandler().WriteToken(tokenDescriptor);
 
             var newRefreshTokenVal = GenerateRefreshToken();
-            var newRefreshTokenEntity = new RefreshToken
-            {
-                Token = newRefreshTokenVal,
-                UserId = user.Id,
-                ExpiresAt = DateTime.UtcNow.AddMinutes(30),
-                IsRevoked = false,
-                CreatedAt = DateTime.UtcNow
-            };
-            await _refreshTokenRepository.AddAsync(newRefreshTokenEntity);
+            
+            storedToken.Token = newRefreshTokenVal;
+            storedToken.ExpiresAt = DateTime.UtcNow.AddMinutes(30);
+            storedToken.IsRevoked = false;
+            storedToken.CreatedAt = DateTime.UtcNow;
+
+            await _refreshTokenRepository.UpdateAsync(storedToken);
 
             return new LoginResponseDto
             {

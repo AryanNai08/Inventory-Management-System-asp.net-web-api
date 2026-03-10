@@ -22,11 +22,24 @@ namespace Infrastructure.Repositories
             await _dbContext.SaveChangesAsync();
         }
 
-        public async Task<RefreshToken> GetByTokenAsync(string token)
+        public async Task<bool> TokenIdExist(int id)
+        {
+            return await _dbContext.RefreshTokens.AnyAsync(s => s.Id == id);
+        }
+
+        public async Task<RefreshToken?> GetByIdAsync(int id)
+        {
+            return await _dbContext.RefreshTokens.FindAsync(id);
+        }
+
+        public async Task<RefreshToken?> GetByUserIdAsync(int userId)
+        {
+            return await _dbContext.RefreshTokens.FirstOrDefaultAsync(t => t.UserId == userId);
+        }
+
+        public async Task<RefreshToken?> GetByTokenAsync(string token)
         {
             return await _dbContext.RefreshTokens.FirstOrDefaultAsync(t => t.Token == token && (t.IsRevoked ?? false) == false);
-
-          
         }
 
         public async Task UpdateAsync(RefreshToken token)

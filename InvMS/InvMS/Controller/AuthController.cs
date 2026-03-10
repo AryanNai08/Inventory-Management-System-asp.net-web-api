@@ -23,7 +23,8 @@ namespace InvMS.Controller
         }
         [HttpPost]
         [Route("register")]
-        [Authorize(Roles ="Admin")]
+        //[Authorize(Roles ="Admin")]
+        [Authorize(Policy ="ManageUserRegistration")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -48,7 +49,24 @@ namespace InvMS.Controller
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<APIResponse>> LoginUser([FromBody] LoginDto dto)
         {
-            _apiResponse.Data =await _authService.LoginAsync(dto);
+            var response= await _authService.LoginAsync(dto);
+
+            Response.Cookies.Append("accesstoken", response.Token, new CookieOptions
+            {
+                HttpOnly = true,
+                Secure = true,
+                SameSite = SameSiteMode.Strict,
+                Expires = DateTime.UtcNow.AddMinutes(15)
+            });
+            Response.Cookies.Append("refreshtoken", response.RefreshToken, new CookieOptions
+            {
+                HttpOnly = true,
+                Secure = true,
+                SameSite = SameSiteMode.Strict,
+                Expires = DateTime.UtcNow.AddDays(7)
+            });
+
+            _apiResponse.Data = response;
             _apiResponse.StatusCode=HttpStatusCode.OK;
             _apiResponse.Status=true;
 
@@ -77,7 +95,24 @@ namespace InvMS.Controller
         [AllowAnonymous]
         public async Task<ActionResult<APIResponse>> RefreshToken([FromBody] RefreshTokenDto dto)
         {
-            _apiResponse.Data = await _authService.RefreshTokenAsync(dto);
+            var response = await _authService.RefreshTokenAsync(dto);
+
+            Response.Cookies.Append("accesstoken", response.Token, new CookieOptions
+            {
+                HttpOnly = true,
+                Secure = true,
+                SameSite = SameSiteMode.Strict,
+                Expires = DateTime.UtcNow.AddMinutes(1)
+            });
+            Response.Cookies.Append("refreshtoken", response.RefreshToken, new CookieOptions
+            {
+                HttpOnly = true,
+                Secure = true,
+                SameSite = SameSiteMode.Strict,
+                Expires = DateTime.UtcNow.AddDays(7)
+            });
+
+            _apiResponse.Data = response;
             _apiResponse.StatusCode = HttpStatusCode.OK;
             _apiResponse.Status = true;
 
