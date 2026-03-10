@@ -15,6 +15,6 @@ public partial class Role
 
     public virtual ICollection<Privilege> Privileges { get; set; } = new List<Privilege>();
 
-    public bool IsDeleted { get; set; } = false;
+   
     public virtual ICollection<User> Users { get; set; } = new List<User>();
 }

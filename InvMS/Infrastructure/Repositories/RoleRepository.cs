@@ -32,18 +32,18 @@ namespace Infrastructure.Repositories
        
         public async Task<List<Role>> GetAllRolesAsync()
         {
-            return await _dbContext.Roles.Where(r => !r.IsDeleted).ToListAsync();
-            
+            return await _dbContext.Roles.ToListAsync();
+
         }
 
         public async Task<Role> GetByIdAsync(int id)
         {
-            return await _dbContext.Roles.FirstOrDefaultAsync(r => r.Id == id && !r.IsDeleted);
+            return await _dbContext.Roles.FindAsync(id);
         }
 
         public async Task<Role?> GetRoleByNameAsync(string roleName)
         {
-            return await _dbContext.Roles.FirstOrDefaultAsync(r=>r.Name==roleName && !r.IsDeleted);
+            return await _dbContext.Roles.FirstOrDefaultAsync(r => r.Name == roleName);
         }
 
         
@@ -56,7 +56,7 @@ namespace Infrastructure.Repositories
 
         public async Task DeleteRoleAsync(Role role)
         {
-            role.IsDeleted = true;
+            _dbContext.Roles.Remove(role);
             _dbContext.Roles.Update(role);
             await _dbContext.SaveChangesAsync();
         }
