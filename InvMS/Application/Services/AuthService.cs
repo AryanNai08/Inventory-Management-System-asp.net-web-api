@@ -1,4 +1,3 @@
-﻿using Application.Interfaces;
 using AutoMapper;
 using Domain.Entities;
 using Domain.Exceptions;
@@ -8,9 +7,9 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using Microsoft.Extensions.Caching.Memory;
-using Infrastructure.Repositories;
 using System.Linq;
 using Application.DTOs.Auth;
+using Application.Interfaces;
 
 namespace Application.Services
 {

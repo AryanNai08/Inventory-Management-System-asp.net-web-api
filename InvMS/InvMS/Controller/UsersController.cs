@@ -1,4 +1,4 @@
-﻿using Application.Common;
+using Application.Common;
 using Application.DTOs.Auth;
 using Application.Interfaces;
 using Microsoft.AspNetCore.Authorization;

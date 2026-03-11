@@ -21,6 +21,8 @@ public partial class InventoryDbContext : DbContext
 
     public virtual DbSet<Supplier> Suppliers { get; set; }
 
+    public virtual DbSet<Warehouse> Warehouses { get; set; }
+
 
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -131,6 +133,18 @@ public partial class InventoryDbContext : DbContext
             entity.Property(e => e.Email).HasMaxLength(100);
             entity.Property(e => e.Name).HasMaxLength(100);
             entity.Property(e => e.Phone).HasMaxLength(20);
+        });
+
+        modelBuilder.Entity<Warehouse>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK__Warehous__3214EC0701DB87F5");
+
+            entity.HasIndex(e => e.Name, "UQ__Warehous__737584F62A1917AB").IsUnique();
+
+            entity.Property(e => e.CreatedDate).HasDefaultValueSql("(getutcdate())");
+            entity.Property(e => e.Description).HasMaxLength(500);
+            entity.Property(e => e.Location).HasMaxLength(200);
+            entity.Property(e => e.Name).HasMaxLength(100);
         });
     }
 }

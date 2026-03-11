@@ -1,4 +1,4 @@
-﻿using Application.DTOs.RolesAndPrivileges;
+using Application.DTOs.RolesAndPrivileges;
 using Application.Interfaces;
 using AutoMapper;
 using Domain.Exceptions;

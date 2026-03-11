@@ -1,4 +1,4 @@
-﻿using Application.Common;
+using Application.Common;
 using Application.Interfaces;
 using Application.Mappings;
 using Application.Services;

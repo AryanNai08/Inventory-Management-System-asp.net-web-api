@@ -1,9 +1,9 @@
-﻿using Domain.Entities;
+using Domain.Entities;
 using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace Infrastructure.Repositories
+namespace Application.Interfaces
 {
     public interface IRefreshTokenRepository
     {

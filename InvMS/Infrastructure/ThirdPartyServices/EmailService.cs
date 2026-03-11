@@ -1,7 +1,7 @@
-﻿using Application.Interfaces;
 using MailKit.Net.Smtp;
 using MimeKit;
 using Microsoft.Extensions.Configuration;
+using Application.Interfaces;
 
 namespace Infrastructure.ThirdPartyServices
 {
