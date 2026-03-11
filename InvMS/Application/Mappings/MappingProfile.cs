@@ -1,5 +1,6 @@
 using Application.DTOs.Auth;
 using Application.DTOs.Category;
+using Application.DTOs.Customer;
 using Application.DTOs.RolesAndPrivileges;
 using Application.DTOs.Supplier;
 using AutoMapper;
@@ -60,13 +61,32 @@ namespace Application.Mappings
             CreateMap<Privilege, PrivilegeDto>();
 
             //Supplier
+            //read
             CreateMap<Supplier, SupplierDto>();
+            //create
             CreateMap<CreateSupplierDto, Supplier>()
+            .ForMember(dest => dest.Id, opt => opt.Ignore())
+            .ForMember(dest => dest.IsDeleted, opt => opt.Ignore())
+            .ForMember(dest => dest.CreatedDate, opt => opt.Ignore())
+            .ForMember(dest => dest.ModifiedDate, opt => opt.Ignore());
+            //update
+            CreateMap<UpdateSupplierDto, Supplier>()
                 .ForMember(dest => dest.Id, opt => opt.Ignore())
                 .ForMember(dest => dest.IsDeleted, opt => opt.Ignore())
                 .ForMember(dest => dest.CreatedDate, opt => opt.Ignore())
                 .ForMember(dest => dest.ModifiedDate, opt => opt.Ignore());
-            CreateMap<UpdateSupplierDto, Supplier>()
+
+            //customer
+            //read
+            CreateMap<Customer, CustomerDto>();
+            //create
+            CreateMap<CreateCustomerDto, Customer>()
+                .ForMember(dest => dest.Id, opt => opt.Ignore())
+                .ForMember(dest => dest.IsDeleted, opt => opt.Ignore())
+                .ForMember(dest => dest.CreatedDate, opt => opt.Ignore())
+                .ForMember(dest => dest.ModifiedDate, opt => opt.Ignore());
+            //update
+            CreateMap<UpdateCustomerDto, Customer>()
                 .ForMember(dest => dest.Id, opt => opt.Ignore())
                 .ForMember(dest => dest.IsDeleted, opt => opt.Ignore())
                 .ForMember(dest => dest.CreatedDate, opt => opt.Ignore())

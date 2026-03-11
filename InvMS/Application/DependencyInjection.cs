@@ -23,6 +23,7 @@ namespace Application
             services.AddScoped<IPrivilegeService, PrivilegeService>();
             services.AddScoped<IRolePrivilegeService, RolePrivilegeService>();
             services.AddScoped<ISupplierService, SupplierService>();
+            services.AddScoped<ICustomerService, CustomerService>();
             //register api response
             services.AddScoped<APIResponse>();
 

@@ -25,6 +25,7 @@ namespace Infrastructure
             services.AddScoped<IPrivilegeRepository, PrivilegeRepository>();
             services.AddScoped<IRolePrivilegeRepository, RolePrivilegeRepository>();
             services.AddScoped<ISupplierRepository, SupplierRepository>();
+            services.AddScoped<ICustomerRepository, CustomerRepository>();
             services.AddScoped<IEmailService,EmailService>();
             
 
