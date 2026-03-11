@@ -3,6 +3,7 @@ using Application.DTOs.Category;
 using Application.DTOs.Customer;
 using Application.DTOs.RolesAndPrivileges;
 using Application.DTOs.Supplier;
+using Application.DTOs.Warehouse;
 using AutoMapper;
 using Domain.Entities;
 
@@ -92,6 +93,22 @@ namespace Application.Mappings
                 .ForMember(dest => dest.CreatedDate, opt => opt.Ignore())
                 .ForMember(dest => dest.ModifiedDate, opt => opt.Ignore());
 
+
+            //Warehouse
+            //read
+            CreateMap<Warehouse, WarehouseDto>();
+            //create
+            CreateMap<CreateWarehouseDto, Warehouse>()
+                .ForMember(dest => dest.Id, opt => opt.Ignore())
+                .ForMember(dest => dest.IsDeleted, opt => opt.Ignore())
+                .ForMember(dest => dest.CreatedDate, opt => opt.Ignore())
+                .ForMember(dest => dest.ModifiedDate, opt => opt.Ignore());
+            //update
+            CreateMap<UpdateWarehouseDto, Warehouse>()
+                .ForMember(dest => dest.Id, opt => opt.Ignore())
+                .ForMember(dest => dest.IsDeleted, opt => opt.Ignore())
+                .ForMember(dest => dest.CreatedDate, opt => opt.Ignore())
+                .ForMember(dest => dest.ModifiedDate, opt => opt.Ignore());
 
         }
     }
