@@ -58,9 +58,6 @@ namespace Infrastructure.Repositories
             var user = await _dbContext.Users.Include(u => u.Roles)
                 .FirstOrDefaultAsync(u => u.Id == id && !u.IsDeleted);
 
-            if (user == null)
-                throw new NotFoundException($"User with id:{id} not found");
-
             user.IsDeleted = true;
             user.ModifiedDate = DateTime.UtcNow;
 

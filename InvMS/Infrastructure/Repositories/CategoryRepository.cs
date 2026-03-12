@@ -43,8 +43,6 @@ namespace Infrastructure.Repositories
         public async Task SoftDeleteAsync(int id)
         {
             var category= await _dbContext.Categories.Where(c => c.Id == id && !c.IsDeleted).FirstOrDefaultAsync();
-            if (category == null)
-                throw new NotFoundException($"Category with id:{id} not found");
             category.IsDeleted=true;
             category.ModifiedDate= DateTime.UtcNow;
             await _dbContext.SaveChangesAsync();

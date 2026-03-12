@@ -43,8 +43,6 @@ namespace Infrastructure.Repositories
         public async Task SoftDeleteAsync(int id)
         {
             var customer = await _dbContext.Customers.Where(c => c.Id == id && !c.IsDeleted).FirstOrDefaultAsync();
-            if (customer == null)
-                throw new NotFoundException($"Customer with id:{id} not found");
             customer.IsDeleted = true;
             customer.ModifiedDate = DateTime.UtcNow;
             await _dbContext.SaveChangesAsync();

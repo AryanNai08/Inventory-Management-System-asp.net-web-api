@@ -43,8 +43,6 @@ namespace Infrastructure.Repositories
         public async Task SoftDeleteAsync(int id)
         {
             var warehouse = await _dbContext.Warehouses.Where(c => c.Id == id && !c.IsDeleted).FirstOrDefaultAsync();
-            if (warehouse == null)
-                throw new NotFoundException($"warehouse with id:{id} not found");
             warehouse.IsDeleted = true;
             warehouse.ModifiedDate = DateTime.UtcNow;
             await _dbContext.SaveChangesAsync();

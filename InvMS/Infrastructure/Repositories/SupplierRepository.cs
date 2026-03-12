@@ -43,8 +43,6 @@ namespace Infrastructure.Repositories
         public async Task SoftDeleteAsync(int id)
         {
             var supplier = await _dbContext.Suppliers.Where(c => c.Id == id && !c.IsDeleted).FirstOrDefaultAsync();
-            if (supplier == null)
-                throw new NotFoundException($"Supplier with id:{id} not found");
             supplier.IsDeleted = true;
             supplier.ModifiedDate = DateTime.UtcNow;
             await _dbContext.SaveChangesAsync();
