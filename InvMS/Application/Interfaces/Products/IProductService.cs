@@ -1,10 +1,9 @@
 ﻿using Application.DTOs.Product;
-using Application.DTOs.Warehouse;
 using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace Application.Interfaces.Products
+namespace Application.Interfaces
 {
     public interface IProductService
     {

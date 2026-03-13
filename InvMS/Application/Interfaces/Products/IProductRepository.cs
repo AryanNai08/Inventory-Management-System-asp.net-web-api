@@ -9,5 +9,8 @@ namespace Application.Interfaces
         Task<List<Product>> GetAllAsync();
         Task<Product> GetByIdAsync(int id);
         Task<Product> GetBySkuAsync(string sku);
+        Task AddAsync(Product product);
+        Task UpdateAsync(Product product);
+        Task SoftDeleteAsync(int id);
     }
 }

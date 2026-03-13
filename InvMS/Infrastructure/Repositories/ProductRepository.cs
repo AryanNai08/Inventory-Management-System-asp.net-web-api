@@ -2,10 +2,7 @@
 using Domain.Entities;
 using Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
-using MimeKit.Encodings;
-using System;
-using System.Collections.Generic;
-using System.Text;
+
 
 namespace Infrastructure.Repositories
 {
@@ -16,7 +13,13 @@ namespace Infrastructure.Repositories
         {
             _dbContext= dbContext;
         }
-       
+
+        public async Task AddAsync(Product product)
+        {
+            await _dbContext.Products.AddAsync(product);
+            await _dbContext.SaveChangesAsync();
+        }
+
         public async Task<List<Product>> GetAllAsync()
         {
             return await _dbContext.Products
@@ -45,7 +48,19 @@ namespace Infrastructure.Repositories
                 .FirstOrDefaultAsync();
         }
 
+        public async Task SoftDeleteAsync(int id)
+        {
+            
+            var product = await _dbContext.Products.Where(c => c.Id == id && !c.IsDeleted).FirstOrDefaultAsync();
+            product.IsDeleted = true;
+            product.ModifiedDate = DateTime.UtcNow;
+            await _dbContext.SaveChangesAsync();
+        }
 
-
+        public async Task UpdateAsync(Product product)
+        {
+            _dbContext.Products.Update(product);
+            await _dbContext.SaveChangesAsync();
+        }
     }
 }
