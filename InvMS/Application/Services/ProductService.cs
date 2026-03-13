@@ -28,7 +28,7 @@ namespace Application.Services
             var newproduct = _mapper.Map<Product>(dto);
             newproduct.CreatedDate = DateTime.UtcNow;
             await _productRepository.AddAsync(newproduct);
-
+                
             // Reload with navigation properties so CategoryName, SupplierName, WarehouseName are populated
             var createdProduct = await _productRepository.GetByIdAsync(newproduct.Id);
             return _mapper.Map<ProductDto>(createdProduct);
