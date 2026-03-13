@@ -1,4 +1,4 @@
-﻿using Application.Interfaces;
+using Application.Interfaces;
 using Domain.Entities;
 using Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
@@ -61,6 +61,21 @@ namespace Infrastructure.Repositories
         {
             _dbContext.Products.Update(product);
             await _dbContext.SaveChangesAsync();
+        }
+
+        public async Task<bool> ExistsByCategoryIdAsync(int categoryId)
+        {
+            return await _dbContext.Products.AnyAsync(p => p.CategoryId == categoryId && !p.IsDeleted);
+        }
+
+        public async Task<bool> ExistsBySupplierIdAsync(int supplierId)
+        {
+            return await _dbContext.Products.AnyAsync(p => p.SupplierId == supplierId && !p.IsDeleted);
+        }
+
+        public async Task<bool> ExistsByWarehouseIdAsync(int warehouseId)
+        {
+            return await _dbContext.Products.AnyAsync(p => p.WarehouseId == warehouseId && !p.IsDeleted);
         }
     }
 }

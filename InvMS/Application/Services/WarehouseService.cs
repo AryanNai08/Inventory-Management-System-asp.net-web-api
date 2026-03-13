@@ -1,4 +1,4 @@
-﻿using Application.DTOs.Warehouse;
+using Application.DTOs.Warehouse;
 using Application.Interfaces;
 using AutoMapper;
 using Domain.Entities;
@@ -12,10 +12,12 @@ namespace Application.Services
     public class WarehouseService : IWarehouseService
     {
         private readonly IWarehouseRepository _warehouseRepository;
+        private readonly IProductRepository _productRepository;
         private readonly IMapper _mapper;
-        public WarehouseService(IWarehouseRepository warehouseRepository, IMapper mapper)
+        public WarehouseService(IWarehouseRepository warehouseRepository, IProductRepository productRepository, IMapper mapper)
         {
-            _warehouseRepository= warehouseRepository;
+            _warehouseRepository = warehouseRepository;
+            _productRepository = productRepository;
             _mapper = mapper;
         }
         public async Task<WarehouseDto> CreateAsync(CreateWarehouseDto dto)
@@ -75,6 +77,13 @@ namespace Application.Services
             {
                 throw new NotFoundException($"warehouse with id:{id} not found");
             }
+
+            // Check if any products are linked to this warehouse
+            if (await _productRepository.ExistsByWarehouseIdAsync(id))
+            {
+                throw new BadRequestException("Cannot delete — products are linked to this warehouse");
+            }
+
             await _warehouseRepository.SoftDeleteAsync(id);
             return true;
 

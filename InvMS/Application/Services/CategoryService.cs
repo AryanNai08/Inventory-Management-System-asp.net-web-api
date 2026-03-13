@@ -15,10 +15,12 @@ namespace Application.Services
     {
 
         private readonly ICategoryRepository _categoryRepository;
+        private readonly IProductRepository _productRepository;
         private readonly IMapper _mapper;
-        public CategoryService(ICategoryRepository categoryRepository,IMapper mapper) 
+        public CategoryService(ICategoryRepository categoryRepository, IProductRepository productRepository, IMapper mapper) 
         {
             _categoryRepository = categoryRepository;
+            _productRepository = productRepository;
             _mapper = mapper;
         }
         public async Task<CategoryDto> CreateAsync(CreateCategoryDto dto)
@@ -78,6 +80,13 @@ namespace Application.Services
             {
                 throw new NotFoundException($"Category with id:{id} not found");
             }
+
+            // Check if any products are linked to this category
+            if (await _productRepository.ExistsByCategoryIdAsync(id))
+            {
+                throw new BadRequestException("Cannot delete — products are linked to this category");
+            }
+
             await _categoryRepository.SoftDeleteAsync(id);
             return true;
 

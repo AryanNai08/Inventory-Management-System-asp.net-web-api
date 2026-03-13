@@ -1,13 +1,10 @@
 ﻿using Application.Common;
 using Application.DTOs.Product;
-using Application.DTOs.Supplier;
 using Application.Interfaces;
-using Application.Services;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Net;
-using System.Net.Http.Headers;
 
 namespace InvMS.Controller
 {

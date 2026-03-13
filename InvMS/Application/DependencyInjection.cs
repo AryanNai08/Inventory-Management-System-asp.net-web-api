@@ -25,6 +25,7 @@ namespace Application
             services.AddScoped<ISupplierService, SupplierService>();
             services.AddScoped<ICustomerService, CustomerService>();
             services.AddScoped<IWarehouseService, WarehouseService>();
+            services.AddScoped<IProductService, ProductService>();
             //register api response
             services.AddScoped<APIResponse>();
 

@@ -28,6 +28,7 @@ namespace Infrastructure
             services.AddScoped<ICustomerRepository, CustomerRepository>();
             services.AddScoped<IEmailService,EmailService>();
             services.AddScoped<IWarehouseRepository, WarehouseRepository>();
+            services.AddScoped<IProductRepository, ProductRepository>();
 
 
             return services;

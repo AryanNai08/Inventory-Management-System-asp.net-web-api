@@ -13,10 +13,12 @@ namespace Application.Services
     public class SupplierService : ISupplierService
     {
         private readonly ISupplierRepository _supplierRepository;
+        private readonly IProductRepository _productRepository;
         private readonly IMapper _mapper;
-        public SupplierService(ISupplierRepository supplierRepository, IMapper mapper)
+        public SupplierService(ISupplierRepository supplierRepository, IProductRepository productRepository, IMapper mapper)
         {
             _supplierRepository = supplierRepository;
+            _productRepository = productRepository;
             _mapper = mapper;
         }
         public async Task<SupplierDto> CreateAsync(CreateSupplierDto dto)
@@ -76,6 +78,13 @@ namespace Application.Services
             {
                 throw new NotFoundException($"Supplier with id:{id} not found");
             }
+
+            // Check if any products are linked to this supplier
+            if (await _productRepository.ExistsBySupplierIdAsync(id))
+            {
+                throw new BadRequestException("Cannot delete — products are linked to this supplier");
+            }
+
             await _supplierRepository.SoftDeleteAsync(id);
             return true;
 
