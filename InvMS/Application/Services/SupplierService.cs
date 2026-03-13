@@ -101,13 +101,13 @@ namespace Application.Services
 
             if (supplier == null)
             {
-                throw new NotFoundException($"supplier with id:{id} not found");
+                throw new NotFoundException($"Supplier with id:{id} not found");
             }
 
             if (!string.Equals(supplier.Name, dto.Name, StringComparison.OrdinalIgnoreCase))
             {
-                var existingCategory = await _supplierRepository.GetByNameAsync(dto.Name);
-                if (existingCategory != null)
+                var existingSupplier = await _supplierRepository.GetByNameAsync(dto.Name);
+                if (existingSupplier != null)
                 {
                     throw new BadRequestException("Supplier name already exists");
                 }

@@ -39,7 +39,7 @@ namespace Application.Services
            var products= await _productRepository.GetAllAsync();
             if (products.Count <= 0) 
             {
-                throw new NotFoundException("No products found");
+                throw new NotFoundException("No Products found!!");
             }
 
             return _mapper.Map<List<ProductDto>>(products);

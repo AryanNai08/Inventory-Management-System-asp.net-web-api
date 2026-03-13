@@ -41,7 +41,7 @@ namespace Application.Services
 
             if (warehouses.Count <= 0)
             {
-                throw new NotFoundException("No warehouse found!!");
+                throw new NotFoundException("No Warehouses found!!");
             }
 
             return _mapper.Map<List<WarehouseDto>>(warehouses);
@@ -58,7 +58,7 @@ namespace Application.Services
 
             if (warehouse == null)
             {
-                throw new NotFoundException($"warehouse with id:{id} not found");
+                throw new NotFoundException($"Warehouse with id:{id} not found");
             }
 
             return _mapper.Map<WarehouseDto>(warehouse);
@@ -75,7 +75,7 @@ namespace Application.Services
 
             if (warehouse == null)
             {
-                throw new NotFoundException($"warehouse with id:{id} not found");
+                throw new NotFoundException($"Warehouse with id:{id} not found");
             }
 
             // Check if any products are linked to this warehouse
@@ -100,7 +100,7 @@ namespace Application.Services
 
             if (warehouse == null)
             {
-                throw new NotFoundException($"warehouse with id:{id} not found");
+                throw new NotFoundException($"Warehouse with id:{id} not found");
             }
 
             if (!string.Equals(warehouse.Name, dto.Name, StringComparison.OrdinalIgnoreCase))
@@ -108,7 +108,7 @@ namespace Application.Services
                 var existingwarehouse = await _warehouseRepository.GetByNameAsync(dto.Name);
                 if (existingwarehouse != null)
                 {
-                    throw new BadRequestException("warehouse name already exists");
+                    throw new BadRequestException("Warehouse name already exists");
                 }
             }
 

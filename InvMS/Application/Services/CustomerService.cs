@@ -56,7 +56,7 @@ namespace Application.Services
 
             if (customer == null)
             {
-                throw new NotFoundException($"customer with id:{id} not found");
+                throw new NotFoundException($"Customer with id:{id} not found");
             }
 
             return _mapper.Map<CustomerDto>(customer);
@@ -73,7 +73,7 @@ namespace Application.Services
 
             if (customer == null)
             {
-                throw new NotFoundException($"customer with id:{id} not found");
+                throw new NotFoundException($"Customer with id:{id} not found");
             }
             await _customerRepository.SoftDeleteAsync(id);
             return true;
@@ -91,7 +91,7 @@ namespace Application.Services
 
             if (customer == null)
             {
-                throw new NotFoundException($"customer with id:{id} not found");
+                throw new NotFoundException($"Customer with id:{id} not found");
             }
 
             if (!string.Equals(customer.Name, dto.Name, StringComparison.OrdinalIgnoreCase))
@@ -99,7 +99,7 @@ namespace Application.Services
                 var existingcustomer = await _customerRepository.GetByNameAsync(dto.Name);
                 if (existingcustomer != null)
                 {
-                    throw new BadRequestException("customer name already exists");
+                    throw new BadRequestException("Customer name already exists");
                 }
             }
 
