@@ -2,6 +2,7 @@ using Application.DTOs.Auth;
 using Application.DTOs.Category;
 using Application.DTOs.Customer;
 using Application.DTOs.Product;
+using Application.DTOs.PurchaseOrder;
 using Application.DTOs.RolesAndPrivileges;
 using Application.DTOs.Supplier;
 using Application.DTOs.Warehouse;
@@ -131,6 +132,33 @@ namespace Application.Mappings
                 .ForMember(dest => dest.ModifiedDate, opt => opt.Ignore())
                 .ForMember(dest => dest.RowVersion, opt => opt.Ignore());  // handled manually in service
 
+            //purchaseorder
+            //create
+            CreateMap<CreatePurchaseOrderDto, PurchaseOrder>();
+            //createpurchaseorderitem
+            CreateMap<CreatePurchaseOrderItemDto, PurchaseOrderItem>();
+            //readpurchaseorder
+            CreateMap<PurchaseOrder, PurchaseOrderDto>()
+                .ForMember(dest => dest.SupplierName, opt => opt.MapFrom(src => src.Supplier.Name))
+                .ForMember(dest => dest.StatusName, opt => opt.MapFrom(src => src.Status.Name));
+            //readpurchaseorderitem
+            CreateMap<PurchaseOrderItem, PurchaseOrderItemDto>()
+                .ForMember(dest => dest.ProductName, opt => opt.MapFrom(src => src.Product.Name))
+                .ForMember(dest => dest.ProductSku, opt => opt.MapFrom(src => src.Product.Sku));
+
+            // Purchase Order Mappings
+            CreateMap<CreatePurchaseOrderDto, PurchaseOrder>()
+                .ForMember(dest => dest.PurchaseOrderItems, opt => opt.MapFrom(src => src.Items));
+            CreateMap<CreatePurchaseOrderItemDto, PurchaseOrderItem>();
+
+            CreateMap<PurchaseOrder, PurchaseOrderDto>()
+                .ForMember(dest => dest.SupplierName, opt => opt.MapFrom(src => src.Supplier != null ? src.Supplier.Name : "Unknown Supplier"))
+                .ForMember(dest => dest.StatusName, opt => opt.MapFrom(src => src.Status != null ? src.Status.Name : "Unknown Status"))
+                .ForMember(dest => dest.Items, opt => opt.MapFrom(src => src.PurchaseOrderItems));
+                
+            CreateMap<PurchaseOrderItem, PurchaseOrderItemDto>()
+                .ForMember(dest => dest.ProductName, opt => opt.MapFrom(src => src.Product != null ? src.Product.Name : "Unknown Product"))
+                .ForMember(dest => dest.ProductSku, opt => opt.MapFrom(src => src.Product != null ? src.Product.Sku : "Unknown SKU"));
         }
     }
 }
