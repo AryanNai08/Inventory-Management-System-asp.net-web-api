@@ -44,8 +44,38 @@ namespace Infrastructure.Repositories
         public async Task<Product> GetBySkuAsync(string sku)
         {
             return await _dbContext.Products
+                .Include(p => p.Category)
+                .Include(p => p.Supplier)
+                .Include(p => p.Warehouse)
                 .Where(p => p.Sku == sku && !p.IsDeleted)
                 .FirstOrDefaultAsync();
+        }
+
+        public async Task<List<Product>> SearchAsync(string name, int? categoryId, int? supplierId)
+        {
+            var query = _dbContext.Products
+                .Include(p => p.Category)
+                .Include(p => p.Supplier)
+                .Include(p => p.Warehouse)
+                .Where(p => !p.IsDeleted)
+                .AsQueryable();
+
+            if (!string.IsNullOrWhiteSpace(name))
+            {
+                query = query.Where(p => p.Name.Contains(name));
+            }
+
+            if (categoryId.HasValue)
+            {
+                query = query.Where(p => p.CategoryId == categoryId.Value);
+            }
+
+            if (supplierId.HasValue)
+            {
+                query = query.Where(p => p.SupplierId == supplierId.Value);
+            }
+
+            return await query.ToListAsync();
         }
 
         public async Task SoftDeleteAsync(int id)

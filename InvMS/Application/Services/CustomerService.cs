@@ -62,6 +62,16 @@ namespace Application.Services
             return _mapper.Map<CustomerDto>(customer);
         }
 
+        public async Task<List<CustomerDto>> SearchAsync(string name, string city)
+        {
+            var customers = await _customerRepository.SearchAsync(name, city);
+
+            if (customers.Count == 0)
+                throw new NotFoundException("No customers matched the search criteria");
+
+            return _mapper.Map<List<CustomerDto>>(customers);
+        }
+
         public async Task<bool> SoftDeleteAsync(int id)
         {
             if (id <= 0)

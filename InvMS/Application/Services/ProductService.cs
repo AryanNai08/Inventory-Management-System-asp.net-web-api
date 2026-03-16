@@ -59,6 +59,28 @@ namespace Application.Services
             return _mapper.Map<ProductDto>(product);
         }
 
+        public async Task<ProductDto> GetBySkuAsync(string sku)
+        {
+            if (string.IsNullOrWhiteSpace(sku))
+                throw new BadRequestException("SKU cannot be empty");
+
+            var product = await _productRepository.GetBySkuAsync(sku);
+            if (product == null)
+                throw new NotFoundException($"Product with SKU:{sku} not found");
+
+            return _mapper.Map<ProductDto>(product);
+        }
+
+        public async Task<List<ProductDto>> SearchAsync(string name, int? categoryId, int? supplierId)
+        {
+            var products = await _productRepository.SearchAsync(name, categoryId, supplierId);
+            
+            if (products.Count == 0)
+                throw new NotFoundException("No products matched the search criteria");
+
+            return _mapper.Map<List<ProductDto>>(products);
+        }
+
         public async Task<bool> SoftDeleteAsync(int id)
         {
             if (id <= 0)

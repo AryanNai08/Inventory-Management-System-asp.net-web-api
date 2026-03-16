@@ -9,7 +9,7 @@ namespace Application.Interfaces
     {
         public Task<List<CustomerDto>> GetAllAsync();
         public Task<CustomerDto> GetByIdAsync(int id);
-
+        Task<List<CustomerDto>> SearchAsync(string name, string city);
         public Task<CustomerDto> CreateAsync(CreateCustomerDto dto);
 
         public Task<bool> UpdateAsync(int id, UpdateCustomerDto dto);

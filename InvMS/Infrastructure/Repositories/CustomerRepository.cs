@@ -40,6 +40,23 @@ namespace Infrastructure.Repositories
             return await _dbContext.Customers.Where(c => c.Name == name && !c.IsDeleted).FirstOrDefaultAsync();
         }
 
+        public async Task<List<Customer>> SearchAsync(string name, string city)
+        {
+            var query = _dbContext.Customers.Where(c => !c.IsDeleted).AsQueryable();
+
+            if (!string.IsNullOrWhiteSpace(name))
+            {
+                query = query.Where(c => c.Name.Contains(name));
+            }
+
+            if (!string.IsNullOrWhiteSpace(city))
+            {
+                query = query.Where(c => c.City.Contains(city));
+            }
+
+            return await query.ToListAsync();
+        }
+
         public async Task SoftDeleteAsync(int id)
         {
             var customer = await _dbContext.Customers.Where(c => c.Id == id && !c.IsDeleted).FirstOrDefaultAsync();

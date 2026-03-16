@@ -54,6 +54,23 @@ namespace InvMS.Controller
             return Ok(_apiResponse);
         }
 
+        [HttpGet]
+        [Route("search", Name = "SearchCustomers")]
+        [Authorize(Policy = "ViewCustomers")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<ActionResult<APIResponse>> SearchCustomers([FromQuery] string? name, [FromQuery] string? city)
+        {
+            _apiResponse.Data = await _customerService.SearchAsync(name, city);
+            _apiResponse.StatusCode = HttpStatusCode.OK;
+            _apiResponse.Status = true;
+
+            return Ok(_apiResponse);
+        }
+
         [HttpPost]
         [Route("CreateCustomer")]
         [Authorize(Policy = "ManageCustomers")]

@@ -55,6 +55,23 @@ namespace InvMS.Controller
             return Ok(_apiResponse);
         }
 
+        [HttpGet]
+        [Route("{id:int}/products", Name = "GetProductsBySupplierId")]
+        [Authorize(Policy = "ViewSuppliers")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<ActionResult<APIResponse>> GetProductsBySupplierId(int id)
+        {
+            _apiResponse.Data = await _supplierService.GetProductsBySupplierIdAsync(id);
+            _apiResponse.StatusCode = HttpStatusCode.OK;
+            _apiResponse.Status = true;
+
+            return Ok(_apiResponse);
+        }
+
         [HttpPost]
         [Route("CreateSupplier")]
         [Authorize(Policy = "ManageSuppliers")]

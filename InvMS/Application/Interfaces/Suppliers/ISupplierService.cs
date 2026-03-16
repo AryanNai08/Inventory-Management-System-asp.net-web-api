@@ -1,21 +1,18 @@
-using Application.DTOs.Auth;
-using Application.DTOs.Category;
-using Application.DTOs.Supplier;
 using System;
 using System.Collections.Generic;
-using System.Text;
+using System.Threading.Tasks;
+using Application.DTOs.Supplier;
+using Application.DTOs.Product;
 
 namespace Application.Interfaces
 {
     public interface ISupplierService
     {
-        public Task<List<SupplierDto>> GetAllAsync();
-        public Task<SupplierDto> GetByIdAsync(int id);
-
-        public Task<SupplierDto> CreateAsync(CreateSupplierDto dto);
-
-        public Task<bool> UpdateAsync(int id, UpdateSupplierDto dto);
-
-        public Task<bool> SoftDeleteAsync(int id);
+        Task<List<SupplierDto>> GetAllAsync();
+        Task<SupplierDto> GetByIdAsync(int id);
+        Task<List<ProductDto>> GetProductsBySupplierIdAsync(int supplierId);
+        Task<SupplierDto> CreateAsync(CreateSupplierDto dto);
+        Task<bool> UpdateAsync(int id, UpdateSupplierDto dto);
+        Task<bool> SoftDeleteAsync(int id);
     }
 }

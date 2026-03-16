@@ -1,4 +1,4 @@
-﻿using Application.Common;
+using Application.Common;
 using Application.DTOs.Product;
 using Application.Interfaces;
 using Microsoft.AspNetCore.Http;
@@ -49,6 +49,40 @@ namespace InvMS.Controller
         {
             var product = await _productService.GetByIdAsync(id);
             _apiResponse.Data = product;
+            _apiResponse.Status = true;
+            _apiResponse.StatusCode = HttpStatusCode.OK;
+            return _apiResponse;
+        }
+
+        [HttpGet]
+        [Route("sku/{sku}", Name = "GetProductBySku")]
+        [Authorize(Policy = "ViewProducts")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<ActionResult<APIResponse>> GetProductBySku(string sku)
+        {
+            var product = await _productService.GetBySkuAsync(sku);
+            _apiResponse.Data = product;
+            _apiResponse.Status = true;
+            _apiResponse.StatusCode = HttpStatusCode.OK;
+            return _apiResponse;
+        }
+
+        [HttpGet]
+        [Route("search", Name = "SearchProducts")]
+        [Authorize(Policy = "ViewProducts")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<ActionResult<APIResponse>> SearchProducts([FromQuery] string? name, [FromQuery] int? categoryId, [FromQuery] int? supplierId)
+        {
+            var products = await _productService.SearchAsync(name, categoryId, supplierId);
+            _apiResponse.Data = products;
             _apiResponse.Status = true;
             _apiResponse.StatusCode = HttpStatusCode.OK;
             return _apiResponse;

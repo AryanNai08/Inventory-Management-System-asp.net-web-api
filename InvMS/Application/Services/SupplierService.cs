@@ -1,4 +1,5 @@
 using Application.DTOs.Auth;
+using Application.DTOs.Product;
 using Application.DTOs.Supplier;
 using Application.Interfaces;
 using AutoMapper;
@@ -63,6 +64,19 @@ namespace Application.Services
             }
 
             return _mapper.Map<SupplierDto>(supplier);
+        }
+
+        public async Task<List<ProductDto>> GetProductsBySupplierIdAsync(int supplierId)
+        {
+            if (supplierId <= 0)
+                throw new BadRequestException("Id must be greater than 0");
+
+            var supplier = await _supplierRepository.GetByIdAsync(supplierId);
+            if (supplier == null)
+                throw new NotFoundException($"Supplier with id:{supplierId} not found");
+
+            var products = await _supplierRepository.GetProductsBySupplierIdAsync(supplierId);
+            return _mapper.Map<List<ProductDto>>(products);
         }
 
         public async Task<bool> SoftDeleteAsync(int id)

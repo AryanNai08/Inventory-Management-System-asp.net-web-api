@@ -10,6 +10,7 @@ namespace Application.Interfaces
         public Task<List<Supplier>> GetAllAsync();
         public Task<Supplier> GetByIdAsync(int id);
         public Task<Supplier> GetByNameAsync(string name);
+        public Task<List<Product>> GetProductsBySupplierIdAsync(int supplierId);
         public Task AddAsync(Supplier supplier);
         public Task UpdateAsync(Supplier supplier);
         public Task SoftDeleteAsync(int id);

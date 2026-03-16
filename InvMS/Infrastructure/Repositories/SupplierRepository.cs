@@ -40,6 +40,14 @@ namespace Infrastructure.Repositories
             return await _dbContext.Suppliers.Where(c => c.Name == name && !c.IsDeleted).FirstOrDefaultAsync();
         }
 
+        public async Task<List<Product>> GetProductsBySupplierIdAsync(int supplierId)
+        {
+            return await _dbContext.Products
+                .Include(p => p.Category)
+                .Where(p => p.SupplierId == supplierId && !p.IsDeleted)
+                .ToListAsync();
+        }
+
         public async Task SoftDeleteAsync(int id)
         {
             var supplier = await _dbContext.Suppliers.Where(c => c.Id == id && !c.IsDeleted).FirstOrDefaultAsync();
