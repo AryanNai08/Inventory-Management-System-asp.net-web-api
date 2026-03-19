@@ -1,0 +1,20 @@
+﻿using Application.DTOs.SalesOrder;
+using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace Application.Interfaces
+{
+    public interface ISalesOrderService
+    {
+        Task<List<SalesOrderDto>> GetAllAsync();
+        Task<SalesOrderDto> GetByIdAsync(int id);
+        Task<SalesOrderDto> CreateAsync(CreateSalesOrderDto dto);
+        Task<SalesOrderDto> UpdateAsync(int id, UpdateSalesOrderDto dto);
+
+        Task<bool> ConfirmAsync(int id);
+        Task<bool> ShipAsync(int id);
+        Task<bool> DeliverAsync(int id);
+        Task<bool> CancelAsync(int id);
+    }
+}

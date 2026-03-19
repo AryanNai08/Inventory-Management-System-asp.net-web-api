@@ -4,6 +4,7 @@ using Application.DTOs.Customer;
 using Application.DTOs.Product;
 using Application.DTOs.PurchaseOrder;
 using Application.DTOs.RolesAndPrivileges;
+using Application.DTOs.SalesOrder;
 using Application.DTOs.Supplier;
 using Application.DTOs.Warehouse;
 using AutoMapper;
@@ -157,6 +158,20 @@ namespace Application.Mappings
                 .ForMember(dest => dest.Items, opt => opt.MapFrom(src => src.PurchaseOrderItems));
                 
             CreateMap<PurchaseOrderItem, PurchaseOrderItemDto>()
+                .ForMember(dest => dest.ProductName, opt => opt.MapFrom(src => src.Product != null ? src.Product.Name : "Unknown Product"))
+                .ForMember(dest => dest.ProductSku, opt => opt.MapFrom(src => src.Product != null ? src.Product.Sku : "Unknown SKU"));
+
+            // Sales Order Mappings
+            CreateMap<CreateSalesOrderDto, SalesOrder>()
+                .ForMember(dest => dest.SalesOrderItems, opt => opt.MapFrom(src => src.Items));
+            CreateMap<CreateSalesOrderItemDto, SalesOrderItem>();
+
+            CreateMap<SalesOrder, SalesOrderDto>()
+                .ForMember(dest => dest.CustomerName, opt => opt.MapFrom(src => src.Customer != null ? src.Customer.Name : "Unknown Customer"))
+                .ForMember(dest => dest.StatusName, opt => opt.MapFrom(src => src.Status != null ? src.Status.Name : "Unknown Status"))
+                .ForMember(dest => dest.Items, opt => opt.MapFrom(src => src.SalesOrderItems));
+
+            CreateMap<SalesOrderItem, SalesOrderItemDto>()
                 .ForMember(dest => dest.ProductName, opt => opt.MapFrom(src => src.Product != null ? src.Product.Name : "Unknown Product"))
                 .ForMember(dest => dest.ProductSku, opt => opt.MapFrom(src => src.Product != null ? src.Product.Sku : "Unknown SKU"));
         }

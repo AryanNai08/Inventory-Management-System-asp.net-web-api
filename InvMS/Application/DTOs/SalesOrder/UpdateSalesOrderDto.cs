@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Text;
@@ -13,6 +13,6 @@ namespace Application.DTOs.SalesOrder
         [MaxLength(1000)]
         public string? Notes { get; set; }
         [MinLength(1)]
-        public List<CreateSalesOrderItemDto> Items { get; set; }
+        public List<UpdateSalesOrderItemDto> Items { get; set; }
     }
 }
