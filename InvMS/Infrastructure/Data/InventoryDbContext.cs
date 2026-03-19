@@ -30,6 +30,12 @@ public partial class InventoryDbContext : DbContext
 
     public virtual DbSet<PurchaseOrderStatus> PurchaseOrderStatuses { get; set; }
 
+    public virtual DbSet<SalesOrder> SalesOrders { get; set; }
+
+    public virtual DbSet<SalesOrderItem> SalesOrderItems { get; set; }
+
+    public virtual DbSet<SalesOrderStatus> SalesOrderStatuses { get; set; }
+
 
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -235,6 +241,58 @@ public partial class InventoryDbContext : DbContext
             entity.HasKey(e => e.Id).HasName("PK__Purchase__3214EC07CF422035");
 
             entity.HasIndex(e => e.Name, "UQ__Purchase__737584F6E3F9E1A0").IsUnique();
+
+            entity.Property(e => e.Name).HasMaxLength(50);
+        });
+
+
+        modelBuilder.Entity<SalesOrder>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK__SalesOrd__3214EC0723D8332F");
+
+            entity.HasIndex(e => e.OrderNumber, "UQ__SalesOrd__CAC5E743B2B7A032").IsUnique();
+
+            entity.Property(e => e.CreatedDate).HasDefaultValueSql("(getutcdate())");
+            entity.Property(e => e.Notes).HasMaxLength(1000);
+            entity.Property(e => e.OrderDate).HasDefaultValueSql("(getutcdate())");
+            entity.Property(e => e.OrderNumber).HasMaxLength(50);
+            entity.Property(e => e.TotalAmount).HasColumnType("decimal(18, 2)");
+
+            entity.HasOne(d => d.Status).WithMany(p => p.SalesOrders)
+                .HasForeignKey(d => d.StatusId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__SalesOrde__Statu__55009F39");
+
+            entity.HasOne(d => d.Customer).WithMany()
+                .HasForeignKey(d => d.CustomerId)
+                .OnDelete(DeleteBehavior.Restrict)
+                .HasConstraintName("FK__SalesOrde__Custo__540C7B00");
+        });
+
+        modelBuilder.Entity<SalesOrderItem>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK__SalesOrd__3214EC07B23B3E00");
+
+            entity.Property(e => e.LineTotal)
+                .HasComputedColumnSql("([Quantity]*[UnitPrice])", true)
+                .HasColumnType("decimal(29, 2)");
+            entity.Property(e => e.UnitPrice).HasColumnType("decimal(18, 2)");
+
+            entity.HasOne(d => d.SalesOrder).WithMany(p => p.SalesOrderItems)
+                .HasForeignKey(d => d.SalesOrderId)
+                .HasConstraintName("FK__SalesOrde__Sales__59C55456");
+
+            entity.HasOne(d => d.Product).WithMany()
+                .HasForeignKey(d => d.ProductId)
+                .OnDelete(DeleteBehavior.Restrict)
+                .HasConstraintName("FK__SalesOrde__Produ__5AB9788F");
+        });
+
+        modelBuilder.Entity<SalesOrderStatus>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK__SalesOrd__3214EC070CC03D19");
+
+            entity.HasIndex(e => e.Name, "UQ__SalesOrd__737584F6B01DF097").IsUnique();
 
             entity.Property(e => e.Name).HasMaxLength(50);
         });
