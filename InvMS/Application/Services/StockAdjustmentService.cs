@@ -1,0 +1,127 @@
+using Application.DTOs.StockAdjustment;
+using Application.Interfaces;
+using AutoMapper;
+using Domain.Entities;
+using Domain.Exceptions;
+using Microsoft.EntityFrameworkCore;
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+
+namespace Application.Services
+{
+    public class StockAdjustmentService : IStockAdjustmentService
+    {
+        private readonly IStockAdjustmentRepository _stockAdjustmentRepository;
+        private readonly IProductRepository _productRepository;
+        private readonly IUnitOfWork _unitOfWork;
+        private readonly IMapper _mapper;
+
+        public StockAdjustmentService(
+            IStockAdjustmentRepository stockAdjustmentRepository,
+            IProductRepository productRepository,
+            IUnitOfWork unitOfWork,
+            IMapper mapper)
+        {
+            _stockAdjustmentRepository = stockAdjustmentRepository;
+            _productRepository = productRepository;
+            _unitOfWork = unitOfWork;
+            _mapper = mapper;
+        }
+
+        public async Task<StockAdjustmentDto> CreateAsync(CreateStockAdjustmentDto dto, int userId)
+        {
+            if (dto.ProductId <= 0) throw new BadRequestException("Invalid Product Id");
+            if (dto.WarehouseId <= 0) throw new BadRequestException("Invalid Warehouse Id");
+            if (dto.QuantityChange == 0) throw new BadRequestException("Quantity change cannot be zero");
+
+            await _unitOfWork.BeginTransactionAsync();
+            try
+            {
+                var product = await _productRepository.GetByIdAsync(dto.ProductId);
+                if (product == null) throw new NotFoundException($"Product with Id {dto.ProductId} not found");
+
+                // Business Rule: Check for negative stock
+                int newStock = product.CurrentStock + dto.QuantityChange;
+                if (newStock < 0)
+                {
+                    throw new BadRequestException($"Insufficient stock. Current: {product.CurrentStock}, Requested Adjustment: {dto.QuantityChange}");
+                }
+
+                // 1. Create adjustment record
+                var adjustment = _mapper.Map<StockAdjustment>(dto);
+                adjustment.AdjustedBy = userId;
+                adjustment.AdjustmentDate = DateTime.UtcNow;
+                await _stockAdjustmentRepository.AddAsync(adjustment);
+
+                // 2. Update product stock
+                product.CurrentStock = newStock;
+                product.ModifiedDate = DateTime.UtcNow;
+                await _productRepository.UpdateAsync(product);
+
+                await _unitOfWork.CommitAsync();
+
+                // Return the created adjustment with full details (includes names of product, warehouse etc.)
+                return await GetByIdAsync(adjustment.Id);
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                await _unitOfWork.RollbackAsync();
+                throw new BadRequestException("The product stock was updated by another user. Please try again.");
+            }
+            catch (Exception)
+            {
+                await _unitOfWork.RollbackAsync();
+                throw;
+            }
+        }
+
+        public async Task<List<AdjustmentTypeDto>> GetAdjustmentTypesAsync()
+        {
+            var adjustmettypes = await _stockAdjustmentRepository.GetAdjustmentTypesAsync();
+            if(adjustmettypes.Count == 0)
+            {
+                    throw new NotFoundException("adjustmettypes not found");
+            }
+            return _mapper.Map<List<AdjustmentTypeDto>>(adjustmettypes);
+        }
+
+        public async Task<List<StockAdjustmentDto>> GetAllAsync()
+        {
+
+
+            var stocks = await _stockAdjustmentRepository.GetAllAsync();
+            if (stocks.Count == 0)
+            {
+                throw new NotFoundException("Stocks not found");
+            }
+            return _mapper.Map<List<StockAdjustmentDto>>(stocks);
+        }
+
+        public async Task<StockAdjustmentDto> GetByIdAsync(int id)
+        {
+            if (id <= 0)
+                throw new BadRequestException("stock Id must be greater than 0");
+            var stock = await _stockAdjustmentRepository.GetByIdAsync(id);
+            if (stock == null)
+            {
+                throw new NotFoundException($"No stocks found with id:{id}!");
+            }
+
+            return _mapper.Map<StockAdjustmentDto>(stock);
+        }
+
+        public async Task<List<StockAdjustmentDto>> GetByProductIdAsync(int productId)
+        {
+            if (productId <= 0)
+                throw new BadRequestException("product Id must be greater than 0");
+            var stock = await _stockAdjustmentRepository.GetByProductIdAsync(productId);
+            if (stock==null)
+            {
+                throw new NotFoundException($"Stock with id:{productId} not found");
+            }
+            return _mapper.Map<List<StockAdjustmentDto>>(stock);
+        }
+    }
+}

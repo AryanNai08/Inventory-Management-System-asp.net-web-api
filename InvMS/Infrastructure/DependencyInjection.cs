@@ -31,8 +31,9 @@ namespace Infrastructure
             services.AddScoped<IProductRepository, ProductRepository>();
             services.AddScoped<IPurchaseOrderRepository, PurchaseOrderRepository>();
             services.AddScoped<ISalesOrderRepository, SalesOrderRepository>();
+            services.AddScoped<IStockAdjustmentRepository, StockAdjustmentRepository>();
 
-
+            services.AddScoped<IUnitOfWork, UnitOfWork>();
 
             return services;
         }
