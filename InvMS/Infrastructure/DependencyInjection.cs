@@ -30,6 +30,7 @@ namespace Infrastructure
             services.AddScoped<IWarehouseRepository, WarehouseRepository>();
             services.AddScoped<IProductRepository, ProductRepository>();
             services.AddScoped<IPurchaseOrderRepository, PurchaseOrderRepository>();
+            services.AddScoped<ISalesOrderRepository, SalesOrderRepository>();
 
 
 
