@@ -33,8 +33,10 @@ public partial class InventoryDbContext : DbContext
     public virtual DbSet<SalesOrder> SalesOrders { get; set; }
 
     public virtual DbSet<SalesOrderItem> SalesOrderItems { get; set; }
-
     public virtual DbSet<SalesOrderStatus> SalesOrderStatuses { get; set; }
+
+    public virtual DbSet<AdjustmentType> AdjustmentTypes { get; set; }
+    public virtual DbSet<StockAdjustment> StockAdjustments { get; set; }
 
 
 
@@ -169,6 +171,7 @@ public partial class InventoryDbContext : DbContext
             entity.Property(e => e.CreatedDate).HasDefaultValueSql("(getutcdate())");
             entity.Property(e => e.Description).HasMaxLength(500);
             entity.Property(e => e.Name).HasMaxLength(200);
+            entity.Property(e => e.CurrentStock).HasDefaultValue(0);
             entity.Property(e => e.RowVersion)
                 .IsRowVersion()
                 .IsConcurrencyToken();
@@ -297,6 +300,38 @@ public partial class InventoryDbContext : DbContext
             entity.Property(e => e.Name).HasMaxLength(50);
         });
 
+        modelBuilder.Entity<AdjustmentType>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK__Adjustme__3214EC07CA927496");
+            entity.HasIndex(e => e.Name, "UQ__Adjustme__737584F6A6F57F3D").IsUnique();
+            entity.Property(e => e.Name).HasMaxLength(50);
+        });
 
+        modelBuilder.Entity<StockAdjustment>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK__StockAdj__3214EC07139D96DB");
+            entity.Property(e => e.AdjustmentDate).HasDefaultValueSql("(getutcdate())");
+            entity.Property(e => e.Reason).HasMaxLength(500);
+
+            entity.HasOne(d => d.AdjustmentType).WithMany(p => p.StockAdjustments)
+                .HasForeignKey(d => d.AdjustmentTypeId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__StockAdju__Adjus__625A9A57");
+
+            entity.HasOne(d => d.Product).WithMany()
+                .HasForeignKey(d => d.ProductId)
+                .OnDelete(DeleteBehavior.Restrict)
+                .HasConstraintName("FK__StockAdju__Produ__607251E5");
+
+            entity.HasOne(d => d.Warehouse).WithMany()
+                .HasForeignKey(d => d.WarehouseId)
+                .OnDelete(DeleteBehavior.Restrict)
+                .HasConstraintName("FK__StockAdju__Wareh__6166761E");
+
+            entity.HasOne(d => d.User).WithMany()
+                .HasForeignKey(d => d.AdjustedBy)
+                .OnDelete(DeleteBehavior.Restrict)
+                .HasConstraintName("FK__StockAdju__Adjus__634EBE90");
+        });
     }
 }

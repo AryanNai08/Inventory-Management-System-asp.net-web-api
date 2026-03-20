@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 
 namespace Domain.Entities;
@@ -16,7 +16,7 @@ public partial class Product
     public decimal UnitPrice { get; set; }
 
     public int ReorderLevel { get; set; }
-
+    public int CurrentStock { get; set; }
     public int CategoryId { get; set; }
 
     public int? SupplierId { get; set; }
