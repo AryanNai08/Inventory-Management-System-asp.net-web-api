@@ -5,6 +5,7 @@ using Application.DTOs.Product;
 using Application.DTOs.PurchaseOrder;
 using Application.DTOs.RolesAndPrivileges;
 using Application.DTOs.SalesOrder;
+using Application.DTOs.StockAdjustment;
 using Application.DTOs.Supplier;
 using Application.DTOs.Warehouse;
 using AutoMapper;
@@ -174,6 +175,17 @@ namespace Application.Mappings
             CreateMap<SalesOrderItem, SalesOrderItemDto>()
                 .ForMember(dest => dest.ProductName, opt => opt.MapFrom(src => src.Product != null ? src.Product.Name : "Unknown Product"))
                 .ForMember(dest => dest.ProductSku, opt => opt.MapFrom(src => src.Product != null ? src.Product.Sku : "Unknown SKU"));
+
+            // Stock Adjustment Mappings
+            CreateMap<AdjustmentType, AdjustmentTypeDto>();
+            CreateMap<StockAdjustment, StockAdjustmentDto>()
+                .ForMember(dest => dest.ProductName, opt => opt.MapFrom(src => src.Product != null ? src.Product.Name : "Unknown Product"))
+                .ForMember(dest => dest.ProductSku, opt => opt.MapFrom(src => src.Product != null ? src.Product.Sku : "Unknown SKU"))
+                .ForMember(dest => dest.WarehouseName, opt => opt.MapFrom(src => src.Warehouse != null ? src.Warehouse.Name : "Unknown Warehouse"))
+                .ForMember(dest => dest.AdjustmentTypeName, opt => opt.MapFrom(src => src.AdjustmentType != null ? src.AdjustmentType.Name : "Unknown Type"))
+                .ForMember(dest => dest.AdjustedByUserName, opt => opt.MapFrom(src => src.User != null ? src.User.Username : "Unknown User"));
+
+            CreateMap<CreateStockAdjustmentDto, StockAdjustment>();
         }
     }
 }
