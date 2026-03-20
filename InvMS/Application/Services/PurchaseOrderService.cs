@@ -7,6 +7,7 @@ using Application.Interfaces;
 using AutoMapper;
 using Domain.Entities;
 using Domain.Exceptions;
+using Microsoft.EntityFrameworkCore;
 
 namespace Application.Services
 {
@@ -15,17 +16,20 @@ namespace Application.Services
         private readonly IPurchaseOrderRepository _purchaseOrderRepository;
         private readonly ISupplierRepository _supplierRepository;
         private readonly IProductRepository _productRepository;
+        private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
 
         public PurchaseOrderService(
             IPurchaseOrderRepository purchaseOrderRepository,
             ISupplierRepository supplierRepository,
             IProductRepository productRepository,
+            IUnitOfWork unitOfWork,
             IMapper mapper)
         {
             _purchaseOrderRepository = purchaseOrderRepository;
             _supplierRepository = supplierRepository;
             _productRepository = productRepository;
+            _unitOfWork = unitOfWork;
             _mapper = mapper;
         }
 
@@ -182,11 +186,36 @@ namespace Application.Services
             if (order.StatusId != 2) // Only Approved can be Received
                 throw new BadRequestException("Only Approved orders can be received");
 
-            // Note: In Module 11 (Stock Management), we will also loop through order.PurchaseOrderItems
-            // and increment Product CurrentStock here!
+            await _unitOfWork.BeginTransactionAsync();
+            try
+            {
+                // Update Product stock for each item
+                foreach (var item in order.PurchaseOrderItems)
+                {
+                    var product = await _productRepository.GetByIdAsync(item.ProductId);
+                    if (product == null) throw new NotFoundException($"Product {item.ProductId} not found");
 
-            await _purchaseOrderRepository.UpdateStatusAsync(id, 3); // 3 = Received
-            return true;
+                    product.CurrentStock += item.Quantity;
+                    product.ModifiedDate = DateTime.UtcNow;
+                    await _productRepository.UpdateAsync(product);
+                }
+
+                // Update Order Status
+                await _purchaseOrderRepository.UpdateStatusAsync(id, 3); // 3 = Received
+
+                await _unitOfWork.CommitAsync();
+                return true;
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                await _unitOfWork.RollbackAsync();
+                throw new BadRequestException("A concurrency error occurred while updating product stock. Please try again.");
+            }
+            catch (Exception)
+            {
+                await _unitOfWork.RollbackAsync();
+                throw;
+            }
         }
 
         public async Task<bool> CancelAsync(int id)
