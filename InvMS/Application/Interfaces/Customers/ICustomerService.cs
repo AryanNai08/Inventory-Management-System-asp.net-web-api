@@ -1,4 +1,5 @@
 using Application.DTOs.Customer;
+using Application.DTOs.SalesOrder;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -15,5 +16,7 @@ namespace Application.Interfaces
         public Task<bool> UpdateAsync(int id, UpdateCustomerDto dto);
 
         public Task<bool> SoftDeleteAsync(int id);
+
+        public Task<List<SalesOrderDto>>GetSalesOrdersByCustomerIdAsync(int customerId);
     }
 }

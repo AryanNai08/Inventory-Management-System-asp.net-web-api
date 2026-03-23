@@ -1,3 +1,4 @@
+using Application.DTOs.SalesOrder;
 using Application.Interfaces;
 using Domain.Entities;
 using Domain.Exceptions;
@@ -38,6 +39,14 @@ namespace Infrastructure.Repositories
         public async Task<Customer> GetByNameAsync(string name)
         {
             return await _dbContext.Customers.Where(c => c.Name == name && !c.IsDeleted).FirstOrDefaultAsync();
+        }
+
+        public async Task<List<SalesOrder>> GetSalesOrdersByCustomerIdAsync(int customerId)
+        {
+                return await _dbContext.SalesOrders
+                 .Include(po => po.Status) 
+                 .Where(po => po.CustomerId == customerId)
+                         .ToListAsync();
         }
 
         public async Task<List<Customer>> SearchAsync(string name, string city)

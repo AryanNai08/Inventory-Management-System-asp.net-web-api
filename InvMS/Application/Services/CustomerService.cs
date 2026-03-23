@@ -1,4 +1,5 @@
 using Application.DTOs.Customer;
+using Application.DTOs.SalesOrder;
 using Application.Interfaces;
 using AutoMapper;
 using Domain.Entities;
@@ -60,6 +61,28 @@ namespace Application.Services
             }
 
             return _mapper.Map<CustomerDto>(customer);
+        }
+
+        public async Task<List<SalesOrderDto>> GetSalesOrdersByCustomerIdAsync(int customerId)
+        {
+            if (customerId <= 0)
+            {
+                throw new BadRequestException("Id must be greater than 0");
+            }
+
+            var customer = await _customerRepository.GetByIdAsync(customerId);
+
+            if (customer == null)
+            {
+                throw new NotFoundException($"Customer with id:{customerId} not found");
+            }
+
+            var salesorder=await _customerRepository.GetSalesOrdersByCustomerIdAsync(customerId);
+            if(salesorder == null)
+            {
+                throw new NotFoundException($"salesorder with customer id:{customerId} not found");
+            }
+            return _mapper.Map<List<SalesOrderDto>>(salesorder);
         }
 
         public async Task<List<CustomerDto>> SearchAsync(string name, string city)

@@ -17,7 +17,7 @@ namespace InvMS.Controller
         public CustomersController(ICustomerService customerService, APIResponse apiResponse)
         {
             _apiResponse = apiResponse;
-           _customerService=customerService;
+            _customerService = customerService;
         }
 
         [HttpGet]
@@ -117,6 +117,23 @@ namespace InvMS.Controller
         public async Task<ActionResult<APIResponse>> DeleteCustomer(int id)
         {
             _apiResponse.Data = await _customerService.SoftDeleteAsync(id);
+            _apiResponse.StatusCode = HttpStatusCode.OK;
+            _apiResponse.Status = true;
+
+            return Ok(_apiResponse);
+        }
+
+        [HttpGet]
+        [Route("{id:int}/sales-orders", Name = "GetSalesOrdersByCustomerId")]
+        [Authorize(Policy = "ViewCustomers")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<ActionResult<APIResponse>> GetSalesorder(int id)
+        {
+            _apiResponse.Data = await _customerService.GetSalesOrdersByCustomerIdAsync(id);
             _apiResponse.StatusCode = HttpStatusCode.OK;
             _apiResponse.Status = true;
 

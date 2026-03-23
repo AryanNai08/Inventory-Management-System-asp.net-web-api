@@ -1,3 +1,4 @@
+using Application.DTOs.SalesOrder;
 using Domain.Entities;
 using System;
 using System.Collections.Generic;
@@ -14,5 +15,6 @@ namespace Application.Interfaces
         public Task AddAsync(Customer customer);
         public Task UpdateAsync(Customer customer);
         public Task SoftDeleteAsync(int id);
+        public Task<List<SalesOrder>> GetSalesOrdersByCustomerIdAsync(int customerId);
     }
 }
