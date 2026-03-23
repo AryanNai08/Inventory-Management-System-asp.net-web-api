@@ -89,5 +89,29 @@ namespace Infrastructure.Repositories
                 await _dbContext.SaveChangesAsync();
             }
         }
+
+        public async Task<List<SalesOrder>> SearchAsync(int? statusId, int? customerId, DateTime? startDate, DateTime? endDate)
+        {
+            var query = _dbContext.SalesOrders
+                .Include(s => s.Customer)
+                .Include(s => s.Status)
+                .AsQueryable();
+
+            if (statusId.HasValue)
+                query = query.Where(s => s.StatusId == statusId);
+
+            if (customerId.HasValue)
+                query = query.Where(s => s.CustomerId == customerId);
+
+            if (startDate.HasValue)
+                query = query.Where(s => s.OrderDate >= startDate.Value);
+
+            if (endDate.HasValue)
+                query = query.Where(s => s.OrderDate <= endDate.Value);
+
+            return await query
+                .OrderByDescending(s => s.OrderDate)
+                .ToListAsync();
+        }
     }
 }

@@ -271,6 +271,15 @@ namespace Application.Services
                 throw;
             }
         }
+
+        public async Task<List<SalesOrderDto>> SearchAsync(int? statusId, int? customerId, DateTime? startDate, DateTime? endDate)
+        {
+            if (startDate.HasValue && endDate.HasValue && startDate > endDate)
+                throw new BadRequestException("Start date cannot be after end date.");
+
+            var orders = await _salesOrderRepository.SearchAsync(statusId, customerId, startDate, endDate);
+            return _mapper.Map<List<SalesOrderDto>>(orders);
+        }
     }
 }
 

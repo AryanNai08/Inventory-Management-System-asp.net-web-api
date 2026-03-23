@@ -1,4 +1,4 @@
-﻿using Application.DTOs.SalesOrder;
+using Application.DTOs.SalesOrder;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -16,5 +16,6 @@ namespace Application.Interfaces
         Task<bool> ShipAsync(int id);
         Task<bool> DeliverAsync(int id);
         Task<bool> CancelAsync(int id);
+        Task<List<SalesOrderDto>> SearchAsync(int? statusId, int? customerId, DateTime? startDate, DateTime? endDate);
     }
 }

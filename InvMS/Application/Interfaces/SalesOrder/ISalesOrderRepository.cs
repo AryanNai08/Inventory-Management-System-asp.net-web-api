@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Text;
 using Domain.Entities;
@@ -13,5 +13,6 @@ namespace Application.Interfaces
         Task AddAsync(SalesOrder salesOrder);
         Task UpdateAsync(SalesOrder salesOrder);
         Task UpdateStatusAsync(int id, int newStatusId);
+        Task<List<SalesOrder>> SearchAsync(int? statusId, int? customerId, DateTime? startDate, DateTime? endDate);
     }
 }

@@ -137,5 +137,22 @@ namespace InvMS.Controller
             _apiResponse.Status = true;
             return Ok(_apiResponse);
         }
+
+        [HttpGet]
+        [Route("search")]
+        [Authorize(Policy = "ViewSalesOrders")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<ActionResult<APIResponse>> Search(
+            [FromQuery] int? status, 
+            [FromQuery] int? customerId, 
+            [FromQuery] DateTime? startDate, 
+            [FromQuery] DateTime? endDate)
+        {
+            _apiResponse.Data = await _salesOrderService.SearchAsync(status, customerId, startDate, endDate);
+            _apiResponse.StatusCode = HttpStatusCode.OK;
+            _apiResponse.Status = true;
+            return Ok(_apiResponse);
+        }
     }
 }

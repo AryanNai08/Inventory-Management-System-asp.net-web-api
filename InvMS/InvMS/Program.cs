@@ -22,7 +22,7 @@ builder.Services.AddMemoryCache();
 
 // Add services to the container.
 
-builder.Services.AddControllers();
+builder.Services.AddControllers().AddNewtonsoftJson();
 
 // Add Swagger/OpenAPI with JWT Auth
 builder.Services.AddEndpointsApiExplorer();
