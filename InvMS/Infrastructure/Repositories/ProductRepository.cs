@@ -93,6 +93,24 @@ namespace Infrastructure.Repositories
             await _dbContext.SaveChangesAsync();
         }
 
+        public async Task<List<Product>> GetLowStockAsync()
+        {
+            return await _dbContext.Products
+                .Include(p => p.Category)
+                .Include(p => p.Supplier)
+                .Where(p => !p.IsDeleted && p.CurrentStock <= p.ReorderLevel)
+                .ToListAsync();
+        }
+
+        public async Task<List<Product>> GetOutOfStockAsync()
+        {
+            return await _dbContext.Products
+                .Include(p => p.Category)
+                .Include(p => p.Supplier)
+                .Where(p => !p.IsDeleted && p.CurrentStock == 0)
+                .ToListAsync();
+        }
+
         public async Task<bool> ExistsByCategoryIdAsync(int categoryId)
         {
             return await _dbContext.Products.AnyAsync(p => p.CategoryId == categoryId && !p.IsDeleted);

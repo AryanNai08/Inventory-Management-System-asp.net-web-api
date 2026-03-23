@@ -3,6 +3,7 @@ using Application.Interfaces;
 using AutoMapper;
 using Domain.Entities;
 using Domain.Exceptions;
+using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.EntityFrameworkCore;
 
 namespace Application.Services
@@ -120,6 +121,37 @@ namespace Application.Services
             {
                 throw new BadRequestException("This record was modified by another user. Please refresh and try again.");
             }
+            return true;
+        }
+
+        public async Task<List<ProductDto>> GetLowStockProducts()
+        {
+            var products = await _productRepository.GetLowStockAsync();
+            return _mapper.Map<List<ProductDto>>(products);
+        }
+
+        public async Task<List<ProductDto>> GetOutOfStockProducts()
+        {
+            var products = await _productRepository.GetOutOfStockAsync();
+            return _mapper.Map<List<ProductDto>>(products);
+        }
+
+        public async Task<bool> PatchAsync(int id, JsonPatchDocument<UpdateProductDto> patchDoc)
+        {
+            var product = await _productRepository.GetByIdAsync(id);
+            if (product == null) throw new NotFoundException($"Product {id} not found");
+
+            // 1. Map Entity to DTO
+            var productToPatch = _mapper.Map<UpdateProductDto>(product);
+
+            // 2. Apply Patch to DTO
+            patchDoc.ApplyTo(productToPatch);
+
+            // 3. Map Patched DTO back to Entity
+            _mapper.Map(productToPatch, product);
+            product.ModifiedDate = DateTime.UtcNow;
+
+            await _productRepository.UpdateAsync(product);
             return true;
         }
     }

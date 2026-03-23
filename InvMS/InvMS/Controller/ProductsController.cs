@@ -3,6 +3,7 @@ using Application.DTOs.Product;
 using Application.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using System.Net;
 
@@ -132,11 +133,48 @@ namespace InvMS.Controller
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<APIResponse>> DeleteProduct(int id)
         {
-            _apiResponse.Data=await _productService.SoftDeleteAsync(id);
-            _apiResponse.Status=true;
+            _apiResponse.Data = await _productService.SoftDeleteAsync(id);
+            _apiResponse.Status = true;
             _apiResponse.StatusCode = HttpStatusCode.OK;
-            return _apiResponse;
+            return Ok(_apiResponse);
         }
 
+        [HttpGet]
+        [Route("low-stock")]
+        [Authorize(Policy = "ViewProducts")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        public async Task<ActionResult<APIResponse>> GetLowStock()
+        {
+            _apiResponse.Data = await _productService.GetLowStockProducts();
+            _apiResponse.Status = true;
+            _apiResponse.StatusCode = HttpStatusCode.OK;
+            return Ok(_apiResponse);
+        }
+
+        [HttpGet]
+        [Route("out-of-stock")]
+        [Authorize(Policy = "ViewProducts")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        public async Task<ActionResult<APIResponse>> GetOutOfStock()
+        {
+            _apiResponse.Data = await _productService.GetOutOfStockProducts();
+            _apiResponse.Status = true;
+            _apiResponse.StatusCode = HttpStatusCode.OK;
+            return Ok(_apiResponse);
+        }
+
+        [HttpPatch]
+        [Route("{id:int}")]
+        [Authorize(Policy = "ManageProducts")]
+        public async Task<ActionResult<APIResponse>> PatchProduct(int id, [FromBody] JsonPatchDocument<UpdateProductDto> patchDoc)
+        {
+            if (patchDoc == null) return BadRequest();
+
+            await _productService.PatchAsync(id, patchDoc);
+            _apiResponse.Status = true;
+            _apiResponse.StatusCode = HttpStatusCode.OK;
+            _apiResponse.Data = "Product updated partially";
+            return Ok(_apiResponse);
+        }
     }
 }

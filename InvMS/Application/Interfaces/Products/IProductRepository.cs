@@ -16,5 +16,7 @@ namespace Application.Interfaces
         Task<bool> ExistsByCategoryIdAsync(int categoryId);
         Task<bool> ExistsBySupplierIdAsync(int supplierId);
         Task<bool> ExistsByWarehouseIdAsync(int warehouseId);
+        Task<List<Product>> GetLowStockAsync();
+        Task<List<Product>> GetOutOfStockAsync();
     }
 }
