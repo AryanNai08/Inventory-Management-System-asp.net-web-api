@@ -14,5 +14,6 @@ namespace Application.Interfaces
         public Task AddAsync(Supplier supplier);
         public Task UpdateAsync(Supplier supplier);
         public Task SoftDeleteAsync(int id);
+        public Task<List<PurchaseOrder>> GetPurchaseOrdersBySupplierIdAsync(int supplierId);
     }
 }

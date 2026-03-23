@@ -1,8 +1,10 @@
+using Application.DTOs.Product;
+using Application.DTOs.PurchaseOrder;
+using Application.DTOs.Supplier;
+using Domain.Entities;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Application.DTOs.Supplier;
-using Application.DTOs.Product;
 
 namespace Application.Interfaces
 {
@@ -14,5 +16,6 @@ namespace Application.Interfaces
         Task<SupplierDto> CreateAsync(CreateSupplierDto dto);
         Task<bool> UpdateAsync(int id, UpdateSupplierDto dto);
         Task<bool> SoftDeleteAsync(int id);
+        Task<List<PurchaseOrderDto>> GetPurchaseOrdersBySupplierId(int supplierId);
     }
 }

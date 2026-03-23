@@ -48,6 +48,11 @@ namespace Infrastructure.Repositories
                 .ToListAsync();
         }
 
+        public async Task<List<PurchaseOrder>> GetPurchaseOrdersBySupplierIdAsync(int supplierId)
+        {
+            return await _dbContext.PurchaseOrders.Include(po=>po.Status).Where(po=>po.SupplierId==supplierId).ToListAsync();
+        }
+
         public async Task SoftDeleteAsync(int id)
         {
             var supplier = await _dbContext.Suppliers.Where(c => c.Id == id && !c.IsDeleted).FirstOrDefaultAsync();
