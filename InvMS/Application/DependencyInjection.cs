@@ -29,6 +29,7 @@ namespace Application
             services.AddScoped<IPurchaseOrderService, PurchaseOrderService>();
             services.AddScoped<ISalesOrderService, SalesOrderService>();
             services.AddScoped<IStockAdjustmentService, StockAdjustmentService>();
+            services.AddScoped<IDashboardService, DashboardService>();
             //register api response
             services.AddScoped<APIResponse>();
 
