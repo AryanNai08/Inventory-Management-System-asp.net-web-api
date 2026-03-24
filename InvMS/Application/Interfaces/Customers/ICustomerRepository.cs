@@ -3,12 +3,14 @@ using Domain.Entities;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using Application.Common;
+using Domain.Entities;
 
 namespace Application.Interfaces
 {
     public interface ICustomerRepository
     {
-        public Task<List<Customer>> GetAllAsync();
+        public Task<PaginatedResult<Customer>> GetAllAsync(PaginationParams @params);
         public Task<Customer> GetByIdAsync(int id);
         public Task<Customer> GetByNameAsync(string name);
         public Task<List<Customer>> SearchAsync(string name, string city);

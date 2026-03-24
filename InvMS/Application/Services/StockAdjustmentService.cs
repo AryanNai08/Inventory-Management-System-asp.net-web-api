@@ -8,6 +8,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Application.Common;
 
 namespace Application.Services
 {
@@ -87,16 +88,18 @@ namespace Application.Services
             return _mapper.Map<List<AdjustmentTypeDto>>(adjustmettypes);
         }
 
-        public async Task<List<StockAdjustmentDto>> GetAllAsync()
+        public async Task<PaginatedResult<StockAdjustmentDto>> GetAllAsync(PaginationParams @params)
         {
-
-
-            var stocks = await _stockAdjustmentRepository.GetAllAsync();
-            if (stocks.Count == 0)
+            var paginatedAdjustments = await _stockAdjustmentRepository.GetAllAsync(@params);
+            
+            if (paginatedAdjustments.TotalCount == 0)
             {
                 throw new NotFoundException("Stocks not found");
             }
-            return _mapper.Map<List<StockAdjustmentDto>>(stocks);
+
+            var dtos = _mapper.Map<List<StockAdjustmentDto>>(paginatedAdjustments.Items);
+            
+            return new PaginatedResult<StockAdjustmentDto>(dtos, paginatedAdjustments.TotalCount, @params.PageNumber, @params.PageSize);
         }
 
         public async Task<StockAdjustmentDto> GetByIdAsync(int id)

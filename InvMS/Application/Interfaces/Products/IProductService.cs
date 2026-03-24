@@ -3,12 +3,13 @@ using Microsoft.AspNetCore.JsonPatch;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using Application.Common;
 
 namespace Application.Interfaces
 {
     public interface IProductService
     {
-        public Task<List<ProductDto>> GetAllAsync();
+        public Task<PaginatedResult<ProductDto>> GetAllAsync(PaginationParams @params);
         public Task<ProductDto> GetByIdAsync(int id);
         public Task<ProductDto> GetBySkuAsync(string sku);
         public Task<List<ProductDto>> SearchAsync(string name, int? categoryId, int? supplierId);

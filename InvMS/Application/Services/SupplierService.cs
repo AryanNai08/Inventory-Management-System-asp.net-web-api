@@ -9,6 +9,7 @@ using Domain.Exceptions;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using Application.Common;
 
 namespace Application.Services
 {
@@ -38,16 +39,18 @@ namespace Application.Services
             return _mapper.Map<SupplierDto>(newsupplier);
         }
 
-        public async Task<List<SupplierDto>> GetAllAsync()
+        public async Task<PaginatedResult<SupplierDto>> GetAllAsync(PaginationParams @params)
         {
-            var suppliers = await _supplierRepository.GetAllAsync();
-
-            if (suppliers.Count <= 0)
+            var paginatedSuppliers = await _supplierRepository.GetAllAsync(@params);
+            
+            if (paginatedSuppliers.TotalCount <= 0)
             {
                 throw new NotFoundException("No Suppliers found!!");
             }
 
-            return _mapper.Map<List<SupplierDto>>(suppliers);
+            var dtos = _mapper.Map<List<SupplierDto>>(paginatedSuppliers.Items);
+            
+            return new PaginatedResult<SupplierDto>(dtos, paginatedSuppliers.TotalCount, @params.PageNumber, @params.PageSize);
         }
 
         public async Task<SupplierDto> GetByIdAsync(int id)

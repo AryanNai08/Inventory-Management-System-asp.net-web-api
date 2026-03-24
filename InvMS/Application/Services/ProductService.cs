@@ -1,3 +1,4 @@
+using Application.Common;
 using Application.DTOs.Product;
 using Application.Interfaces;
 using AutoMapper;
@@ -35,15 +36,18 @@ namespace Application.Services
             return _mapper.Map<ProductDto>(createdProduct);
         }
 
-        public async Task<List<ProductDto>> GetAllAsync()
+        public async Task<PaginatedResult<ProductDto>> GetAllAsync(PaginationParams @params)
         {
-           var products= await _productRepository.GetAllAsync();
-            if (products.Count <= 0) 
+            var paginatedProducts = await _productRepository.GetAllAsync(@params);
+            
+            if (paginatedProducts.TotalCount <= 0) 
             {
                 throw new NotFoundException("No Products found!!");
             }
 
-            return _mapper.Map<List<ProductDto>>(products);
+            var dtos = _mapper.Map<List<ProductDto>>(paginatedProducts.Items);
+            
+            return new PaginatedResult<ProductDto>(dtos, paginatedProducts.TotalCount, @params.PageNumber, @params.PageSize);
         }
 
         public async Task<ProductDto> GetByIdAsync(int id)

@@ -1,12 +1,11 @@
-using System;
-using System.Collections.Generic;
-using System.Text;
+using Application.Common;
 using Domain.Entities;
+
 namespace Application.Interfaces
 {
     public interface IProductRepository
     {
-        Task<List<Product>> GetAllAsync();
+        Task<PaginatedResult<Product>> GetAllAsync(PaginationParams @params);
         Task<Product> GetByIdAsync(int id);
         Task<Product> GetBySkuAsync(string sku);
         Task<List<Product>> SearchAsync(string name, int? categoryId, int? supplierId);

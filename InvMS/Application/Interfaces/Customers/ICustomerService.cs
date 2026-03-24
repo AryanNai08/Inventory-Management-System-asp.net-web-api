@@ -3,12 +3,13 @@ using Application.DTOs.SalesOrder;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using Application.Common;
 
 namespace Application.Interfaces
 {
     public interface ICustomerService
     {
-        public Task<List<CustomerDto>> GetAllAsync();
+        public Task<PaginatedResult<CustomerDto>> GetAllAsync(PaginationParams @params);
         public Task<CustomerDto> GetByIdAsync(int id);
         Task<List<CustomerDto>> SearchAsync(string name, string city);
         public Task<CustomerDto> CreateAsync(CreateCustomerDto dto);

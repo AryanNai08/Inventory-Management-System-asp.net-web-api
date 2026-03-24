@@ -29,6 +29,7 @@ namespace InvMS.Controller
         }
 
         [HttpGet("sales-by-product")]
+        [Authorize(Policy = "ViewReports")]
         public async Task<IActionResult> GetSalesByProduct(
         [FromQuery] DateTime? startDate,
         [FromQuery] DateTime? endDate)

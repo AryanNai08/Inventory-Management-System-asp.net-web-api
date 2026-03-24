@@ -8,6 +8,7 @@ using AutoMapper;
 using Domain.Entities;
 using Domain.Exceptions;
 using Microsoft.EntityFrameworkCore;
+using Application.Common;
 
 namespace Application.Services
 {
@@ -33,14 +34,18 @@ namespace Application.Services
             _mapper = mapper;
         }
 
-        public async Task<List<PurchaseOrderDto>> GetAllAsync()
+        public async Task<PaginatedResult<PurchaseOrderDto>> GetAllAsync(PaginationParams @params)
         {
-            var orders = await _purchaseOrderRepository.GetAllAsync();
-            if (orders.Count == 0)
+            var paginatedOrders = await _purchaseOrderRepository.GetAllAsync(@params);
+            
+            if (paginatedOrders.TotalCount <= 0)
             {
                 throw new NotFoundException("No Purchaseorders found!!");
             }
-            return _mapper.Map<List<PurchaseOrderDto>>(orders);
+
+            var dtos = _mapper.Map<List<PurchaseOrderDto>>(paginatedOrders.Items);
+            
+            return new PaginatedResult<PurchaseOrderDto>(dtos, paginatedOrders.TotalCount, @params.PageNumber, @params.PageSize);
         }
 
         public async Task<PurchaseOrderDto> GetByIdAsync(int id)

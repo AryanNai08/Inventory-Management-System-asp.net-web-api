@@ -28,12 +28,13 @@ namespace InvMS.Controller
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<APIResponse>> GetAllCustomers()
+        public async Task<ActionResult<APIResponse>> GetAllCustomers([FromQuery] PaginationParams @params)
         {
-            _apiResponse.Data = await _customerService.GetAllAsync();
+            var result = await _customerService.GetAllAsync(@params);
+            _apiResponse.Data = result;
             _apiResponse.StatusCode = HttpStatusCode.OK;
             _apiResponse.Status = true;
-
+ 
             return Ok(_apiResponse);
         }
 

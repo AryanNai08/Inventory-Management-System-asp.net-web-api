@@ -2,6 +2,7 @@ using Application.Interfaces;
 using Domain.Entities;
 using Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
+using Application.Common;
 
 
 namespace Infrastructure.Repositories
@@ -20,14 +21,37 @@ namespace Infrastructure.Repositories
             await _dbContext.SaveChangesAsync();
         }
 
-        public async Task<List<Product>> GetAllAsync()
+        public async Task<PaginatedResult<Product>> GetAllAsync(PaginationParams @params)
         {
-            return await _dbContext.Products
+            var query = _dbContext.Products
                 .Include(p => p.Category)
                 .Include(p => p.Supplier)
                 .Include(p => p.Warehouse)
                 .Where(p => !p.IsDeleted)
+                .AsQueryable();
+
+            // Sorting
+            if (!string.IsNullOrWhiteSpace(@params.SortColumn))
+            {
+                if (@params.SortColumn.Equals("Name", StringComparison.OrdinalIgnoreCase))
+                    query = @params.SortOrder == "desc" ? query.OrderByDescending(p => p.Name) : query.OrderBy(p => p.Name);
+                else if (@params.SortColumn.Equals("UnitPrice", StringComparison.OrdinalIgnoreCase))
+                    query = @params.SortOrder == "desc" ? query.OrderByDescending(p => p.UnitPrice) : query.OrderBy(p => p.UnitPrice);
+                else
+                    query = query.OrderBy(p => p.Id);
+            }
+            else
+            {
+                query = query.OrderBy(p => p.Id);
+            }
+
+            var count = await query.CountAsync();
+            var items = await query
+                .Skip((@params.PageNumber - 1) * @params.PageSize)
+                .Take(@params.PageSize)
                 .ToListAsync();
+
+            return new PaginatedResult<Product>(items, count, @params.PageNumber, @params.PageSize);
         }
 
         public async Task<Product> GetByIdAsync(int id)

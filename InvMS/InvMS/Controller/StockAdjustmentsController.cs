@@ -30,9 +30,10 @@ namespace InvMS.Controller
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
-        public async Task<ActionResult<APIResponse>> GetAll()
+        public async Task<ActionResult<APIResponse>> GetAll([FromQuery] PaginationParams @params)
         {
-            _apiResponse.Data = await _stockAdjustmentService.GetAllAsync();
+            var result = await _stockAdjustmentService.GetAllAsync(@params);
+            _apiResponse.Data = result;
             _apiResponse.StatusCode = HttpStatusCode.OK;
             _apiResponse.Status = true;
             return Ok(_apiResponse);

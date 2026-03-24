@@ -1,3 +1,4 @@
+using Application.Common;
 using Application.DTOs.Customer;
 using Application.DTOs.SalesOrder;
 using Application.Interfaces;
@@ -34,16 +35,18 @@ namespace Application.Services
             return _mapper.Map<CustomerDto>(newcustomer);
         }
 
-        public async Task<List<CustomerDto>> GetAllAsync()
+        public async Task<PaginatedResult<CustomerDto>> GetAllAsync(PaginationParams @params)
         {
-            var customers = await _customerRepository.GetAllAsync();
-
-            if (customers.Count <= 0)
+            var paginatedCustomers = await _customerRepository.GetAllAsync(@params);
+ 
+            if (paginatedCustomers.TotalCount <= 0)
             {
                 throw new NotFoundException("No Customers found!!");
             }
-
-            return _mapper.Map<List<CustomerDto>>(customers);
+ 
+            var dtos = _mapper.Map<List<CustomerDto>>(paginatedCustomers.Items);
+            
+            return new PaginatedResult<CustomerDto>(dtos, paginatedCustomers.TotalCount, @params.PageNumber, @params.PageSize);
         }
 
         public async Task<CustomerDto> GetByIdAsync(int id)

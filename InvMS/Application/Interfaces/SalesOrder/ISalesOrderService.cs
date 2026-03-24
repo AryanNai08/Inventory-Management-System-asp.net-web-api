@@ -2,12 +2,13 @@ using Application.DTOs.SalesOrder;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using Application.Common;
 
 namespace Application.Interfaces
 {
     public interface ISalesOrderService
     {
-        Task<List<SalesOrderDto>> GetAllAsync();
+        Task<PaginatedResult<SalesOrderDto>> GetAllAsync(PaginationParams @params);
         Task<SalesOrderDto> GetByIdAsync(int id);
         Task<SalesOrderDto> CreateAsync(CreateSalesOrderDto dto);
         Task<SalesOrderDto> UpdateAsync(int id, UpdateSalesOrderDto dto);

@@ -2,12 +2,13 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using Domain.Entities;
+using Application.Common;
 
 namespace Application.Interfaces
 {
     public interface ISalesOrderRepository
     {
-        Task<List<SalesOrder>> GetAllAsync();
+        Task<PaginatedResult<SalesOrder>> GetAllAsync(PaginationParams @params);
         Task<SalesOrder> GetByIdAsync(int id);
         Task<string> GenerateOrderNumberAsync();
         Task AddAsync(SalesOrder salesOrder);

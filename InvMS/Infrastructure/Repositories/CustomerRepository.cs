@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using Application.Common;
 
 namespace Infrastructure.Repositories
 {
@@ -26,9 +27,34 @@ namespace Infrastructure.Repositories
             await _dbContext.SaveChangesAsync();
         }
 
-        public async Task<List<Customer>> GetAllAsync()
+        public async Task<PaginatedResult<Customer>> GetAllAsync(PaginationParams @params)
         {
-            return await _dbContext.Customers.Where(c => !c.IsDeleted).ToListAsync();
+            var query = _dbContext.Customers
+                .Where(c => !c.IsDeleted)
+                .AsQueryable();
+
+            // Sorting
+            if (!string.IsNullOrWhiteSpace(@params.SortColumn))
+            {
+                if (@params.SortColumn.Equals("Name", StringComparison.OrdinalIgnoreCase))
+                    query = @params.SortOrder == "desc" ? query.OrderByDescending(c => c.Name) : query.OrderBy(c => c.Name);
+                else if (@params.SortColumn.Equals("City", StringComparison.OrdinalIgnoreCase))
+                    query = @params.SortOrder == "desc" ? query.OrderByDescending(c => c.City) : query.OrderBy(c => c.City);
+                else
+                    query = query.OrderBy(c => c.Id);
+            }
+            else
+            {
+                query = query.OrderBy(c => c.Id);
+            }
+
+            var count = await query.CountAsync();
+            var items = await query
+                .Skip((@params.PageNumber - 1) * @params.PageSize)
+                .Take(@params.PageSize)
+                .ToListAsync();
+
+            return new PaginatedResult<Customer>(items, count, @params.PageNumber, @params.PageSize);
         }
 
         public async Task<Customer> GetByIdAsync(int id)

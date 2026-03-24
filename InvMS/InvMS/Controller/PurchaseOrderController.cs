@@ -28,9 +28,10 @@ namespace InvMS.Controller
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<APIResponse>> GetAllOrders()
+        public async Task<ActionResult<APIResponse>> GetAllOrders([FromQuery] PaginationParams @params)
         {
-            _apiResponse.Data = await _purchaseOrderService.GetAllAsync();
+            var result = await _purchaseOrderService.GetAllAsync(@params);
+            _apiResponse.Data = result;
             _apiResponse.StatusCode = HttpStatusCode.OK;
             _apiResponse.Status = true;
             return Ok(_apiResponse);

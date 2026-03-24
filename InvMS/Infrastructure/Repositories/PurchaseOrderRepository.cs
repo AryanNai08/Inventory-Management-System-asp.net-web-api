@@ -6,6 +6,7 @@ using Application.Interfaces;
 using Domain.Entities;
 using Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
+using Application.Common;
 
 namespace Infrastructure.Repositories
 {
@@ -59,13 +60,37 @@ namespace Infrastructure.Repositories
             return $"{prefix}0001"; // Fallback
         }
 
-        public async Task<List<PurchaseOrder>> GetAllAsync()
+        public async Task<PaginatedResult<PurchaseOrder>> GetAllAsync(PaginationParams @params)
         {
-            return await _dbContext.PurchaseOrders
+            var query = _dbContext.PurchaseOrders
                 .Include(p => p.Supplier)
                 .Include(p => p.Status)
-                .OrderByDescending(p => p.CreatedDate)
+                .AsQueryable();
+
+            // Sorting
+            if (!string.IsNullOrWhiteSpace(@params.SortColumn))
+            {
+                if (@params.SortColumn.Equals("OrderNumber", StringComparison.OrdinalIgnoreCase))
+                    query = @params.SortOrder == "desc" ? query.OrderByDescending(p => p.OrderNumber) : query.OrderBy(p => p.OrderNumber);
+                else if (@params.SortColumn.Equals("OrderDate", StringComparison.OrdinalIgnoreCase))
+                    query = @params.SortOrder == "desc" ? query.OrderByDescending(p => p.OrderDate) : query.OrderBy(p => p.OrderDate);
+                else if (@params.SortColumn.Equals("TotalAmount", StringComparison.OrdinalIgnoreCase))
+                    query = @params.SortOrder == "desc" ? query.OrderByDescending(p => p.TotalAmount) : query.OrderBy(p => p.TotalAmount);
+                else
+                    query = query.OrderByDescending(p => p.CreatedDate);
+            }
+            else
+            {
+                query = query.OrderByDescending(p => p.CreatedDate);
+            }
+
+            var count = await query.CountAsync();
+            var items = await query
+                .Skip((@params.PageNumber - 1) * @params.PageSize)
+                .Take(@params.PageSize)
                 .ToListAsync();
+
+            return new PaginatedResult<PurchaseOrder>(items, count, @params.PageNumber, @params.PageSize);
         }
 
         public async Task<PurchaseOrder> GetByIdAsync(int id)
