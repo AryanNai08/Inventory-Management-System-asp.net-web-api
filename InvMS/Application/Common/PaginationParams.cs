@@ -12,7 +12,7 @@ namespace Application.Common
             set => _pageSize = (value > MaxPageSize) ? MaxPageSize : value;
         }
 
-        public string SortColumn { get; set; }
-        public string SortOrder { get; set; } = "asc"; // "asc" or "desc"
+        public string? SortColumn { get; set; }
+        public string? SortOrder { get; set; } = "asc"; // "asc" or "desc"
     }
 }
