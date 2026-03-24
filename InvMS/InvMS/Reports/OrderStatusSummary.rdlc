@@ -6,19 +6,13 @@
         <TablixBody>
           <TablixColumns>
             <TablixColumn>
-              <Width>1in</Width>
+              <Width>2in</Width>
             </TablixColumn>
             <TablixColumn>
               <Width>2in</Width>
             </TablixColumn>
             <TablixColumn>
-              <Width>1in</Width>
-            </TablixColumn>
-            <TablixColumn>
-              <Width>1in</Width>
-            </TablixColumn>
-            <TablixColumn>
-              <Width>1in</Width>
+              <Width>2in</Width>
             </TablixColumn>
           </TablixColumns>
           <TablixRows>
@@ -34,7 +28,7 @@
                         <Paragraph>
                           <TextRuns>
                             <TextRun>
-                              <Value>Product ID</Value>
+                              <Value>Status Name</Value>
                               <Style>
                                 <FontWeight>Bold</FontWeight>
                               </Style>
@@ -65,7 +59,7 @@
                         <Paragraph>
                           <TextRuns>
                             <TextRun>
-                              <Value>Product Name</Value>
+                              <Value>Purchase Orders</Value>
                               <Style>
                                 <FontWeight>Bold</FontWeight>
                               </Style>
@@ -96,69 +90,7 @@
                         <Paragraph>
                           <TextRuns>
                             <TextRun>
-                              <Value>SKU</Value>
-                              <Style>
-                                <FontWeight>Bold</FontWeight>
-                              </Style>
-                            </TextRun>
-                          </TextRuns>
-                          <Style />
-                        </Paragraph>
-                      </Paragraphs>
-                      <Style>
-                        <Border>
-                          <Color>LightGray</Color>
-                          <Style>Solid</Style>
-                        </Border>
-                        <PaddingLeft>2pt</PaddingLeft>
-                        <PaddingRight>2pt</PaddingRight>
-                        <PaddingTop>2pt</PaddingTop>
-                        <PaddingBottom>2pt</PaddingBottom>
-                      </Style>
-                    </Textbox>
-                  </CellContents>
-                </TablixCell>
-                <TablixCell>
-                  <CellContents>
-                    <Textbox Name="Textbox7">
-                      <CanGrow>true</CanGrow>
-                      <KeepTogether>true</KeepTogether>
-                      <Paragraphs>
-                        <Paragraph>
-                          <TextRuns>
-                            <TextRun>
-                              <Value>Qty Sold</Value>
-                              <Style>
-                                <FontWeight>Bold</FontWeight>
-                              </Style>
-                            </TextRun>
-                          </TextRuns>
-                          <Style />
-                        </Paragraph>
-                      </Paragraphs>
-                      <Style>
-                        <Border>
-                          <Color>LightGray</Color>
-                          <Style>Solid</Style>
-                        </Border>
-                        <PaddingLeft>2pt</PaddingLeft>
-                        <PaddingRight>2pt</PaddingRight>
-                        <PaddingTop>2pt</PaddingTop>
-                        <PaddingBottom>2pt</PaddingBottom>
-                      </Style>
-                    </Textbox>
-                  </CellContents>
-                </TablixCell>
-                <TablixCell>
-                  <CellContents>
-                    <Textbox Name="Textbox10">
-                      <CanGrow>true</CanGrow>
-                      <KeepTogether>true</KeepTogether>
-                      <Paragraphs>
-                        <Paragraph>
-                          <TextRuns>
-                            <TextRun>
-                              <Value>Revenue</Value>
+                              <Value>Sales Orders</Value>
                               <Style>
                                 <FontWeight>Bold</FontWeight>
                               </Style>
@@ -187,14 +119,14 @@
               <TablixCells>
                 <TablixCell>
                   <CellContents>
-                    <Textbox Name="ProductId">
+                    <Textbox Name="StatusName">
                       <CanGrow>true</CanGrow>
                       <KeepTogether>true</KeepTogether>
                       <Paragraphs>
                         <Paragraph>
                           <TextRuns>
                             <TextRun>
-                              <Value>=Fields!ProductId.Value</Value>
+                              <Value>=Fields!StatusName.Value</Value>
                               <Style />
                             </TextRun>
                           </TextRuns>
@@ -216,14 +148,14 @@
                 </TablixCell>
                 <TablixCell>
                   <CellContents>
-                    <Textbox Name="ProductName">
+                    <Textbox Name="PurchaseOrderCount">
                       <CanGrow>true</CanGrow>
                       <KeepTogether>true</KeepTogether>
                       <Paragraphs>
                         <Paragraph>
                           <TextRuns>
                             <TextRun>
-                              <Value>=Fields!ProductName.Value</Value>
+                              <Value>=Fields!PurchaseOrderCount.Value</Value>
                               <Style />
                             </TextRun>
                           </TextRuns>
@@ -245,72 +177,14 @@
                 </TablixCell>
                 <TablixCell>
                   <CellContents>
-                    <Textbox Name="Sku">
+                    <Textbox Name="SalesOrderCount">
                       <CanGrow>true</CanGrow>
                       <KeepTogether>true</KeepTogether>
                       <Paragraphs>
                         <Paragraph>
                           <TextRuns>
                             <TextRun>
-                              <Value>=Fields!Sku.Value</Value>
-                              <Style />
-                            </TextRun>
-                          </TextRuns>
-                          <Style />
-                        </Paragraph>
-                      </Paragraphs>
-                      <Style>
-                        <Border>
-                          <Color>LightGray</Color>
-                          <Style>Solid</Style>
-                        </Border>
-                        <PaddingLeft>2pt</PaddingLeft>
-                        <PaddingRight>2pt</PaddingRight>
-                        <PaddingTop>2pt</PaddingTop>
-                        <PaddingBottom>2pt</PaddingBottom>
-                      </Style>
-                    </Textbox>
-                  </CellContents>
-                </TablixCell>
-                <TablixCell>
-                  <CellContents>
-                    <Textbox Name="TotalQuantitySold">
-                      <CanGrow>true</CanGrow>
-                      <KeepTogether>true</KeepTogether>
-                      <Paragraphs>
-                        <Paragraph>
-                          <TextRuns>
-                            <TextRun>
-                              <Value>=Fields!TotalQuantitySold.Value</Value>
-                              <Style />
-                            </TextRun>
-                          </TextRuns>
-                          <Style />
-                        </Paragraph>
-                      </Paragraphs>
-                      <Style>
-                        <Border>
-                          <Color>LightGray</Color>
-                          <Style>Solid</Style>
-                        </Border>
-                        <PaddingLeft>2pt</PaddingLeft>
-                        <PaddingRight>2pt</PaddingRight>
-                        <PaddingTop>2pt</PaddingTop>
-                        <PaddingBottom>2pt</PaddingBottom>
-                      </Style>
-                    </Textbox>
-                  </CellContents>
-                </TablixCell>
-                <TablixCell>
-                  <CellContents>
-                    <Textbox Name="TotalRevenue">
-                      <CanGrow>true</CanGrow>
-                      <KeepTogether>true</KeepTogether>
-                      <Paragraphs>
-                        <Paragraph>
-                          <TextRuns>
-                            <TextRun>
-                              <Value>=Fields!TotalRevenue.Value</Value>
+                              <Value>=Fields!SalesOrderCount.Value</Value>
                               <Style />
                             </TextRun>
                           </TextRuns>
@@ -339,8 +213,6 @@
             <TablixMember />
             <TablixMember />
             <TablixMember />
-            <TablixMember />
-            <TablixMember />
           </TablixMembers>
         </TablixColumnHierarchy>
         <TablixRowHierarchy>
@@ -353,9 +225,9 @@
             </TablixMember>
           </TablixMembers>
         </TablixRowHierarchy>
-        <DataSetName>dsSalesByProduct</DataSetName>
+        <DataSetName>dsOrderStatusSummary</DataSetName>
         <Top>0.5in</Top>
-        <Left>0.5in</Left>
+        <Left>0.25in</Left>
         <Height>0.5in</Height>
         <Width>6in</Width>
         <Style>
@@ -371,7 +243,7 @@
           <Paragraph>
             <TextRuns>
               <TextRun>
-                <Value>Sales By Product Report</Value>
+                <Value>Order Status Summary Report</Value>
                 <Style>
                   <FontSize>16pt</FontSize>
                   <FontWeight>Bold</FontWeight>
@@ -384,7 +256,7 @@
           </Paragraph>
         </Paragraphs>
         <Top>0.1in</Top>
-        <Left>0.5in</Left>
+        <Left>0.25in</Left>
         <Height>0.3in</Height>
         <Width>6in</Width>
         <ZIndex>1</ZIndex>
@@ -420,31 +292,23 @@
     </DataSource>
   </DataSources>
   <DataSets>
-    <DataSet Name="dsSalesByProduct">
+    <DataSet Name="dsOrderStatusSummary">
       <Query>
         <DataSourceName>dsReportData</DataSourceName>
         <CommandText>/* Local Query */</CommandText>
       </Query>
       <Fields>
-        <Field Name="ProductId">
-          <DataField>ProductId</DataField>
-          <rd:TypeName>System.Int32</rd:TypeName>
-        </Field>
-        <Field Name="ProductName">
-          <DataField>ProductName</DataField>
+        <Field Name="StatusName">
+          <DataField>StatusName</DataField>
           <rd:TypeName>System.String</rd:TypeName>
         </Field>
-        <Field Name="Sku">
-          <DataField>Sku</DataField>
-          <rd:TypeName>System.String</rd:TypeName>
-        </Field>
-        <Field Name="TotalQuantitySold">
-          <DataField>TotalQuantitySold</DataField>
+        <Field Name="PurchaseOrderCount">
+          <DataField>PurchaseOrderCount</DataField>
           <rd:TypeName>System.Int32</rd:TypeName>
         </Field>
-        <Field Name="TotalRevenue">
-          <DataField>TotalRevenue</DataField>
-          <rd:TypeName>System.Decimal</rd:TypeName>
+        <Field Name="SalesOrderCount">
+          <DataField>SalesOrderCount</DataField>
+          <rd:TypeName>System.Int32</rd:TypeName>
         </Field>
       </Fields>
     </DataSet>

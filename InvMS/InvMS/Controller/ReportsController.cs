@@ -19,97 +19,67 @@ namespace InvMS.Controller
     {
         private readonly IDashboardService _dashboardService;
         private readonly APIResponse _apiResponse;
-        private readonly IWebHostEnvironment _env;
+        private readonly IReportPDFService _pdfService;
 
-        public ReportsController(IDashboardService dashboardService, APIResponse apiResponse, IWebHostEnvironment env)
+        public ReportsController(IDashboardService dashboardService, APIResponse apiResponse, IReportPDFService pdfService)
         {
             _dashboardService = dashboardService;
             _apiResponse = apiResponse;
-            _env = env;
+            _pdfService = pdfService;
         }
 
         [HttpGet("sales-by-product")]
-        [Authorize(Policy = "ViewReports")]
         public async Task<IActionResult> GetSalesByProduct(
-            [FromQuery] DateTime? startDate,
-            [FromQuery] DateTime? endDate)
+        [FromQuery] DateTime? startDate,
+        [FromQuery] DateTime? endDate)
         {
             var data = await _dashboardService.GetSalesByProductReportAsync(startDate, endDate);
-            return GeneratePdfReport("SalesByProduct", "dsSalesByProduct", data);
-        }
 
-        private IActionResult GeneratePdfReport(string reportName, string dsName, object data)
-        {
-            try
-            {
-                string reportPath = Path.Combine(_env.ContentRootPath, "Reports", $"{reportName}.rdlc");
-                
-                if (!System.IO.File.Exists(reportPath))
-                    return NotFound($"Report template {reportName}.rdlc not found at {reportPath}");
+            var pdf = _pdfService.GeneratePdf("SalesByProduct", "dsSalesByProduct", data);
 
-                LocalReport localReport = new LocalReport(reportPath);
-                localReport.AddDataSource(dsName, data);
-
-                var result = localReport.Execute(RenderType.Pdf, 1);
-                
-                return File(result.MainStream, "application/pdf", $"{reportName}_{DateTime.Now:yyyyMMdd}.pdf");
-            }
-            catch (Exception ex)
-            {
-                _apiResponse.Status = false;
-                _apiResponse.StatusCode = HttpStatusCode.InternalServerError;
-                _apiResponse.Data = ex.Message;
-                return StatusCode(500, _apiResponse);
-            }
+            return File(pdf, "application/pdf", $"Sales_{DateTime.Now:yyyyMMdd}.pdf");
         }
 
         [HttpGet("purchases-by-supplier")]
         [Authorize(Policy = "ViewReports")]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        public async Task<ActionResult<APIResponse>> GetPurchasesBySupplier(
+        public async Task<IActionResult> GetPurchasesBySupplier(
             [FromQuery] DateTime? startDate,
             [FromQuery] DateTime? endDate)
         {
-            _apiResponse.Data = await _dashboardService.GetPurchasesBySupplierReportAsync(startDate, endDate);
-            _apiResponse.StatusCode = HttpStatusCode.OK;
-            _apiResponse.Status = true;
-            return Ok(_apiResponse);
+            var data = await _dashboardService.GetPurchasesBySupplierReportAsync(startDate, endDate);
+            var pdf = _pdfService.GeneratePdf("PurchasesBySupplier", "dsPurchasesBySupplier", data);
+            return File(pdf, "application/pdf", $"Purchases_Supplier_{DateTime.Now:yyyyMMdd}.pdf");
         }
 
         [HttpGet("stock-movement")]
         [Authorize(Policy = "ViewReports")]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        public async Task<ActionResult<APIResponse>> GetStockMovement([FromQuery] int? year)
+        public async Task<IActionResult> GetStockMovement([FromQuery] int? year)
         {
             int reportYear = year ?? DateTime.UtcNow.Year;
-            _apiResponse.Data = await _dashboardService.GetStockMovementReportAsync(reportYear);
-            _apiResponse.StatusCode = HttpStatusCode.OK;
-            _apiResponse.Status = true;
-            return Ok(_apiResponse);
+            var data = await _dashboardService.GetStockMovementReportAsync(reportYear);
+            var pdf = _pdfService.GeneratePdf("StockMovement", "dsStockMovement", data);
+            return File(pdf, "application/pdf", $"Stock_Movement_{reportYear}.pdf");
         }
 
         [HttpGet("revenue")]
         [Authorize(Policy = "ViewReports")]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        public async Task<ActionResult<APIResponse>> GetRevenue(
+        public async Task<IActionResult> GetRevenue(
             [FromQuery] DateTime? startDate,
             [FromQuery] DateTime? endDate)
         {
-            _apiResponse.Data = await _dashboardService.GetRevenueReportAsync(startDate, endDate);
-            _apiResponse.StatusCode = HttpStatusCode.OK;
-            _apiResponse.Status = true;
-            return Ok(_apiResponse);
+            var data = await _dashboardService.GetRevenueReportAsync(startDate, endDate);
+            // Wrap single object in a list for RDLC data source
+            var pdf = _pdfService.GeneratePdf("Revenue", "dsRevenue", new[] { data });
+            return File(pdf, "application/pdf", $"Revenue_{DateTime.Now:yyyyMMdd}.pdf");
         }
 
         [HttpGet("order-status-summary")]
         [Authorize(Policy = "ViewReports")]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        public async Task<ActionResult<APIResponse>> GetOrderStatusSummary()
+        public async Task<IActionResult> GetOrderStatusSummary()
         {
-            _apiResponse.Data = await _dashboardService.GetOrderStatusSummaryAsync();
-            _apiResponse.StatusCode = HttpStatusCode.OK;
-            _apiResponse.Status = true;
-            return Ok(_apiResponse);
+            var data = await _dashboardService.GetOrderStatusSummaryAsync();
+            var pdf = _pdfService.GeneratePdf("OrderStatusSummary", "dsOrderStatusSummary", data);
+            return File(pdf, "application/pdf", $"Order_Status_Summary_{DateTime.Now:yyyyMMdd}.pdf");
         }
     }
 }

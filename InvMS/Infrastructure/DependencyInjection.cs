@@ -33,6 +33,7 @@ namespace Infrastructure
             services.AddScoped<ISalesOrderRepository, SalesOrderRepository>();
             services.AddScoped<IStockAdjustmentRepository, StockAdjustmentRepository>();
             services.AddScoped<IDashboardRepository, DashboardRepository>();
+            services.AddScoped<IReportPDFService,ReportPDFService>();
 
             services.AddScoped<IUnitOfWork, UnitOfWork>();
 
