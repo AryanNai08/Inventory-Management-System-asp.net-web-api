@@ -1,4 +1,3 @@
-using Application.DTOs.SalesOrder;
 using Application.Interfaces;
 using Domain.Entities;
 using Domain.Exceptions;

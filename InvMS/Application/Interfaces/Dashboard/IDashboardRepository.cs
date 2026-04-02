@@ -1,4 +1,4 @@
-using Application.DTOs.Dashboard;
+using Application.Common.Models;   // ✅ add this
 using Application.DTOs.Reports;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -7,15 +7,16 @@ namespace Application.Interfaces
 {
     public interface IDashboardRepository
     {
-        Task<DashboardSummaryDto> GetSummaryStatsAsync();
-        Task<List<TopProductDto>> GetTopSellingProductsAsync(int count);
-        Task<List<LowStockDto>> GetLowStockReportAsync();
+        // ✅ FIXED (use Models instead of DTOs)
+        Task<DashboardSummary> GetSummaryStatsAsync();
+        Task<List<TopProduct>> GetTopSellingProductsAsync(int count);
+        Task<List<LowStock>> GetLowStockReportAsync();
 
-        // Reports
-        Task<List<SalesByProductReportDto>> GetSalesByProductAsync(DateTime? startDate, DateTime? endDate);
-        Task<List<PurchasesBySupplierReportDto>> GetPurchasesBySupplierAsync(DateTime? startDate, DateTime? endDate);
-        Task<List<StockMovementReportDto>> GetStockMovementAsync(int year);
-        Task<RevenueReportDto> GetRevenueAsync(DateTime? startDate, DateTime? endDate);
-        Task<List<OrderStatusSummaryDto>> GetOrderStatusSummaryAsync();
+        // 🔸 KEEP AS-IS FOR NOW (we’ll fix later)
+        Task<List<SalesByProductReport>> GetSalesByProductAsync(DateTime? startDate, DateTime? endDate);
+        Task<List<PurchasesBySupplierReport>> GetPurchasesBySupplierAsync(DateTime? startDate, DateTime? endDate);
+        Task<List<StockMovementReport>> GetStockMovementAsync(int year);
+        Task<RevenueReport> GetRevenueAsync(DateTime? startDate, DateTime? endDate);
+        Task<List<OrderStatusSummary>> GetOrderStatusSummaryAsync();
     }
 }
