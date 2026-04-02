@@ -1,13 +1,8 @@
-using Application.DTOs.SalesOrder;
+using Application.Common;
 using Application.Interfaces;
 using Domain.Entities;
 using Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
-using Application.Common;
-using System;
-using System.Collections.Generic;
-using System.Net.NetworkInformation;
-using System.Text;
 
 namespace Infrastructure.Repositories
 {

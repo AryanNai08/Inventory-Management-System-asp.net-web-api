@@ -5,6 +5,7 @@ using Infrastructure.Data;
 using InvMS.Middleware;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi;
 using Microsoft.OpenApi.Models;
@@ -18,6 +19,12 @@ var builder = WebApplication.CreateBuilder(args);
 
 
 builder.Services.AddTransient<ExceptionMiddleware>();
+
+//this line needed to understand first added it in hurry to get product controller modelstate validation error msg
+builder.Services.Configure<ApiBehaviorOptions>(options =>
+{
+    options.SuppressModelStateInvalidFilter = true;
+}); 
 
 
 //Store OTP temporarily in server memory
