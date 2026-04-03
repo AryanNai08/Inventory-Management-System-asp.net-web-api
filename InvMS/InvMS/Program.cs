@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi;
 using Microsoft.OpenApi.Models;
+using Serilog;
 using System.Text;
 
 // Add this for RDLC encoding support
@@ -19,6 +20,29 @@ var builder = WebApplication.CreateBuilder(args);
 
 
 builder.Services.AddTransient<ExceptionMiddleware>();
+
+/*serilog configuration*/
+/*-------------------------------------------------------------------------------------------------------------------*/
+builder.Host.UseSerilog((context, services, configuration) => {
+    var enableLogs = context.Configuration.GetValue<bool>("Logging:EnableFileLogging");
+    var logFolder = context.Configuration.GetValue<string>("Logging:LogFolder") ?? "logs";
+    var logFile = context.Configuration.GetValue<string>("Logging:LogFile") ?? "log.txt";
+    var logPath = Path.Combine(logFolder, logFile);
+
+    configuration
+        .ReadFrom.Configuration(context.Configuration)
+        .Enrich.FromLogContext()
+        .WriteTo.Console();
+
+    if (enableLogs)
+    {
+        configuration.WriteTo.File(
+            logPath, 
+            rollingInterval: RollingInterval.Day,
+            outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss} [{Level:u3}] {Message:lj}{NewLine}{Exception}");
+    }
+});
+/*-------------------------------------------------------------------------------------------------------------------*/
 
 // Automatically format ModelState validation errors into our generic APIResponse format globally!
 builder.Services.Configure<ApiBehaviorOptions>(options =>
