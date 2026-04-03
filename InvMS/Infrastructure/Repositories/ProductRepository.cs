@@ -104,10 +104,9 @@ namespace Infrastructure.Repositories
 
         public async Task SoftDeleteAsync(int id)
         {
-            
             var product = await _dbContext.Products.Where(c => c.Id == id && !c.IsDeleted).FirstOrDefaultAsync();
             product.IsDeleted = true;
-            product.ModifiedDate = DateTime.UtcNow;
+            // ModifiedDate and DeletedBy are now set automatically in DbContext.SaveChangesAsync
             await _dbContext.SaveChangesAsync();
         }
 

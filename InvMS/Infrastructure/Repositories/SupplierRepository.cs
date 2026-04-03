@@ -83,7 +83,7 @@ namespace Infrastructure.Repositories
         {
             var supplier = await _dbContext.Suppliers.Where(c => c.Id == id && !c.IsDeleted).FirstOrDefaultAsync();
             supplier.IsDeleted = true;
-            supplier.ModifiedDate = DateTime.UtcNow;
+            // ModifiedDate and DeletedBy are now set automatically in DbContext.SaveChangesAsync
             await _dbContext.SaveChangesAsync();
         }
 

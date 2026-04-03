@@ -109,7 +109,7 @@ namespace Infrastructure.Repositories
             if (order != null)
             {
                 order.StatusId = newStatusId;
-                order.ModifiedDate = DateTime.UtcNow;
+                // ModifiedDate and UpdatedBy are handled by DbContext.SaveChangesAsync automatically
                 await _dbContext.SaveChangesAsync();
             }
         }

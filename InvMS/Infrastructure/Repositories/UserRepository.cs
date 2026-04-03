@@ -59,7 +59,7 @@ namespace Infrastructure.Repositories
                 .FirstOrDefaultAsync(u => u.Id == id && !u.IsDeleted);
 
             user.IsDeleted = true;
-            user.ModifiedDate = DateTime.UtcNow;
+            // ModifiedDate and DeletedBy are handled by DbContext.SaveChangesAsync automatically
 
             _dbContext.Users.Update(user);
             await _dbContext.SaveChangesAsync();

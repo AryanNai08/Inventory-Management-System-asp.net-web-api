@@ -44,7 +44,7 @@ namespace Infrastructure.Repositories
         {
             var warehouse = await _dbContext.Warehouses.Where(c => c.Id == id && !c.IsDeleted).FirstOrDefaultAsync();
             warehouse.IsDeleted = true;
-            warehouse.ModifiedDate = DateTime.UtcNow;
+            // ModifiedDate and DeletedBy are handled by DbContext.SaveChangesAsync automatically
             await _dbContext.SaveChangesAsync();
         }
 

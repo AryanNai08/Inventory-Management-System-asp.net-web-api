@@ -95,7 +95,7 @@ namespace Infrastructure.Repositories
         {
             var customer = await _dbContext.Customers.Where(c => c.Id == id && !c.IsDeleted).FirstOrDefaultAsync();
             customer.IsDeleted = true;
-            customer.ModifiedDate = DateTime.UtcNow;
+            // ModifiedDate and DeletedBy are now set automatically in DbContext.SaveChangesAsync
             await _dbContext.SaveChangesAsync();
         }
 

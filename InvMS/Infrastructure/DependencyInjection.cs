@@ -1,7 +1,9 @@
 using Application.Interfaces;
+using Application.Interfaces.Auth;
 using Application.Services;
 using Infrastructure.Data;
 using Infrastructure.Repositories;
+using Infrastructure.Services;
 using Infrastructure.ThirdPartyServices;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -13,9 +15,14 @@ namespace Infrastructure
     {
         public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration config)
         {
+            services.AddHttpContextAccessor();
+
             services.AddDbContext<InventoryDbContext>(options =>
                 options.UseSqlServer(
                     config.GetConnectionString("InventoryDb")));
+
+            // Current user service (reads JWT claims for audit fields)
+            services.AddScoped<ICurrentUserService, CurrentUserService>();
 
             //repository
             services.AddScoped<IUserRepository, UserRepository>();

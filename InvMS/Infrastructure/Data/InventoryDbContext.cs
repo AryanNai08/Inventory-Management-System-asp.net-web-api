@@ -1,3 +1,5 @@
+using Application.Interfaces.Auth;
+using Domain.Common;
 using Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 
@@ -5,9 +7,52 @@ namespace Infrastructure.Data;
 
 public partial class InventoryDbContext : DbContext
 {
-    public InventoryDbContext(DbContextOptions<InventoryDbContext> options)
+    private readonly ICurrentUserService? _currentUserService;
+
+    public InventoryDbContext(DbContextOptions<InventoryDbContext> options, ICurrentUserService? currentUserService = null)
         : base(options)
     {
+        _currentUserService = currentUserService;
+    }
+
+    /// <summary>
+    /// Intercepts all saves to automatically populate audit fields.
+    /// - Added entities  → sets CreatedBy + CreatedDate
+    /// - Modified entities → sets UpdatedBy + ModifiedDate
+    /// - Soft-deleted entities (Modified + IsDeleted flipped to true) → also sets DeletedBy
+    /// </summary>
+    public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+    {
+        var currentUser = _currentUserService?.Username ?? "System";
+        var now = DateTime.UtcNow;
+
+        foreach (var entry in ChangeTracker.Entries<IAuditable>())
+        {
+            if (entry.State == EntityState.Added)
+            {
+                entry.Entity.CreatedBy = currentUser;
+                entry.Entity.CreatedDate = now;
+            }
+
+            if (entry.State == EntityState.Modified)
+            {
+                entry.Entity.UpdatedBy = currentUser;
+                entry.Entity.ModifiedDate = now;
+
+                // Check if this is a soft-delete operation
+                if (entry.Entity is ISoftDeletable softDeletable && softDeletable.IsDeleted)
+                {
+                    // Only set DeletedBy if it just became deleted (wasn't deleted before)
+                    var wasDeleted = entry.OriginalValues.GetValue<bool>(nameof(ISoftDeletable.IsDeleted));
+                    if (!wasDeleted)
+                    {
+                        softDeletable.DeletedBy = currentUser;
+                    }
+                }
+            }
+        }
+
+        return await base.SaveChangesAsync(cancellationToken);
     }
 
     public virtual DbSet<Category> Categories { get; set; }
@@ -51,6 +96,9 @@ public partial class InventoryDbContext : DbContext
             entity.Property(e => e.CreatedDate).HasDefaultValueSql("(getutcdate())");
             entity.Property(e => e.Description).HasMaxLength(500);
             entity.Property(e => e.Name).HasMaxLength(100);
+            entity.Property(e => e.CreatedBy).HasMaxLength(100);
+            entity.Property(e => e.UpdatedBy).HasMaxLength(100);
+            entity.Property(e => e.DeletedBy).HasMaxLength(100);
         });
 
         modelBuilder.Entity<User>(entity =>
@@ -64,6 +112,9 @@ public partial class InventoryDbContext : DbContext
             entity.Property(e => e.Email).HasMaxLength(100);
             entity.Property(e => e.FullName).HasMaxLength(100);
             entity.Property(e => e.Username).HasMaxLength(50);
+            entity.Property(e => e.CreatedBy).HasMaxLength(100);
+            entity.Property(e => e.UpdatedBy).HasMaxLength(100);
+            entity.Property(e => e.DeletedBy).HasMaxLength(100);
 
             entity.HasMany(u => u.Roles)
                 .WithMany(r => r.Users)
@@ -135,6 +186,9 @@ public partial class InventoryDbContext : DbContext
             entity.Property(e => e.Email).HasMaxLength(100);
             entity.Property(e => e.Name).HasMaxLength(100);
             entity.Property(e => e.Phone).HasMaxLength(20);
+            entity.Property(e => e.CreatedBy).HasMaxLength(100);
+            entity.Property(e => e.UpdatedBy).HasMaxLength(100);
+            entity.Property(e => e.DeletedBy).HasMaxLength(100);
         });
 
         modelBuilder.Entity<Supplier>(entity =>
@@ -148,6 +202,9 @@ public partial class InventoryDbContext : DbContext
             entity.Property(e => e.Email).HasMaxLength(100);
             entity.Property(e => e.Name).HasMaxLength(100);
             entity.Property(e => e.Phone).HasMaxLength(20);
+            entity.Property(e => e.CreatedBy).HasMaxLength(100);
+            entity.Property(e => e.UpdatedBy).HasMaxLength(100);
+            entity.Property(e => e.DeletedBy).HasMaxLength(100);
         });
 
         modelBuilder.Entity<Warehouse>(entity =>
@@ -160,6 +217,9 @@ public partial class InventoryDbContext : DbContext
             entity.Property(e => e.Description).HasMaxLength(500);
             entity.Property(e => e.Location).HasMaxLength(200);
             entity.Property(e => e.Name).HasMaxLength(100);
+            entity.Property(e => e.CreatedBy).HasMaxLength(100);
+            entity.Property(e => e.UpdatedBy).HasMaxLength(100);
+            entity.Property(e => e.DeletedBy).HasMaxLength(100);
         });
 
         modelBuilder.Entity<Product>(entity =>
@@ -179,6 +239,9 @@ public partial class InventoryDbContext : DbContext
                 .HasMaxLength(50)
                 .HasColumnName("SKU");
             entity.Property(e => e.UnitPrice).HasColumnType("decimal(18, 2)");
+            entity.Property(e => e.CreatedBy).HasMaxLength(100);
+            entity.Property(e => e.UpdatedBy).HasMaxLength(100);
+            entity.Property(e => e.DeletedBy).HasMaxLength(100);
 
             entity.HasOne(e => e.Category)
                 .WithMany()
@@ -208,6 +271,8 @@ public partial class InventoryDbContext : DbContext
             entity.Property(e => e.OrderDate).HasDefaultValueSql("(getutcdate())");
             entity.Property(e => e.OrderNumber).HasMaxLength(50);
             entity.Property(e => e.TotalAmount).HasColumnType("decimal(18, 2)");
+            entity.Property(e => e.CreatedBy).HasMaxLength(100);
+            entity.Property(e => e.UpdatedBy).HasMaxLength(100);
 
             entity.HasOne(d => d.Status).WithMany(p => p.PurchaseOrders)
                 .HasForeignKey(d => d.StatusId)
@@ -260,6 +325,8 @@ public partial class InventoryDbContext : DbContext
             entity.Property(e => e.OrderDate).HasDefaultValueSql("(getutcdate())");
             entity.Property(e => e.OrderNumber).HasMaxLength(50);
             entity.Property(e => e.TotalAmount).HasColumnType("decimal(18, 2)");
+            entity.Property(e => e.CreatedBy).HasMaxLength(100);
+            entity.Property(e => e.UpdatedBy).HasMaxLength(100);
 
             entity.HasOne(d => d.Status).WithMany(p => p.SalesOrders)
                 .HasForeignKey(d => d.StatusId)
