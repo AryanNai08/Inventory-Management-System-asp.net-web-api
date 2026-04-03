@@ -63,7 +63,8 @@ namespace InvMS.Middleware
                     StatusCode = statusCode
                 };
 
-                apiResponse.Error.Add(ex.Message);
+                apiResponse.Error=ex.Message;
+                //apiResponse.Error.Add(ex.Message);
 
                 var jsonResponse = JsonSerializer.Serialize(apiResponse);
 

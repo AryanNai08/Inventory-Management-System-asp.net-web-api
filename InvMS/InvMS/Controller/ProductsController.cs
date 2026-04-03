@@ -89,71 +89,71 @@ namespace InvMS.Controller
             return _apiResponse;
         }
 
-        //[HttpPost]
-        //[Route("CreateProduct")]
-        //[Authorize(Policy = "ManageProducts")]
-        //[ProducesResponseType(StatusCodes.Status200OK)]
-        //[ProducesResponseType(StatusCodes.Status201Created)]
-        //[ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        //[ProducesResponseType(StatusCodes.Status403Forbidden)]
-        //[ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        //public async Task<ActionResult<APIResponse>> CreateProduct([FromBody] CreateProductDto dto)
-        //{
-        //    _apiResponse.Data = await _productService.CreateAsync(dto);
-        //    _apiResponse.StatusCode = HttpStatusCode.Created;
-        //    _apiResponse.Status = true;
-
-        //    return CreatedAtRoute("GetProductById", new { id = ((ProductDto)_apiResponse.Data).Id }, _apiResponse);
-        //}
-
         [HttpPost]
         [Route("CreateProduct")]
         [Authorize(Policy = "ManageProducts")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status201Created)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<APIResponse>> CreateProduct([FromBody] CreateProductDto dto)
         {
-            // 🔴 Step 1: Model Validation (MULTIPLE ERRORS)
-            if (!ModelState.IsValid)
-            {
-                _apiResponse.Status = false;
-                _apiResponse.StatusCode = HttpStatusCode.BadRequest;
-                _apiResponse.Data = null;
+            _apiResponse.Data = await _productService.CreateAsync(dto);
+            _apiResponse.StatusCode = HttpStatusCode.Created;
+            _apiResponse.Status = true;
 
-                _apiResponse.Error = ModelState.Values
-                    .SelectMany(v => v.Errors)
-                    .Select(e => e.ErrorMessage)
-                    .ToList();
-
-                return BadRequest(_apiResponse);
-            }
-
-            try
-            {
-                // 🟢 Step 2: Call Service
-                var result = await _productService.CreateAsync(dto);
-
-                _apiResponse.Data = result;
-                _apiResponse.StatusCode = HttpStatusCode.Created;
-                _apiResponse.Status = true;
-
-                return CreatedAtRoute("GetProductById", new { id = result.Id }, _apiResponse);
-            }
-            catch (Exception ex)
-            {
-                // 🔴 Step 3: Handle unexpected errors
-                _apiResponse.Status = false;
-                _apiResponse.StatusCode = HttpStatusCode.InternalServerError;
-                _apiResponse.Data = null;
-                _apiResponse.Error = new List<string> { ex.Message };
-
-                return StatusCode(500, _apiResponse);
-            }
+            return CreatedAtRoute("GetProductById", new { id = ((ProductDto)_apiResponse.Data).Id }, _apiResponse);
         }
+
+        //[HttpPost]
+        //[Route("CreateProduct")]
+        //[Authorize(Policy = "ManageProducts")]
+        //[ProducesResponseType(StatusCodes.Status200OK)]
+        //[ProducesResponseType(StatusCodes.Status201Created)]
+        //[ProducesResponseType(StatusCodes.Status400BadRequest)]
+        //[ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        //[ProducesResponseType(StatusCodes.Status403Forbidden)]
+        //[ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        //public async Task<ActionResult<APIResponse>> CreateProduct([FromBody] CreateProductDto dto)
+        //{
+        //    // 🔴 Step 1: Model Validation (MULTIPLE ERRORS)
+        //    if (!ModelState.IsValid)
+        //    {
+        //        _apiResponse.Status = false;
+        //        _apiResponse.StatusCode = HttpStatusCode.BadRequest;
+        //        _apiResponse.Data = null;
+
+        //        _apiResponse.Error = ModelState.Values
+        //            .SelectMany(v => v.Errors)
+        //            .Select(e => e.ErrorMessage)
+        //            .ToList();
+
+        //        return BadRequest(_apiResponse);
+        //    }
+
+        //    try
+        //    {
+        //        // 🟢 Step 2: Call Service
+        //        var result = await _productService.CreateAsync(dto);
+
+        //        _apiResponse.Data = result;
+        //        _apiResponse.StatusCode = HttpStatusCode.Created;
+        //        _apiResponse.Status = true;
+
+        //        return CreatedAtRoute("GetProductById", new { id = result.Id }, _apiResponse);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        // 🔴 Step 3: Handle unexpected errors
+        //        _apiResponse.Status = false;
+        //        _apiResponse.StatusCode = HttpStatusCode.InternalServerError;
+        //        _apiResponse.Data = null;
+        //        _apiResponse.Error = new List<string> { ex.Message };
+
+        //        return StatusCode(500, _apiResponse);
+        //    }
+        //}
 
         [HttpPut]
         [Route("{id:int}",Name ="UpdateProduct")]

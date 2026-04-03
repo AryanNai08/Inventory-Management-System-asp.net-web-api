@@ -7,9 +7,9 @@ namespace Application.DTOs.Auth
 {
     public class LoginDto
     {
-        [Required]
+        [Required(ErrorMessage ="Enter username")]
         public string Username { get; set; }
-        [Required]
+        [Required(ErrorMessage ="Enter password")]
         public string Password { get; set; }
     }
 }

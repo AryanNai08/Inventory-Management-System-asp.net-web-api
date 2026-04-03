@@ -56,10 +56,15 @@ namespace Application.Services
 
         public async Task<LoginResponseDto> LoginAsync(LoginDto dto)
         {
+
+            if(string.IsNullOrEmpty(dto.Username) || string.IsNullOrEmpty(dto.Password))
+            {
+                throw new BadRequestException("Fields are required");
+            }
             var user = await _userRepository.GetByUsernameAsync(dto.Username);
 
             if (user == null)
-                throw new UnauthorizedException("Invalid username or password");
+                throw new UnauthorizedException("User not found!");
 
             if (user.IsDeleted)
                 throw new UnauthorizedException("Account is deactivated");

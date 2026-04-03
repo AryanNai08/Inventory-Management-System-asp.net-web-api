@@ -8,6 +8,7 @@ namespace Application.Common
         public HttpStatusCode StatusCode { get; set; }
 
         public dynamic Data { get; set; }
-        public List<string> Error { get; set; } = new();
+        //public List<string> Error { get; set; } = new();
+        public string Error { get; set; } 
     }
 }
