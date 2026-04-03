@@ -15,12 +15,10 @@ namespace InvMS.Controller
     public class SalesOrdersController : ControllerBase
     {
         private readonly ISalesOrderService _salesOrderService;
-        private readonly APIResponse _apiResponse;
 
-        public SalesOrdersController(ISalesOrderService salesOrderService, APIResponse apiResponse)
+        public SalesOrdersController(ISalesOrderService salesOrderService)
         {
             _salesOrderService = salesOrderService;
-            _apiResponse = apiResponse;
         }
 
         [HttpGet]
@@ -28,13 +26,10 @@ namespace InvMS.Controller
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
-        public async Task<ActionResult<APIResponse>> GetAll([FromQuery] PaginationParams @params)
+        public async Task<ActionResult<APIResponse<PaginatedResult<SalesOrderDto>>>> GetAll([FromQuery] PaginationParams @params)
         {
             var result = await _salesOrderService.GetAllAsync(@params);
-            _apiResponse.Data = result;
-            _apiResponse.StatusCode = HttpStatusCode.OK;
-            _apiResponse.Status = true;
-            return Ok(_apiResponse);
+            return Ok(new APIResponse<PaginatedResult<SalesOrderDto>>(result, "Sales orders fetched successfully"));
         }
 
         [HttpGet]
@@ -44,12 +39,10 @@ namespace InvMS.Controller
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
-        public async Task<ActionResult<APIResponse>> GetById(int id)
+        public async Task<ActionResult<APIResponse<SalesOrderDto>>> GetById(int id)
         {
-            _apiResponse.Data = await _salesOrderService.GetByIdAsync(id);
-            _apiResponse.StatusCode = HttpStatusCode.OK;
-            _apiResponse.Status = true;
-            return Ok(_apiResponse);
+            var result = await _salesOrderService.GetByIdAsync(id);
+            return Ok(new APIResponse<SalesOrderDto>(result, "Sales order fetched successfully"));
         }
 
         [HttpPost]
@@ -59,12 +52,10 @@ namespace InvMS.Controller
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
-        public async Task<ActionResult<APIResponse>> Create([FromBody] CreateSalesOrderDto dto)
+        public async Task<ActionResult<APIResponse<SalesOrderDto>>> Create([FromBody] CreateSalesOrderDto dto)
         {
-            _apiResponse.Data = await _salesOrderService.CreateAsync(dto);
-            _apiResponse.StatusCode = HttpStatusCode.OK;
-            _apiResponse.Status = true;
-            return Ok(_apiResponse);
+            var result = await _salesOrderService.CreateAsync(dto);
+            return Ok(new APIResponse<SalesOrderDto>(result, "Sales order created successfully"));
         }
 
         [HttpPut]
@@ -75,12 +66,10 @@ namespace InvMS.Controller
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
-        public async Task<ActionResult<APIResponse>> Update(int id, [FromBody] UpdateSalesOrderDto dto)
+        public async Task<ActionResult<APIResponse<SalesOrderDto>>> Update(int id, [FromBody] UpdateSalesOrderDto dto)
         {
-            _apiResponse.Data = await _salesOrderService.UpdateAsync(id, dto);
-            _apiResponse.StatusCode = HttpStatusCode.OK;
-            _apiResponse.Status = true;
-            return Ok(_apiResponse);
+            var result = await _salesOrderService.UpdateAsync(id, dto);
+            return Ok(new APIResponse<SalesOrderDto>(result, "Sales order updated successfully"));
         }
 
         [HttpPatch]
@@ -89,12 +78,10 @@ namespace InvMS.Controller
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<ActionResult<APIResponse>> Confirm(int id)
+        public async Task<ActionResult<APIResponse<bool>>> Confirm(int id)
         {
-            _apiResponse.Data = await _salesOrderService.ConfirmAsync(id);
-            _apiResponse.StatusCode = HttpStatusCode.OK;
-            _apiResponse.Status = true;
-            return Ok(_apiResponse);
+            var result = await _salesOrderService.ConfirmAsync(id);
+            return Ok(new APIResponse<bool>(result, "Sales order confirmed successfully"));
         }
 
         [HttpPatch]
@@ -103,12 +90,10 @@ namespace InvMS.Controller
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<ActionResult<APIResponse>> Ship(int id)
+        public async Task<ActionResult<APIResponse<bool>>> Ship(int id)
         {
-            _apiResponse.Data = await _salesOrderService.ShipAsync(id);
-            _apiResponse.StatusCode = HttpStatusCode.OK;
-            _apiResponse.Status = true;
-            return Ok(_apiResponse);
+            var result = await _salesOrderService.ShipAsync(id);
+            return Ok(new APIResponse<bool>(result, "Sales order shipped successfully"));
         }
 
         [HttpPatch]
@@ -117,12 +102,10 @@ namespace InvMS.Controller
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<ActionResult<APIResponse>> Deliver(int id)
+        public async Task<ActionResult<APIResponse<bool>>> Deliver(int id)
         {
-            _apiResponse.Data = await _salesOrderService.DeliverAsync(id);
-            _apiResponse.StatusCode = HttpStatusCode.OK;
-            _apiResponse.Status = true;
-            return Ok(_apiResponse);
+            var result = await _salesOrderService.DeliverAsync(id);
+            return Ok(new APIResponse<bool>(result, "Sales order delivered successfully"));
         }
 
         [HttpDelete]
@@ -131,12 +114,10 @@ namespace InvMS.Controller
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<ActionResult<APIResponse>> Cancel(int id)
+        public async Task<ActionResult<APIResponse<bool>>> Cancel(int id)
         {
-            _apiResponse.Data = await _salesOrderService.CancelAsync(id);
-            _apiResponse.StatusCode = HttpStatusCode.OK;
-            _apiResponse.Status = true;
-            return Ok(_apiResponse);
+            var result = await _salesOrderService.CancelAsync(id);
+            return Ok(new APIResponse<bool>(result, "Sales order canceled successfully"));
         }
 
         [HttpGet]
@@ -144,16 +125,14 @@ namespace InvMS.Controller
         [Authorize(Policy = "ViewSalesOrders")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<ActionResult<APIResponse>> Search(
+        public async Task<ActionResult<APIResponse<List<SalesOrderDto>>>> Search(
             [FromQuery] int? status, 
             [FromQuery] int? customerId, 
             [FromQuery] DateTime? startDate, 
             [FromQuery] DateTime? endDate)
         {
-            _apiResponse.Data = await _salesOrderService.SearchAsync(status, customerId, startDate, endDate);
-            _apiResponse.StatusCode = HttpStatusCode.OK;
-            _apiResponse.Status = true;
-            return Ok(_apiResponse);
+            var result = await _salesOrderService.SearchAsync(status, customerId, startDate, endDate);
+            return Ok(new APIResponse<List<SalesOrderDto>>(result, "Sales orders fetched successfully"));
         }
     }
 }

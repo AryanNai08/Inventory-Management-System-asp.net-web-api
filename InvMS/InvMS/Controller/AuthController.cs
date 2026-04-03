@@ -15,11 +15,9 @@ namespace InvMS.Controller
 
         private readonly IAuthService _authService;
 
-        private readonly APIResponse _apiResponse;
-        public AuthController(IAuthService authService, APIResponse apiResponse)
+        public AuthController(IAuthService authService)
         {
             _authService = authService;
-            _apiResponse = apiResponse;
         }
         [HttpPost]
         [Route("register")]
@@ -30,14 +28,10 @@ namespace InvMS.Controller
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult> RegisterUserAsync([FromBody] RegisterDto dto)
+        public async Task<ActionResult<APIResponse<UserDto>>> RegisterUserAsync([FromBody] RegisterDto dto)
         {
-            _apiResponse.Data=await _authService.RegisterAsync(dto);
-            _apiResponse.StatusCode = HttpStatusCode.Created;
-            _apiResponse.Status = true;
-
-            var result = (UserDto)_apiResponse.Data;
-            return CreatedAtRoute("GetUserById", new { id = result.Id }, _apiResponse);
+            var result = await _authService.RegisterAsync(dto);
+            return CreatedAtRoute("GetUserById", new { id = result.Id }, new APIResponse<UserDto>(result, "User registered successfully"));
         }
 
         [HttpPost]
@@ -47,7 +41,7 @@ namespace InvMS.Controller
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<APIResponse>> LoginUser([FromBody] LoginDto dto)
+        public async Task<ActionResult<APIResponse<LoginResponseDto>>> LoginUser([FromBody] LoginDto dto)
         {
             var response= await _authService.LoginAsync(dto);
 
@@ -66,11 +60,7 @@ namespace InvMS.Controller
                 Expires = DateTime.UtcNow.AddDays(7)
             });
 
-            _apiResponse.Data = response;
-            _apiResponse.StatusCode=HttpStatusCode.OK;
-            _apiResponse.Status=true;
-
-            return Ok(_apiResponse);
+            return Ok(new APIResponse<LoginResponseDto>(response, "Login successful"));
         }
 
 
@@ -81,19 +71,16 @@ namespace InvMS.Controller
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<APIResponse>> ChangePassword([FromBody] ChangePasswordDto dto)
+        public async Task<ActionResult<APIResponse<object>>> ChangePassword([FromBody] ChangePasswordDto dto)
         {
             var userId = int.Parse(User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier).Value);
-            _apiResponse.Data = await _authService.ChangePasswordAsync(userId, dto);
-            _apiResponse.StatusCode = HttpStatusCode.OK;
-            _apiResponse.Status = true;
-
-            return Ok(_apiResponse);
+            var result = await _authService.ChangePasswordAsync(userId, dto);
+            return Ok(new APIResponse<object>(result, "Password changed successfully"));
         }
 
         [HttpPost("refresh")]
         [AllowAnonymous]
-        public async Task<ActionResult<APIResponse>> RefreshToken([FromBody] RefreshTokenDto dto)
+        public async Task<ActionResult<APIResponse<LoginResponseDto>>> RefreshToken([FromBody] RefreshTokenDto dto)
         {
             var response = await _authService.RefreshTokenAsync(dto);
 
@@ -112,11 +99,7 @@ namespace InvMS.Controller
                 Expires = DateTime.UtcNow.AddDays(7)
             });
 
-            _apiResponse.Data = response;
-            _apiResponse.StatusCode = HttpStatusCode.OK;
-            _apiResponse.Status = true;
-
-            return Ok(_apiResponse);
+            return Ok(new APIResponse<LoginResponseDto>(response, "Token refreshed successfully"));
         }
 
 
@@ -129,13 +112,10 @@ namespace InvMS.Controller
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [AllowAnonymous]
-        public async Task<ActionResult<APIResponse>> ForgotPassword([FromBody] ForgotPasswordDto dto)
+        public async Task<ActionResult<APIResponse<object>>> ForgotPassword([FromBody] ForgotPasswordDto dto)
         {
-            _apiResponse.Data = await _authService.SendOtpAsync(dto);
-            _apiResponse.Status = true;
-            _apiResponse.StatusCode = HttpStatusCode.OK;
-
-            return Ok(_apiResponse);
+            var result = await _authService.SendOtpAsync(dto);
+            return Ok(new APIResponse<object>(result, "OTP sent successfully"));
         }
 
         [HttpPost("reset-password")]
@@ -143,13 +123,10 @@ namespace InvMS.Controller
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [AllowAnonymous]
-        public async Task<ActionResult<APIResponse>> ResetPassword([FromBody]ResetPasswordDto dto)
+        public async Task<ActionResult<APIResponse<object>>> ResetPassword([FromBody]ResetPasswordDto dto)
         {
-            _apiResponse.Data = await _authService.ResetPasswordAsync(dto);
-            _apiResponse.Status = true;
-            _apiResponse.StatusCode = HttpStatusCode.OK;
-
-            return Ok(_apiResponse);
+            var result = await _authService.ResetPasswordAsync(dto);
+            return Ok(new APIResponse<object>(result, "Password reset successfully"));
         }
 
 

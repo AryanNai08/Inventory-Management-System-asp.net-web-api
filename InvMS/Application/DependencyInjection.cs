@@ -30,8 +30,6 @@ namespace Application
             services.AddScoped<ISalesOrderService, SalesOrderService>();
             services.AddScoped<IStockAdjustmentService, StockAdjustmentService>();
             services.AddScoped<IDashboardService, DashboardService>();
-            //register api response
-            services.AddScoped<APIResponse>();
 
             //automapper register
             services.AddAutoMapper(typeof(MappingProfile));

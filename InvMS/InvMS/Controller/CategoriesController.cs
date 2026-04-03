@@ -15,10 +15,8 @@ namespace InvMS.Controller
     {
 
         private readonly ICategoryService _categoryService;
-        private readonly APIResponse _apiResponse;
-        public CategoriesController(ICategoryService categoryService, APIResponse apiResponse)
+        public CategoriesController(ICategoryService categoryService)
         {
-            _apiResponse = apiResponse;
             _categoryService = categoryService;
         }
 
@@ -29,13 +27,10 @@ namespace InvMS.Controller
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<APIResponse>> GetAllCategories()
+        public async Task<ActionResult<APIResponse<IEnumerable<CategoryDto>>>> GetAllCategories()
         {
-            _apiResponse.Data = await _categoryService.GetAllAsync();
-            _apiResponse.StatusCode = HttpStatusCode.OK;
-            _apiResponse.Status = true;
-
-            return Ok(_apiResponse);
+            var result = await _categoryService.GetAllAsync();
+            return Ok(new APIResponse<IEnumerable<CategoryDto>>(result, "Categories fetched successfully"));
         }
 
         [HttpGet]
@@ -46,13 +41,10 @@ namespace InvMS.Controller
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<APIResponse>> GetCategoryById(int id)
+        public async Task<ActionResult<APIResponse<CategoryDto>>> GetCategoryById(int id)
         {
-            _apiResponse.Data = await _categoryService.GetByIdAsync(id);
-            _apiResponse.StatusCode = HttpStatusCode.OK;
-            _apiResponse.Status = true;
-
-            return Ok(_apiResponse);
+            var result = await _categoryService.GetByIdAsync(id);
+            return Ok(new APIResponse<CategoryDto>(result, "Category fetched successfully"));
         }
 
         [HttpPost]
@@ -63,14 +55,10 @@ namespace InvMS.Controller
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<APIResponse>> CreateCategory([FromBody] CreateCategoryDto dto)
+        public async Task<ActionResult<APIResponse<CategoryDto>>> CreateCategory([FromBody] CreateCategoryDto dto)
         {
-
-            _apiResponse.Data = await _categoryService.CreateAsync(dto);
-            _apiResponse.StatusCode = HttpStatusCode.Created;
-            _apiResponse.Status = true;
-
-            return CreatedAtRoute("GetCategoryById", new { id = ((CategoryDto)_apiResponse.Data).Id }, _apiResponse);
+            var result = await _categoryService.CreateAsync(dto);
+            return CreatedAtRoute("GetCategoryById", new { id = result.Id }, new APIResponse<CategoryDto>(result, "Category created successfully"));
         }
 
         [HttpPut]
@@ -81,13 +69,10 @@ namespace InvMS.Controller
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<APIResponse>> UpdateCategory(int id,[FromBody] UpdateCategoryDto dto)
+        public async Task<ActionResult<APIResponse<bool>>> UpdateCategory(int id,[FromBody] UpdateCategoryDto dto)
         {
-            _apiResponse.Data = await _categoryService.UpdateAsync(id,dto);
-            _apiResponse.StatusCode = HttpStatusCode.OK;
-            _apiResponse.Status = true;
-
-            return Ok(_apiResponse);
+            var result = await _categoryService.UpdateAsync(id,dto);
+            return Ok(new APIResponse<bool>(result, "Category updated successfully"));
         }
 
         [HttpDelete]
@@ -98,13 +83,10 @@ namespace InvMS.Controller
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<APIResponse>> DeleteCategory(int id)
+        public async Task<ActionResult<APIResponse<bool>>> DeleteCategory(int id)
         {
-            _apiResponse.Data = await _categoryService.SoftDeleteAsync(id);
-            _apiResponse.StatusCode = HttpStatusCode.OK;
-            _apiResponse.Status = true;
-
-            return Ok(_apiResponse);
+            var result = await _categoryService.SoftDeleteAsync(id);
+            return Ok(new APIResponse<bool>(result, "Category deleted successfully"));
         }
 
 

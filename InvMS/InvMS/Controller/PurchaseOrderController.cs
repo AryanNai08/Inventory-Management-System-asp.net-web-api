@@ -13,12 +13,10 @@ namespace InvMS.Controller
     public class PurchaseOrderController : ControllerBase
     {
         private readonly IPurchaseOrderService _purchaseOrderService;
-        private readonly APIResponse _apiResponse;
 
-        public PurchaseOrderController(IPurchaseOrderService purchaseOrderService, APIResponse apiResponse)
+        public PurchaseOrderController(IPurchaseOrderService purchaseOrderService)
         {
             _purchaseOrderService = purchaseOrderService;
-            _apiResponse = apiResponse;
         }
 
         [HttpGet]
@@ -28,13 +26,10 @@ namespace InvMS.Controller
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<APIResponse>> GetAllOrders([FromQuery] PaginationParams @params)
+        public async Task<ActionResult<APIResponse<PaginatedResult<PurchaseOrderDto>>>> GetAllOrders([FromQuery] PaginationParams @params)
         {
             var result = await _purchaseOrderService.GetAllAsync(@params);
-            _apiResponse.Data = result;
-            _apiResponse.StatusCode = HttpStatusCode.OK;
-            _apiResponse.Status = true;
-            return Ok(_apiResponse);
+            return Ok(new APIResponse<PaginatedResult<PurchaseOrderDto>>(result, "Purchase orders fetched successfully"));
         }
 
         [HttpGet]
@@ -45,12 +40,10 @@ namespace InvMS.Controller
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<APIResponse>> GetOrderById(int id)
+        public async Task<ActionResult<APIResponse<PurchaseOrderDto>>> GetOrderById(int id)
         {
-            _apiResponse.Data = await _purchaseOrderService.GetByIdAsync(id);
-            _apiResponse.StatusCode = HttpStatusCode.OK;
-            _apiResponse.Status = true;
-            return Ok(_apiResponse);
+            var result = await _purchaseOrderService.GetByIdAsync(id);
+            return Ok(new APIResponse<PurchaseOrderDto>(result, "Purchase order fetched successfully"));
         }
 
         [HttpPost]
@@ -61,13 +54,10 @@ namespace InvMS.Controller
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<APIResponse>> CreateOrder([FromBody] CreatePurchaseOrderDto dto)
+        public async Task<ActionResult<APIResponse<PurchaseOrderDto>>> CreateOrder([FromBody] CreatePurchaseOrderDto dto)
         {
-            _apiResponse.Data = await _purchaseOrderService.CreateAsync(dto);
-            _apiResponse.StatusCode = HttpStatusCode.Created;
-            _apiResponse.Status = true;
-
-            return CreatedAtRoute("GetOrderById", new { id = ((PurchaseOrderDto)_apiResponse.Data).Id }, _apiResponse);
+            var result = await _purchaseOrderService.CreateAsync(dto);
+            return CreatedAtRoute("GetOrderById", new { id = result.Id }, new APIResponse<PurchaseOrderDto>(result, "Purchase order created successfully"));
         }
 
         [HttpPut]
@@ -79,12 +69,10 @@ namespace InvMS.Controller
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<APIResponse>> UpdateOrder(int id, [FromBody] UpdatePurchaseOrderDto dto)
+        public async Task<ActionResult<APIResponse<PurchaseOrderDto>>> UpdateOrder(int id, [FromBody] UpdatePurchaseOrderDto dto)
         {
-            _apiResponse.Data = await _purchaseOrderService.UpdateAsync(id, dto);
-            _apiResponse.StatusCode = HttpStatusCode.OK;
-            _apiResponse.Status = true;
-            return Ok(_apiResponse);
+            var result = await _purchaseOrderService.UpdateAsync(id, dto);
+            return Ok(new APIResponse<PurchaseOrderDto>(result, "Purchase order updated successfully"));
         }
 
         [HttpPut]
@@ -95,12 +83,10 @@ namespace InvMS.Controller
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<APIResponse>> ApproveOrder(int id)
+        public async Task<ActionResult<APIResponse<bool>>> ApproveOrder(int id)
         {
-            _apiResponse.Data = await _purchaseOrderService.ApproveAsync(id);
-            _apiResponse.StatusCode = HttpStatusCode.OK;
-            _apiResponse.Status = true;
-            return Ok(_apiResponse);
+            var result = await _purchaseOrderService.ApproveAsync(id);
+            return Ok(new APIResponse<bool>(result, "Purchase order approved successfully"));
         }
 
         [HttpPut]
@@ -111,12 +97,10 @@ namespace InvMS.Controller
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<APIResponse>> ReceiveOrder(int id)
+        public async Task<ActionResult<APIResponse<bool>>> ReceiveOrder(int id)
         {
-            _apiResponse.Data = await _purchaseOrderService.ReceiveAsync(id);
-            _apiResponse.StatusCode = HttpStatusCode.OK;
-            _apiResponse.Status = true;
-            return Ok(_apiResponse);
+            var result = await _purchaseOrderService.ReceiveAsync(id);
+            return Ok(new APIResponse<bool>(result, "Purchase order received successfully"));
         }
 
         [HttpPut]
@@ -127,12 +111,10 @@ namespace InvMS.Controller
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<APIResponse>> CancelOrder(int id)
+        public async Task<ActionResult<APIResponse<bool>>> CancelOrder(int id)
         {
-            _apiResponse.Data = await _purchaseOrderService.CancelAsync(id);
-            _apiResponse.StatusCode = HttpStatusCode.OK;
-            _apiResponse.Status = true;
-            return Ok(_apiResponse);
+            var result = await _purchaseOrderService.CancelAsync(id);
+            return Ok(new APIResponse<bool>(result, "Purchase order canceled successfully"));
         }
     }
 }

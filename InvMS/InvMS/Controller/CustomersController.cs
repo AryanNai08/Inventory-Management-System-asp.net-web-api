@@ -1,5 +1,6 @@
 using Application.Common;
 using Application.DTOs.Customer;
+using Application.DTOs.SalesOrder;
 using Application.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -13,10 +14,8 @@ namespace InvMS.Controller
     public class CustomersController : ControllerBase
     {
         private readonly ICustomerService _customerService;
-        private readonly APIResponse _apiResponse;
-        public CustomersController(ICustomerService customerService, APIResponse apiResponse)
+        public CustomersController(ICustomerService customerService)
         {
-            _apiResponse = apiResponse;
             _customerService = customerService;
         }
 
@@ -28,14 +27,10 @@ namespace InvMS.Controller
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<APIResponse>> GetAllCustomers([FromQuery] PaginationParams @params)
+        public async Task<ActionResult<APIResponse<PaginatedResult<CustomerDto>>>> GetAllCustomers([FromQuery] PaginationParams @params)
         {
             var result = await _customerService.GetAllAsync(@params);
-            _apiResponse.Data = result;
-            _apiResponse.StatusCode = HttpStatusCode.OK;
-            _apiResponse.Status = true;
- 
-            return Ok(_apiResponse);
+            return Ok(new APIResponse<PaginatedResult<CustomerDto>>(result, "Customers fetched successfully"));
         }
 
         [HttpGet]
@@ -46,13 +41,10 @@ namespace InvMS.Controller
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<APIResponse>> GetCustomerById(int id)
+        public async Task<ActionResult<APIResponse<CustomerDto>>> GetCustomerById(int id)
         {
-            _apiResponse.Data = await _customerService.GetByIdAsync(id);
-            _apiResponse.StatusCode = HttpStatusCode.OK;
-            _apiResponse.Status = true;
-
-            return Ok(_apiResponse);
+            var result = await _customerService.GetByIdAsync(id);
+            return Ok(new APIResponse<CustomerDto>(result, "Customer fetched successfully"));
         }
 
         [HttpGet]
@@ -63,13 +55,10 @@ namespace InvMS.Controller
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<APIResponse>> SearchCustomers([FromQuery] string? name, [FromQuery] string? city)
+        public async Task<ActionResult<APIResponse<List<CustomerDto>>>> SearchCustomers([FromQuery] string? name, [FromQuery] string? city)
         {
-            _apiResponse.Data = await _customerService.SearchAsync(name, city);
-            _apiResponse.StatusCode = HttpStatusCode.OK;
-            _apiResponse.Status = true;
-
-            return Ok(_apiResponse);
+            var result = await _customerService.SearchAsync(name, city);
+            return Ok(new APIResponse<List<CustomerDto>>(result, "Customers fetched successfully"));
         }
 
         [HttpPost]
@@ -80,14 +69,10 @@ namespace InvMS.Controller
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<APIResponse>> CreateCustomer([FromBody] CreateCustomerDto dto)
+        public async Task<ActionResult<APIResponse<CustomerDto>>> CreateCustomer([FromBody] CreateCustomerDto dto)
         {
-
-            _apiResponse.Data = await _customerService.CreateAsync(dto);
-            _apiResponse.StatusCode = HttpStatusCode.Created;
-            _apiResponse.Status = true;
-
-            return CreatedAtRoute("GetCustomerById", new { id = ((CustomerDto)_apiResponse.Data).Id }, _apiResponse);
+            var result = await _customerService.CreateAsync(dto);
+            return CreatedAtRoute("GetCustomerById", new { id = result.Id }, new APIResponse<CustomerDto>(result, "Customer created successfully"));
         }
 
         [HttpPut]
@@ -98,13 +83,10 @@ namespace InvMS.Controller
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<APIResponse>> UpdateCustomer(int id, [FromBody] UpdateCustomerDto dto)
+        public async Task<ActionResult<APIResponse<bool>>> UpdateCustomer(int id, [FromBody] UpdateCustomerDto dto)
         {
-            _apiResponse.Data = await _customerService.UpdateAsync(id, dto);
-            _apiResponse.StatusCode = HttpStatusCode.OK;
-            _apiResponse.Status = true;
-
-            return Ok(_apiResponse);
+            var result = await _customerService.UpdateAsync(id, dto);
+            return Ok(new APIResponse<bool>(result, "Customer updated successfully"));
         }
 
         [HttpDelete]
@@ -115,13 +97,10 @@ namespace InvMS.Controller
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<APIResponse>> DeleteCustomer(int id)
+        public async Task<ActionResult<APIResponse<bool>>> DeleteCustomer(int id)
         {
-            _apiResponse.Data = await _customerService.SoftDeleteAsync(id);
-            _apiResponse.StatusCode = HttpStatusCode.OK;
-            _apiResponse.Status = true;
-
-            return Ok(_apiResponse);
+            var result = await _customerService.SoftDeleteAsync(id);
+            return Ok(new APIResponse<bool>(result, "Customer deleted successfully"));
         }
 
         [HttpGet]
@@ -132,13 +111,10 @@ namespace InvMS.Controller
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<APIResponse>> GetSalesorder(int id)
+        public async Task<ActionResult<APIResponse<List<SalesOrderDto>>>> GetSalesorder(int id)
         {
-            _apiResponse.Data = await _customerService.GetSalesOrdersByCustomerIdAsync(id);
-            _apiResponse.StatusCode = HttpStatusCode.OK;
-            _apiResponse.Status = true;
-
-            return Ok(_apiResponse);
+            var result = await _customerService.GetSalesOrdersByCustomerIdAsync(id);
+            return Ok(new APIResponse<List<SalesOrderDto>>(result, "Sales orders fetched successfully"));
         }
     }
 }

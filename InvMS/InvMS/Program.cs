@@ -20,11 +20,26 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddTransient<ExceptionMiddleware>();
 
-//this line needed to understand first added it in hurry to get product controller modelstate validation error msg
+// Automatically format ModelState validation errors into our generic APIResponse format globally!
 builder.Services.Configure<ApiBehaviorOptions>(options =>
 {
-    options.SuppressModelStateInvalidFilter = true;
-}); 
+    options.InvalidModelStateResponseFactory = context =>
+    {
+        var errors = context.ModelState.Values
+            .SelectMany(v => v.Errors)
+            .Select(e => e.ErrorMessage)
+            .ToList();
+
+        var response = new Application.Common.APIResponse<object>
+        {
+            Status = false,
+            StatusCode = System.Net.HttpStatusCode.BadRequest,
+            Error = string.Join(" | ", errors)
+        };
+
+        return new Microsoft.AspNetCore.Mvc.BadRequestObjectResult(response);
+    };
+});
 
 
 //Store OTP temporarily in server memory

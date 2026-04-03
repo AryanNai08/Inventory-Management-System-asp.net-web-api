@@ -14,12 +14,10 @@ namespace InvMS.Controller
     public class RolesController : ControllerBase
     {
         private readonly IRoleService _roleService;
-        private APIResponse _apiResponse;
 
-        public RolesController(IRoleService roleService,APIResponse apiResponse)
+        public RolesController(IRoleService roleService)
         {
             _roleService = roleService;
-            _apiResponse = apiResponse;
         }
 
         [HttpGet("all")]
@@ -28,16 +26,10 @@ namespace InvMS.Controller
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<APIResponse>> GetAllRoles()
+        public async Task<ActionResult<APIResponse<IEnumerable<RoleDto>>>> GetAllRoles()
         {
-
             var response = await _roleService.GetAllRolesAsync();
-
-            _apiResponse.Data = response;
-            _apiResponse.Status = true;
-            _apiResponse.StatusCode = HttpStatusCode.OK;
-            return Ok(_apiResponse);
-
+            return Ok(new APIResponse<IEnumerable<RoleDto>>(response, "Roles fetched successfully"));
         }
 
         [HttpPost("create")]
@@ -46,16 +38,10 @@ namespace InvMS.Controller
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<APIResponse>> CreateRole(RoleDto roleDto)
+        public async Task<ActionResult<APIResponse<bool>>> CreateRole(RoleDto roleDto)
         {
-
             await _roleService.CreateRoleAsync(roleDto);
-
-            _apiResponse.Data = "Successful";
-            _apiResponse.Status = true;
-            _apiResponse.StatusCode = HttpStatusCode.OK;
-            return Ok(_apiResponse);
-
+            return Ok(new APIResponse<bool>(true, "Role created successfully"));
         }
 
         [HttpPut("update/{id}")]
@@ -64,16 +50,10 @@ namespace InvMS.Controller
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<APIResponse>> UpdateRole(int id, UpdateRoleDto roleDto)
+        public async Task<ActionResult<APIResponse<bool>>> UpdateRole(int id, UpdateRoleDto roleDto)
         {
-
             await _roleService.UpdateRoleAsync(id, roleDto);
-
-            _apiResponse.Data = "Successful";
-            _apiResponse.Status = true;
-            _apiResponse.StatusCode = HttpStatusCode.OK;
-            return Ok(_apiResponse);
-
+            return Ok(new APIResponse<bool>(true, "Role updated successfully"));
         }
 
         [HttpDelete("delete/{id}")]
@@ -82,16 +62,10 @@ namespace InvMS.Controller
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<APIResponse>> DeleteRole(int id)
+        public async Task<ActionResult<APIResponse<bool>>> DeleteRole(int id)
         {
-
             await _roleService.DeleteRoleAsync(id);
-
-            _apiResponse.Data = "Successfull";
-            _apiResponse.Status = true;
-            _apiResponse.StatusCode = HttpStatusCode.OK;
-            return Ok(_apiResponse);
-
+            return Ok(new APIResponse<bool>(true, "Role deleted successfully"));
         }
     }
 }

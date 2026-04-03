@@ -2,6 +2,8 @@ using Application.Common;
 using Application.DTOs.Auth;
 using Application.DTOs.Category;
 using Application.DTOs.Supplier;
+using Application.DTOs.Product;
+using Application.DTOs.PurchaseOrder;
 using Application.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -15,10 +17,8 @@ namespace InvMS.Controller
     public class SuppliersController : ControllerBase
     {
         private readonly ISupplierService _supplierService;
-        private readonly APIResponse _apiResponse;
-        public SuppliersController(ISupplierService supplierService, APIResponse apiResponse)
+        public SuppliersController(ISupplierService supplierService)
         {
-            _apiResponse = apiResponse;
             _supplierService = supplierService;
         }
 
@@ -29,14 +29,10 @@ namespace InvMS.Controller
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<APIResponse>> GetAllSuppliers([FromQuery] PaginationParams @params)
+        public async Task<ActionResult<APIResponse<PaginatedResult<SupplierDto>>>> GetAllSuppliers([FromQuery] PaginationParams @params)
         {
             var result = await _supplierService.GetAllAsync(@params);
-            _apiResponse.Data = result;
-            _apiResponse.StatusCode = HttpStatusCode.OK;
-            _apiResponse.Status = true;
-
-            return Ok(_apiResponse);
+            return Ok(new APIResponse<PaginatedResult<SupplierDto>>(result, "Suppliers fetched successfully"));
         }
 
         [HttpGet]
@@ -47,13 +43,10 @@ namespace InvMS.Controller
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<APIResponse>> GetSupplierById(int id)
+        public async Task<ActionResult<APIResponse<SupplierDto>>> GetSupplierById(int id)
         {
-            _apiResponse.Data = await _supplierService.GetByIdAsync(id);
-            _apiResponse.StatusCode = HttpStatusCode.OK;
-            _apiResponse.Status = true;
-
-            return Ok(_apiResponse);
+            var result = await _supplierService.GetByIdAsync(id);
+            return Ok(new APIResponse<SupplierDto>(result, "Supplier fetched successfully"));
         }
 
         [HttpGet]
@@ -64,13 +57,10 @@ namespace InvMS.Controller
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<APIResponse>> GetProductsBySupplierId(int id)
+        public async Task<ActionResult<APIResponse<List<ProductDto>>>> GetProductsBySupplierId(int id)
         {
-            _apiResponse.Data = await _supplierService.GetProductsBySupplierIdAsync(id);
-            _apiResponse.StatusCode = HttpStatusCode.OK;
-            _apiResponse.Status = true;
-
-            return Ok(_apiResponse);
+            var result = await _supplierService.GetProductsBySupplierIdAsync(id);
+            return Ok(new APIResponse<List<ProductDto>>(result, "Supplier products fetched successfully"));
         }
 
         [HttpPost]
@@ -81,14 +71,10 @@ namespace InvMS.Controller
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<APIResponse>> CreateSupplier([FromBody] CreateSupplierDto dto)
+        public async Task<ActionResult<APIResponse<SupplierDto>>> CreateSupplier([FromBody] CreateSupplierDto dto)
         {
-
-            _apiResponse.Data = await _supplierService.CreateAsync(dto);
-            _apiResponse.StatusCode = HttpStatusCode.Created;
-            _apiResponse.Status = true;
-
-            return CreatedAtRoute("GetSupplierById", new { id = ((SupplierDto)_apiResponse.Data).Id }, _apiResponse);
+            var result = await _supplierService.CreateAsync(dto);
+            return CreatedAtRoute("GetSupplierById", new { id = result.Id }, new APIResponse<SupplierDto>(result, "Supplier created successfully"));
         }
 
         [HttpPut]
@@ -99,13 +85,10 @@ namespace InvMS.Controller
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<APIResponse>> UpdateSupplier(int id, [FromBody] UpdateSupplierDto dto)
+        public async Task<ActionResult<APIResponse<bool>>> UpdateSupplier(int id, [FromBody] UpdateSupplierDto dto)
         {
-            _apiResponse.Data = await _supplierService.UpdateAsync(id, dto);
-            _apiResponse.StatusCode = HttpStatusCode.OK;
-            _apiResponse.Status = true;
-
-            return Ok(_apiResponse);
+            var result = await _supplierService.UpdateAsync(id, dto);
+            return Ok(new APIResponse<bool>(result, "Supplier updated successfully"));
         }
 
         [HttpDelete]
@@ -116,13 +99,10 @@ namespace InvMS.Controller
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<APIResponse>> DeleteSupplier(int id)
+        public async Task<ActionResult<APIResponse<bool>>> DeleteSupplier(int id)
         {
-            _apiResponse.Data = await _supplierService.SoftDeleteAsync(id);
-            _apiResponse.StatusCode = HttpStatusCode.OK;
-            _apiResponse.Status = true;
-
-            return Ok(_apiResponse);
+            var result = await _supplierService.SoftDeleteAsync(id);
+            return Ok(new APIResponse<bool>(result, "Supplier deleted successfully"));
         }
 
         [HttpGet]
@@ -133,13 +113,10 @@ namespace InvMS.Controller
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<APIResponse>> Getpurchaseorders(int id)
+        public async Task<ActionResult<APIResponse<List<PurchaseOrderDto>>>> Getpurchaseorders(int id)
         {
-            _apiResponse.Data = await _supplierService.GetPurchaseOrdersBySupplierId(id);
-            _apiResponse.StatusCode = HttpStatusCode.OK;
-            _apiResponse.Status = true;
-
-            return Ok(_apiResponse);
+            var result = await _supplierService.GetPurchaseOrdersBySupplierId(id);
+            return Ok(new APIResponse<List<PurchaseOrderDto>>(result, "Purchase orders fetched successfully"));
         }
     }
 }

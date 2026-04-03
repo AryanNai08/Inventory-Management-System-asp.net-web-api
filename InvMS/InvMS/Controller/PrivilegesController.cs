@@ -14,12 +14,10 @@ namespace InvMS.Controller
     public class PrivilegesController : ControllerBase
     {
         private readonly IPrivilegeService _privilegeService;
-        private APIResponse _apiResponse;
 
-        public PrivilegesController(IPrivilegeService privilegeService, APIResponse apiResponse)
+        public PrivilegesController(IPrivilegeService privilegeService)
         {
             _privilegeService = privilegeService;
-            _apiResponse = apiResponse;
         }
 
         [HttpGet("all")]
@@ -27,17 +25,10 @@ namespace InvMS.Controller
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<APIResponse>> GetAllPrivileges()
+        public async Task<ActionResult<APIResponse<IEnumerable<ReadPrivilegeDto>>>> GetAllPrivileges()
         {
-
             var response = await _privilegeService.GetAllPrivilegesAsync();
-
-            _apiResponse.Data = response;
-            _apiResponse.Status = true;
-            _apiResponse.StatusCode = HttpStatusCode.OK;
-            return Ok(_apiResponse);
-
+            return Ok(new APIResponse<IEnumerable<ReadPrivilegeDto>>(response, "Privileges fetched successfully"));
         }
 
         [HttpGet("id/{id}")]
@@ -45,17 +36,10 @@ namespace InvMS.Controller
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<APIResponse>> GetPrivilegeById(int id)
+        public async Task<ActionResult<APIResponse<ReadPrivilegeDto>>> GetPrivilegeById(int id)
         {
-
             var response = await _privilegeService.GetPrivilegeByIdAsync(id);
-
-            _apiResponse.Data = response;
-            _apiResponse.Status = true;
-            _apiResponse.StatusCode = HttpStatusCode.OK;
-            return Ok(_apiResponse);
-
+            return Ok(new APIResponse<ReadPrivilegeDto>(response, "Privilege fetched successfully"));
         }
 
         [HttpPost("create")]
@@ -63,17 +47,10 @@ namespace InvMS.Controller
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<APIResponse>> CreatePrivilege(PrivilegeDto privilegeDto)
+        public async Task<ActionResult<APIResponse<string>>> CreatePrivilege(PrivilegeDto privilegeDto)
         {
-
             await _privilegeService.CreatePrivilegeAsync(privilegeDto);
-
-            _apiResponse.Data = "Successful";
-            _apiResponse.Status = true;
-            _apiResponse.StatusCode = HttpStatusCode.OK;
-            return Ok(_apiResponse);
-
+            return Ok(new APIResponse<string>("Successful", "Privilege created successfully"));
         }
 
         [HttpPut("update/{id}")]
@@ -81,17 +58,10 @@ namespace InvMS.Controller
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<APIResponse>> UpdatePrivilege(int id, PrivilegeDto privilegeDto)
+        public async Task<ActionResult<APIResponse<string>>> UpdatePrivilege(int id, PrivilegeDto privilegeDto)
         {
-
             await _privilegeService.UpdatePrivilegeAsync(id, privilegeDto);
-
-            _apiResponse.Data = "Successful";
-            _apiResponse.Status = true;
-            _apiResponse.StatusCode = HttpStatusCode.OK;
-            return Ok(_apiResponse);
-
+            return Ok(new APIResponse<string>("Successful", "Privilege updated successfully"));
         }
 
         [HttpDelete("delete/{id}")]
@@ -99,17 +69,10 @@ namespace InvMS.Controller
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<APIResponse>> DeletePrivilege(int id)
+        public async Task<ActionResult<APIResponse<string>>> DeletePrivilege(int id)
         {
-
             await _privilegeService.DeletePrivilegeAsync(id);
-
-            _apiResponse.Data = "Successfull";
-            _apiResponse.Status = true;
-            _apiResponse.StatusCode = HttpStatusCode.OK;
-            return Ok(_apiResponse);
-
+            return Ok(new APIResponse<string>("Successful", "Privilege deleted successfully"));
         }
     }
 }

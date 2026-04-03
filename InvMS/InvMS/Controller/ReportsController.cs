@@ -18,13 +18,11 @@ namespace InvMS.Controller
     public class ReportsController : ControllerBase
     {
         private readonly IDashboardService _dashboardService;
-        private readonly APIResponse _apiResponse;
         private readonly IReportPDFService _pdfService;
 
-        public ReportsController(IDashboardService dashboardService, APIResponse apiResponse, IReportPDFService pdfService)
+        public ReportsController(IDashboardService dashboardService, IReportPDFService pdfService)
         {
             _dashboardService = dashboardService;
-            _apiResponse = apiResponse;
             _pdfService = pdfService;
         }
 

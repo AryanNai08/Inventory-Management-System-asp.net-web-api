@@ -17,12 +17,10 @@ namespace InvMS.Controller
     public class StockAdjustmentsController : ControllerBase
     {
         private readonly IStockAdjustmentService _stockAdjustmentService;
-        private readonly APIResponse _apiResponse;
 
-        public StockAdjustmentsController(IStockAdjustmentService stockAdjustmentService, APIResponse apiResponse)
+        public StockAdjustmentsController(IStockAdjustmentService stockAdjustmentService)
         {
             _stockAdjustmentService = stockAdjustmentService;
-            _apiResponse = apiResponse;
         }
 
         [HttpGet]
@@ -30,13 +28,10 @@ namespace InvMS.Controller
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
-        public async Task<ActionResult<APIResponse>> GetAll([FromQuery] PaginationParams @params)
+        public async Task<ActionResult<APIResponse<PaginatedResult<StockAdjustmentDto>>>> GetAll([FromQuery] PaginationParams @params)
         {
             var result = await _stockAdjustmentService.GetAllAsync(@params);
-            _apiResponse.Data = result;
-            _apiResponse.StatusCode = HttpStatusCode.OK;
-            _apiResponse.Status = true;
-            return Ok(_apiResponse);
+            return Ok(new APIResponse<PaginatedResult<StockAdjustmentDto>>(result, "Stock adjustments fetched successfully"));
         }
 
         [HttpGet("{id:int}")]
@@ -45,12 +40,10 @@ namespace InvMS.Controller
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
-        public async Task<ActionResult<APIResponse>> GetById(int id)
+        public async Task<ActionResult<APIResponse<StockAdjustmentDto>>> GetById(int id)
         {
-            _apiResponse.Data = await _stockAdjustmentService.GetByIdAsync(id);
-            _apiResponse.StatusCode = HttpStatusCode.OK;
-            _apiResponse.Status = true;
-            return Ok(_apiResponse);
+            var result = await _stockAdjustmentService.GetByIdAsync(id);
+            return Ok(new APIResponse<StockAdjustmentDto>(result, "Stock adjustment fetched successfully"));
         }
 
         [HttpGet("product/{productId:int}")]
@@ -58,12 +51,10 @@ namespace InvMS.Controller
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
-        public async Task<ActionResult<APIResponse>> GetByProductId(int productId)
+        public async Task<ActionResult<APIResponse<List<StockAdjustmentDto>>>> GetByProductId(int productId)
         {
-            _apiResponse.Data = await _stockAdjustmentService.GetByProductIdAsync(productId);
-            _apiResponse.StatusCode = HttpStatusCode.OK;
-            _apiResponse.Status = true;
-            return Ok(_apiResponse);
+            var result = await _stockAdjustmentService.GetByProductIdAsync(productId);
+            return Ok(new APIResponse<List<StockAdjustmentDto>>(result, "Stock adjustments fetched successfully"));
         }
 
         [HttpPost]
@@ -72,16 +63,15 @@ namespace InvMS.Controller
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
-        public async Task<ActionResult<APIResponse>> Create([FromBody] CreateStockAdjustmentDto dto)
+        public async Task<ActionResult<APIResponse<StockAdjustmentDto>>> Create([FromBody] CreateStockAdjustmentDto dto)
         {
             var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
             if (userIdClaim == null)
             {
-                return Unauthorized(new APIResponse 
+                return Unauthorized(new APIResponse<StockAdjustmentDto>(null, "User is not authenticated") 
                 { 
                     Status = false, 
                     StatusCode = HttpStatusCode.Unauthorized, 
-                    Data = "User is not authenticated" 
                 });
             }
             
@@ -89,11 +79,7 @@ namespace InvMS.Controller
             
             var result = await _stockAdjustmentService.CreateAsync(dto, userId);
             
-            _apiResponse.Data = result;
-            _apiResponse.StatusCode = HttpStatusCode.Created;
-            _apiResponse.Status = true;
-            
-            return CreatedAtAction(nameof(GetById), new { id = result.Id }, _apiResponse);
+            return CreatedAtAction(nameof(GetById), new { id = result.Id }, new APIResponse<StockAdjustmentDto>(result, "Stock adjustment created successfully"));
         }
 
         [HttpGet("types")]
@@ -101,12 +87,10 @@ namespace InvMS.Controller
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
-        public async Task<ActionResult<APIResponse>> GetAdjustmentTypes()
+        public async Task<ActionResult<APIResponse<List<AdjustmentTypeDto>>>> GetAdjustmentTypes()
         {
-            _apiResponse.Data = await _stockAdjustmentService.GetAdjustmentTypesAsync();
-            _apiResponse.StatusCode = HttpStatusCode.OK;
-            _apiResponse.Status = true;
-            return Ok(_apiResponse);
+            var result = await _stockAdjustmentService.GetAdjustmentTypesAsync();
+            return Ok(new APIResponse<List<AdjustmentTypeDto>>(result, "Adjustment types fetched successfully"));
         }
     }
 }

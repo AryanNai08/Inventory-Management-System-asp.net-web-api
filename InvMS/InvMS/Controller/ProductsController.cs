@@ -14,12 +14,10 @@ namespace InvMS.Controller
     public class ProductsController : ControllerBase
     {
         private readonly IProductService _productService;
-        private readonly APIResponse _apiResponse;
         
-        public ProductsController(IProductService productService,APIResponse apiResponse)
+        public ProductsController(IProductService productService)
         {
             _productService = productService;
-            _apiResponse = apiResponse;
         }
 
         [HttpGet]
@@ -29,13 +27,10 @@ namespace InvMS.Controller
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<APIResponse>> GetAllProducts([FromQuery] PaginationParams @params)
+        public async Task<ActionResult<APIResponse<PaginatedResult<ProductDto>>>> GetAllProducts([FromQuery] PaginationParams @params)
         {
             var result = await _productService.GetAllAsync(@params);
-            _apiResponse.Data = result;
-            _apiResponse.Status = true;
-            _apiResponse.StatusCode = HttpStatusCode.OK;
-            return Ok(_apiResponse);
+            return Ok(new APIResponse<PaginatedResult<ProductDto>>(result, "Products fetched successfully"));
         }
 
         [HttpGet]
@@ -46,13 +41,10 @@ namespace InvMS.Controller
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<APIResponse>> GetProductById(int id)
+        public async Task<ActionResult<APIResponse<ProductDto>>> GetProductById(int id)
         {
             var product = await _productService.GetByIdAsync(id);
-            _apiResponse.Data = product;
-            _apiResponse.Status = true;
-            _apiResponse.StatusCode = HttpStatusCode.OK;
-            return _apiResponse;
+            return Ok(new APIResponse<ProductDto>(product, "Product fetched successfully"));
         }
 
         [HttpGet]
@@ -63,13 +55,10 @@ namespace InvMS.Controller
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<APIResponse>> GetProductBySku(string sku)
+        public async Task<ActionResult<APIResponse<ProductDto>>> GetProductBySku(string sku)
         {
             var product = await _productService.GetBySkuAsync(sku);
-            _apiResponse.Data = product;
-            _apiResponse.Status = true;
-            _apiResponse.StatusCode = HttpStatusCode.OK;
-            return _apiResponse;
+            return Ok(new APIResponse<ProductDto>(product, "Product fetched successfully"));
         }
 
         [HttpGet]
@@ -80,13 +69,10 @@ namespace InvMS.Controller
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<APIResponse>> SearchProducts([FromQuery] string? name, [FromQuery] int? categoryId, [FromQuery] int? supplierId)
+        public async Task<ActionResult<APIResponse<IEnumerable<ProductDto>>>> SearchProducts([FromQuery] string? name, [FromQuery] int? categoryId, [FromQuery] int? supplierId)
         {
             var products = await _productService.SearchAsync(name, categoryId, supplierId);
-            _apiResponse.Data = products;
-            _apiResponse.Status = true;
-            _apiResponse.StatusCode = HttpStatusCode.OK;
-            return _apiResponse;
+            return Ok(new APIResponse<IEnumerable<ProductDto>>(products, "Products fetched successfully"));
         }
 
         [HttpPost]
@@ -97,13 +83,10 @@ namespace InvMS.Controller
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<APIResponse>> CreateProduct([FromBody] CreateProductDto dto)
+        public async Task<ActionResult<APIResponse<ProductDto>>> CreateProduct([FromBody] CreateProductDto dto)
         {
-            _apiResponse.Data = await _productService.CreateAsync(dto);
-            _apiResponse.StatusCode = HttpStatusCode.Created;
-            _apiResponse.Status = true;
-
-            return CreatedAtRoute("GetProductById", new { id = ((ProductDto)_apiResponse.Data).Id }, _apiResponse);
+            var result = await _productService.CreateAsync(dto);
+            return CreatedAtRoute("GetProductById", new { id = result.Id }, new APIResponse<ProductDto>(result, "Product created successfully"));
         }
 
         //[HttpPost]
@@ -163,13 +146,10 @@ namespace InvMS.Controller
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<APIResponse>> UpdateProduct(int id,[FromBody] UpdateProductDto dto) 
+        public async Task<ActionResult<APIResponse<bool>>> UpdateProduct(int id,[FromBody] UpdateProductDto dto) 
         {
-            _apiResponse.Data = await _productService.UpdateAsync(id,dto);
-            _apiResponse.Status=true;
-            _apiResponse.StatusCode=HttpStatusCode.OK;
-
-            return _apiResponse;
+            var result = await _productService.UpdateAsync(id,dto);
+            return Ok(new APIResponse<bool>(result, "Product updated successfully"));
         }
 
         [HttpDelete]
@@ -180,50 +160,41 @@ namespace InvMS.Controller
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<APIResponse>> DeleteProduct(int id)
+        public async Task<ActionResult<APIResponse<bool>>> DeleteProduct(int id)
         {
-            _apiResponse.Data = await _productService.SoftDeleteAsync(id);
-            _apiResponse.Status = true;
-            _apiResponse.StatusCode = HttpStatusCode.OK;
-            return Ok(_apiResponse);
+            var result = await _productService.SoftDeleteAsync(id);
+            return Ok(new APIResponse<bool>(result, "Product deleted successfully"));
         }
 
         [HttpGet]
         [Route("low-stock")]
         [Authorize(Policy = "ViewProducts")]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        public async Task<ActionResult<APIResponse>> GetLowStock()
+        public async Task<ActionResult<APIResponse<IEnumerable<ProductDto>>>> GetLowStock()
         {
-            _apiResponse.Data = await _productService.GetLowStockProducts();
-            _apiResponse.Status = true;
-            _apiResponse.StatusCode = HttpStatusCode.OK;
-            return Ok(_apiResponse);
+            var products = await _productService.GetLowStockProducts();
+            return Ok(new APIResponse<IEnumerable<ProductDto>>(products, "Low stock products fetched successfully"));
         }
 
         [HttpGet]
         [Route("out-of-stock")]
         [Authorize(Policy = "ViewProducts")]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        public async Task<ActionResult<APIResponse>> GetOutOfStock()
+        public async Task<ActionResult<APIResponse<IEnumerable<ProductDto>>>> GetOutOfStock()
         {
-            _apiResponse.Data = await _productService.GetOutOfStockProducts();
-            _apiResponse.Status = true;
-            _apiResponse.StatusCode = HttpStatusCode.OK;
-            return Ok(_apiResponse);
+            var products = await _productService.GetOutOfStockProducts();
+            return Ok(new APIResponse<IEnumerable<ProductDto>>(products, "Out of stock products fetched successfully"));
         }
 
         [HttpPatch]
         [Route("{id:int}")]
         [Authorize(Policy = "ManageProducts")]
-        public async Task<ActionResult<APIResponse>> PatchProduct(int id, [FromBody] JsonPatchDocument<UpdateProductDto> patchDoc)
+        public async Task<ActionResult<APIResponse<string>>> PatchProduct(int id, [FromBody] JsonPatchDocument<UpdateProductDto> patchDoc)
         {
-            if (patchDoc == null) return BadRequest();
+            if (patchDoc == null) return BadRequest(new APIResponse<object>(null, "Invalid patch document") { Status = false, StatusCode = HttpStatusCode.BadRequest });
 
             await _productService.PatchAsync(id, patchDoc);
-            _apiResponse.Status = true;
-            _apiResponse.StatusCode = HttpStatusCode.OK;
-            _apiResponse.Data = "Product updated partially";
-            return Ok(_apiResponse);
+            return Ok(new APIResponse<string>("Product updated partially", "Patch successful"));
         }
     }
 }

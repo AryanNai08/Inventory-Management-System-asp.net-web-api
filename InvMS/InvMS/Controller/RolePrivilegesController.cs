@@ -13,44 +13,31 @@ namespace InvMS.Controller
     public class RolePrivilegesController : ControllerBase
     {
         private readonly IRolePrivilegeService _rolePrivilegeService;
-        private readonly APIResponse _apiResponse;
 
-        public RolePrivilegesController(IRolePrivilegeService rolePrivilegeService, APIResponse apiResponse)
+        public RolePrivilegesController(IRolePrivilegeService rolePrivilegeService)
         {
             _rolePrivilegeService = rolePrivilegeService;
-            _apiResponse = apiResponse;
         }
 
         [HttpPost("assign")]
-        public async Task<ActionResult<APIResponse>> AssignPrivilege(RolePrivilegeDto dto)
+        public async Task<ActionResult<APIResponse<bool>>> AssignPrivilege(RolePrivilegeDto dto)
         {
             await _rolePrivilegeService.AssignPrivilegeToRoleAsync(dto);
-
-            _apiResponse.Status = true;
-            _apiResponse.StatusCode = HttpStatusCode.OK;
-
-            return Ok(_apiResponse);
+            return Ok(new APIResponse<bool>(true, "Privilege assigned successfully"));
         }
 
         [HttpGet("{roleId}/privileges")]
-        public async Task<ActionResult<APIResponse>> GetPrivilegeByRole(int roleId)
+        public async Task<ActionResult<APIResponse<List<ReadPrivilegeDto>>>> GetPrivilegeByRole(int roleId)
         {
-            _apiResponse.Data = await _rolePrivilegeService.GetPrivilegesByRoleIdAsync(roleId);
-            _apiResponse.Status = true;
-            _apiResponse.StatusCode = HttpStatusCode.OK;
-
-            return Ok(_apiResponse);
+            var result = await _rolePrivilegeService.GetPrivilegesByRoleIdAsync(roleId);
+            return Ok(new APIResponse<List<ReadPrivilegeDto>>(result, "Role privileges fetched successfully"));
         }
 
         [HttpDelete("{roleId}/{privilegeId}")]
-        public async Task<ActionResult<APIResponse>> RemovePrivilege(int roleId, int privilegeId)
+        public async Task<ActionResult<APIResponse<bool>>> RemovePrivilege(int roleId, int privilegeId)
         {
             await _rolePrivilegeService.RemovePrivilegeFromRoleAsync(roleId, privilegeId);
-
-            _apiResponse.Status = true;
-            _apiResponse.StatusCode = HttpStatusCode.OK;
-
-            return Ok(_apiResponse);
+            return Ok(new APIResponse<bool>(true, "Privilege removed successfully"));
         }
     }
 }

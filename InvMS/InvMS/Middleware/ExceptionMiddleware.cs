@@ -1,4 +1,4 @@
-﻿using Application.Common;
+using Application.Common;
 using Domain.Exceptions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Features;
@@ -57,14 +57,12 @@ namespace InvMS.Middleware
                 context.Response.ContentType = "application/json";
                 context.Response.StatusCode = (int)statusCode;
 
-                var apiResponse = new APIResponse
+                var apiResponse = new APIResponse<object>
                 {
                     Status = false,
-                    StatusCode = statusCode
+                    StatusCode = statusCode,
+                    Error = ex.Message
                 };
-
-                apiResponse.Error=ex.Message;
-                //apiResponse.Error.Add(ex.Message);
 
                 var jsonResponse = JsonSerializer.Serialize(apiResponse);
 

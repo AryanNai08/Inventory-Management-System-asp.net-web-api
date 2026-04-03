@@ -12,10 +12,8 @@ namespace InvMS.Controller
     public class WarehousesController : ControllerBase
     {
         private readonly IWarehouseService _warehouseService;
-        private readonly APIResponse _apiResponse;
-        public WarehousesController(IWarehouseService warehouseService, APIResponse apiResponse)
+        public WarehousesController(IWarehouseService warehouseService)
         {
-            _apiResponse = apiResponse;
            _warehouseService = warehouseService;
         }
 
@@ -27,13 +25,10 @@ namespace InvMS.Controller
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<APIResponse>> GetAllWarehouses()
+        public async Task<ActionResult<APIResponse<IEnumerable<WarehouseDto>>>> GetAllWarehouses()
         {
-            _apiResponse.Data = await _warehouseService.GetAllAsync();
-            _apiResponse.StatusCode = HttpStatusCode.OK;
-            _apiResponse.Status = true;
-
-            return Ok(_apiResponse);
+            var result = await _warehouseService.GetAllAsync();
+            return Ok(new APIResponse<IEnumerable<WarehouseDto>>(result, "Warehouses fetched successfully"));
         }
 
         [HttpGet]
@@ -44,13 +39,10 @@ namespace InvMS.Controller
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<APIResponse>> GetWarehouseById(int id)
+        public async Task<ActionResult<APIResponse<WarehouseDto>>> GetWarehouseById(int id)
         {
-            _apiResponse.Data = await _warehouseService.GetByIdAsync(id);
-            _apiResponse.StatusCode = HttpStatusCode.OK;
-            _apiResponse.Status = true;
-
-            return Ok(_apiResponse);
+            var result = await _warehouseService.GetByIdAsync(id);
+            return Ok(new APIResponse<WarehouseDto>(result, "Warehouse fetched successfully"));
         }
 
         [HttpPost]
@@ -61,14 +53,10 @@ namespace InvMS.Controller
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<APIResponse>> CreateWarehouse([FromBody] CreateWarehouseDto dto)
+        public async Task<ActionResult<APIResponse<WarehouseDto>>> CreateWarehouse([FromBody] CreateWarehouseDto dto)
         {
-
-            _apiResponse.Data = await _warehouseService.CreateAsync(dto);
-            _apiResponse.StatusCode = HttpStatusCode.Created;
-            _apiResponse.Status = true;
-
-            return CreatedAtRoute("GetWarehouseById", new { id = ((WarehouseDto)_apiResponse.Data).Id }, _apiResponse);
+            var result = await _warehouseService.CreateAsync(dto);
+            return CreatedAtRoute("GetWarehouseById", new { id = result.Id }, new APIResponse<WarehouseDto>(result, "Warehouse created successfully"));
         }
 
         [HttpPut]
@@ -79,13 +67,10 @@ namespace InvMS.Controller
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<APIResponse>> UpdateWarehouse(int id, [FromBody] UpdateWarehouseDto dto)
+        public async Task<ActionResult<APIResponse<bool>>> UpdateWarehouse(int id, [FromBody] UpdateWarehouseDto dto)
         {
-            _apiResponse.Data = await _warehouseService.UpdateAsync(id, dto);
-            _apiResponse.StatusCode = HttpStatusCode.OK;
-            _apiResponse.Status = true;
-
-            return Ok(_apiResponse);
+            var result = await _warehouseService.UpdateAsync(id, dto);
+            return Ok(new APIResponse<bool>(result, "Warehouse updated successfully"));
         }
 
         [HttpDelete]
@@ -96,13 +81,10 @@ namespace InvMS.Controller
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<APIResponse>> DeleteWarehouse(int id)
+        public async Task<ActionResult<APIResponse<bool>>> DeleteWarehouse(int id)
         {
-            _apiResponse.Data = await _warehouseService.SoftDeleteAsync(id);
-            _apiResponse.StatusCode = HttpStatusCode.OK;
-            _apiResponse.Status = true;
-
-            return Ok(_apiResponse);
+            var result = await _warehouseService.SoftDeleteAsync(id);
+            return Ok(new APIResponse<bool>(result, "Warehouse deleted successfully"));
         }
     }
 }
