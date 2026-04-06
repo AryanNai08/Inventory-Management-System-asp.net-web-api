@@ -103,15 +103,42 @@ namespace Application.Services
             var purchaseOrder = _mapper.Map<PurchaseOrder>(dto);
 
             // 4. Generate details
-            purchaseOrder.OrderNumber = await _purchaseOrderRepository.GenerateOrderNumberAsync();
             purchaseOrder.WarehouseId = dto.WarehouseId;
             purchaseOrder.OrderDate = DateTime.UtcNow;
             purchaseOrder.CreatedDate = DateTime.UtcNow;
             purchaseOrder.StatusId = 1; // 1 = Draft
             purchaseOrder.TotalAmount = dto.Items.Sum(i => i.Quantity * i.UnitCost); // Calculate total
 
-            // 5. Save
-            await _purchaseOrderRepository.AddAsync(purchaseOrder);
+            // 5. Generate Order Number and Save with Retry Loop for Concurrency
+            int maxRetries = 3;
+            bool isTracked = false;
+
+            for (int i = 0; i < maxRetries; i++)
+            {
+                try
+                {
+                    purchaseOrder.OrderNumber = await _purchaseOrderRepository.GenerateOrderNumberAsync();
+                    
+                    if (!isTracked)
+                    {
+                        await _purchaseOrderRepository.AddAsync(purchaseOrder);
+                        isTracked = true;
+                    }
+                    else
+                    {
+                        await _unitOfWork.SaveChangesAsync();
+                    }
+                    
+                    break; // Success
+                }
+                catch (DbUpdateException)
+                {
+                    if (i == maxRetries - 1)
+                        throw; // Rethrow on final attempt
+                    
+                    isTracked = true;
+                }
+            }
 
             // 6. Return created order
             return await GetByIdAsync(purchaseOrder.Id);

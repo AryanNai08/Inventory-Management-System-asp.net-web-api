@@ -106,14 +106,42 @@ namespace Application.Services
             var salesOrder = _mapper.Map<SalesOrder>(dto);
 
             // 4. Generate details
-            salesOrder.OrderNumber = await _salesOrderRepository.GenerateOrderNumberAsync();
             salesOrder.OrderDate = DateTime.UtcNow;
             salesOrder.CreatedDate = DateTime.UtcNow;
             salesOrder.StatusId = 1; // 1 = Pending
             salesOrder.TotalAmount = dto.Items.Sum(i => i.Quantity * i.UnitPrice);
 
-            // 5. Save
-            await _salesOrderRepository.AddAsync(salesOrder);
+            // 5. Generate Order Number and Save with Retry Loop for Concurrency
+            int maxRetries = 3;
+            bool isTracked = false;
+
+            for (int i = 0; i < maxRetries; i++)
+            {
+                try
+                {
+                    salesOrder.OrderNumber = await _salesOrderRepository.GenerateOrderNumberAsync();
+                    
+                    if (!isTracked)
+                    {
+                        await _salesOrderRepository.AddAsync(salesOrder);
+                        isTracked = true; // If AddAsync throws exception on SaveChangesAsync, entity is already tracked
+                    }
+                    else
+                    {
+                        // Entity is already tracked from a previous failed attempt, just save changes
+                        await _unitOfWork.SaveChangesAsync();
+                    }
+                    
+                    break; // Success
+                }
+                catch (DbUpdateException)
+                {
+                    if (i == maxRetries - 1)
+                        throw; // Rethrow on final attempt
+                    
+                    isTracked = true; // Mark as tracked so we don't call AddAsync again
+                }
+            }
 
             // 6. Return created order
             return await GetByIdAsync(salesOrder.Id);
