@@ -120,7 +120,8 @@ namespace Application.Mappings
             CreateMap<Product, ProductDto>()
                 .ForMember(dest => dest.CategoryName, opt => opt.MapFrom(src => src.Category.Name))
                 .ForMember(dest => dest.SupplierName, opt => opt.MapFrom(src => src.Supplier != null ? src.Supplier.Name : null))
-                .ForMember(dest => dest.WarehouseName, opt => opt.MapFrom(src => src.Warehouse != null ? src.Warehouse.Name : null));
+                .ForMember(dest => dest.WarehouseName, opt => opt.MapFrom(src => src.Warehouse != null ? src.Warehouse.Name : null))
+                .ForMember(dest => dest.CurrentStock, opt => opt.MapFrom(src => src.ProductWarehouseStocks.Sum(s => s.Quantity)));
             CreateMap<CreateProductDto, Product>()
                 .ForMember(dest => dest.Id, opt => opt.Ignore())
                 .ForMember(dest => dest.IsDeleted, opt => opt.Ignore())
@@ -142,6 +143,7 @@ namespace Application.Mappings
             //readpurchaseorder
             CreateMap<PurchaseOrder, PurchaseOrderDto>()
                 .ForMember(dest => dest.SupplierName, opt => opt.MapFrom(src => src.Supplier.Name))
+                .ForMember(dest => dest.WarehouseName, opt => opt.MapFrom(src => src.Warehouse != null ? src.Warehouse.Name : "Unknown Warehouse"))
                 .ForMember(dest => dest.StatusName, opt => opt.MapFrom(src => src.Status.Name));
             //readpurchaseorderitem
             CreateMap<PurchaseOrderItem, PurchaseOrderItemDto>()
@@ -155,6 +157,7 @@ namespace Application.Mappings
 
             CreateMap<PurchaseOrder, PurchaseOrderDto>()
                 .ForMember(dest => dest.SupplierName, opt => opt.MapFrom(src => src.Supplier != null ? src.Supplier.Name : "Unknown Supplier"))
+                .ForMember(dest => dest.WarehouseName, opt => opt.MapFrom(src => src.Warehouse != null ? src.Warehouse.Name : "Unknown Warehouse"))
                 .ForMember(dest => dest.StatusName, opt => opt.MapFrom(src => src.Status != null ? src.Status.Name : "Unknown Status"))
                 .ForMember(dest => dest.Items, opt => opt.MapFrom(src => src.PurchaseOrderItems));
                 
@@ -169,6 +172,7 @@ namespace Application.Mappings
 
             CreateMap<SalesOrder, SalesOrderDto>()
                 .ForMember(dest => dest.CustomerName, opt => opt.MapFrom(src => src.Customer != null ? src.Customer.Name : "Unknown Customer"))
+                .ForMember(dest => dest.WarehouseName, opt => opt.MapFrom(src => src.Warehouse != null ? src.Warehouse.Name : "Unknown Warehouse"))
                 .ForMember(dest => dest.StatusName, opt => opt.MapFrom(src => src.Status != null ? src.Status.Name : "Unknown Status"))
                 .ForMember(dest => dest.Items, opt => opt.MapFrom(src => src.SalesOrderItems));
 
