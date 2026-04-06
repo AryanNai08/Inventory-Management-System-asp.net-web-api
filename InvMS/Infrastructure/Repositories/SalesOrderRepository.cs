@@ -18,7 +18,6 @@ namespace Infrastructure.Repositories
         public async Task AddAsync(SalesOrder salesOrder)
         {
             await _dbContext.SalesOrders.AddAsync(salesOrder);
-            await _dbContext.SaveChangesAsync();
         }
 
         public async Task<string> GenerateOrderNumberAsync()
@@ -96,7 +95,6 @@ namespace Infrastructure.Repositories
         public async Task UpdateAsync(SalesOrder salesOrder)
         {
             _dbContext.Update(salesOrder);
-            await _dbContext.SaveChangesAsync();
         }
 
         public async Task UpdateStatusAsync(int id, int newStatusId)
@@ -106,7 +104,6 @@ namespace Infrastructure.Repositories
             {
                 order.StatusId = newStatusId;
                 // ModifiedDate and UpdatedBy are handled by DbContext.SaveChangesAsync automatically
-                await _dbContext.SaveChangesAsync();
             }
         }
 

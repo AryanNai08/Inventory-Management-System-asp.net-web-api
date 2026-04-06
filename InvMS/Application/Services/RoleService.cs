@@ -14,10 +14,13 @@ namespace Application.Services
     {
         private readonly IRoleRepository _roleRepository;
         private readonly IMapper _mapper;
-        public RoleService(IRoleRepository roleRepository, IMapper mapper)
+        private readonly IUnitOfWork _unitOfWork;
+
+        public RoleService(IRoleRepository roleRepository, IMapper mapper, IUnitOfWork unitOfWork)
         {
             _roleRepository = roleRepository;
             _mapper = mapper;
+            _unitOfWork = unitOfWork;
         }
 
         public async Task CreateRoleAsync(RoleDto roleDto)
@@ -31,6 +34,7 @@ namespace Application.Services
             var role = _mapper.Map<Role>(roleDto);
             
             await _roleRepository.CreateRoleAsync(role);
+            await _unitOfWork.SaveChangesAsync();
         }
 
         public async Task<List<RoleDto>> GetAllRolesAsync()
@@ -75,6 +79,7 @@ namespace Application.Services
             _mapper.Map(roleDto, role);
 
             await _roleRepository.UpdateRoleAsync(role);
+            await _unitOfWork.SaveChangesAsync();
 
         }
 
@@ -88,6 +93,7 @@ namespace Application.Services
                 throw new NotFoundException("Role not found!");
 
             await _roleRepository.DeleteRoleAsync(role);
+            await _unitOfWork.SaveChangesAsync();
         }
 
     }

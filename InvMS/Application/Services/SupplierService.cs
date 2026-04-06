@@ -18,11 +18,14 @@ namespace Application.Services
         private readonly ISupplierRepository _supplierRepository;
         private readonly IProductRepository _productRepository;
         private readonly IMapper _mapper;
-        public SupplierService(ISupplierRepository supplierRepository, IProductRepository productRepository, IMapper mapper)
+        private readonly IUnitOfWork _unitOfWork;
+
+        public SupplierService(ISupplierRepository supplierRepository, IProductRepository productRepository, IMapper mapper, IUnitOfWork unitOfWork)
         {
             _supplierRepository = supplierRepository;
             _productRepository = productRepository;
             _mapper = mapper;
+            _unitOfWork = unitOfWork;
         }
         public async Task<SupplierDto> CreateAsync(CreateSupplierDto dto)
         {
@@ -36,6 +39,7 @@ namespace Application.Services
             var newsupplier = _mapper.Map<Supplier>(dto);
             newsupplier.CreatedDate = DateTime.UtcNow;
             await _supplierRepository.AddAsync(newsupplier);
+            await _unitOfWork.SaveChangesAsync();
             return _mapper.Map<SupplierDto>(newsupplier);
         }
 
@@ -123,6 +127,7 @@ namespace Application.Services
             }
 
             await _supplierRepository.SoftDeleteAsync(id);
+            await _unitOfWork.SaveChangesAsync();
             return true;
 
         }
@@ -154,6 +159,7 @@ namespace Application.Services
             supplier.ModifiedDate = DateTime.UtcNow;
 
             await _supplierRepository.UpdateAsync(supplier);
+            await _unitOfWork.SaveChangesAsync();
             return true;
         }
     }

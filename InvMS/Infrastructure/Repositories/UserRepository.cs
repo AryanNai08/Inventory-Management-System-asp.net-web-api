@@ -18,7 +18,6 @@ namespace Infrastructure.Repositories
         public async Task AddAsync(User user)
         {
             await _dbContext.Users.AddAsync(user);
-            await _dbContext.SaveChangesAsync();
         }
 
         public async Task<List<User>> GetAllAsync()
@@ -62,13 +61,11 @@ namespace Infrastructure.Repositories
             // ModifiedDate and DeletedBy are handled by DbContext.SaveChangesAsync automatically
 
             _dbContext.Users.Update(user);
-            await _dbContext.SaveChangesAsync();
         }
 
         public async Task UpdateAsync(User user)
         {
             _dbContext.Users.Update(user);
-            await _dbContext.SaveChangesAsync();
         }
     }
 }

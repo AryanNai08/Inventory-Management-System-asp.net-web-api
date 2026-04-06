@@ -109,35 +109,20 @@ namespace Application.Services
             purchaseOrder.StatusId = 1; // 1 = Draft
             purchaseOrder.TotalAmount = dto.Items.Sum(i => i.Quantity * i.UnitCost); // Calculate total
 
-            // 5. Generate Order Number and Save with Retry Loop for Concurrency
-            int maxRetries = 3;
-            bool isTracked = false;
-
-            for (int i = 0; i < maxRetries; i++)
+            // 5. Generate Order Number and Save with Transaction
+            await _unitOfWork.BeginTransactionAsync();
+            try
             {
-                try
-                {
-                    purchaseOrder.OrderNumber = await _purchaseOrderRepository.GenerateOrderNumberAsync();
-                    
-                    if (!isTracked)
-                    {
-                        await _purchaseOrderRepository.AddAsync(purchaseOrder);
-                        isTracked = true;
-                    }
-                    else
-                    {
-                        await _unitOfWork.SaveChangesAsync();
-                    }
-                    
-                    break; // Success
-                }
-                catch (DbUpdateException)
-                {
-                    if (i == maxRetries - 1)
-                        throw; // Rethrow on final attempt
-                    
-                    isTracked = true;
-                }
+                purchaseOrder.OrderNumber = await _purchaseOrderRepository.GenerateOrderNumberAsync();
+                await _purchaseOrderRepository.AddAsync(purchaseOrder);
+                
+                await _unitOfWork.SaveChangesAsync();
+                await _unitOfWork.CommitAsync();
+            }
+            catch (Exception)
+            {
+                await _unitOfWork.RollbackAsync();
+                throw;
             }
 
             // 6. Return created order
@@ -205,8 +190,19 @@ namespace Application.Services
             // 6. Recalculate Total
             existingOrder.TotalAmount = dto.Items.Sum(i => i.Quantity * i.UnitCost);
 
-            // 7. Save
-            await _purchaseOrderRepository.UpdateAsync(existingOrder);
+            // 7. Save with Transaction
+            await _unitOfWork.BeginTransactionAsync();
+            try
+            {
+                await _purchaseOrderRepository.UpdateAsync(existingOrder);
+                await _unitOfWork.SaveChangesAsync();
+                await _unitOfWork.CommitAsync();
+            }
+            catch (Exception)
+            {
+                await _unitOfWork.RollbackAsync();
+                throw;
+            }
 
             return await GetByIdAsync(id);
         }
@@ -220,6 +216,7 @@ namespace Application.Services
                 throw new BadRequestException("Only Draft orders can be approved");
 
             await _purchaseOrderRepository.UpdateStatusAsync(id, 2); // 2 = Approved
+            await _unitOfWork.SaveChangesAsync();
             return true;
         }
 
@@ -291,6 +288,7 @@ namespace Application.Services
                 throw new BadRequestException("Cannot cancel an order that has already been received");
 
             await _purchaseOrderRepository.UpdateStatusAsync(id, 4); // 4 = Cancelled
+            await _unitOfWork.SaveChangesAsync();
             return true;
         }
     }

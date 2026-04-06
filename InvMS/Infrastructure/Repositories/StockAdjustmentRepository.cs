@@ -19,7 +19,6 @@ namespace Infrastructure.Repositories
         public async Task AddAsync(StockAdjustment adjustment)
         {
             await _dbContext.StockAdjustments.AddAsync(adjustment);
-            await _dbContext.SaveChangesAsync();
         }
 
         public async Task<List<AdjustmentType>> GetAdjustmentTypesAsync()

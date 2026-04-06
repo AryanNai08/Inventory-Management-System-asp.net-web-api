@@ -13,11 +13,13 @@ namespace Application.Services
     {
         private readonly IProductRepository _productRepository;
         private readonly IMapper _mapper;
+        private readonly IUnitOfWork _unitOfWork;
 
-        public ProductService(IProductRepository productRepository,IMapper mapper)
+        public ProductService(IProductRepository productRepository, IMapper mapper, IUnitOfWork unitOfWork)
         {
             _productRepository = productRepository;
             _mapper = mapper;
+            _unitOfWork = unitOfWork;
         }
 
         public async Task<ProductDto> CreateAsync(CreateProductDto dto)
@@ -30,6 +32,7 @@ namespace Application.Services
             var newproduct = _mapper.Map<Product>(dto);
             newproduct.CreatedDate = DateTime.UtcNow;
             await _productRepository.AddAsync(newproduct);
+            await _unitOfWork.SaveChangesAsync();
                 
             // Reload with navigation properties so CategoryName, SupplierName, WarehouseName are populated
             var createdProduct = await _productRepository.GetByIdAsync(newproduct.Id);
@@ -98,6 +101,7 @@ namespace Application.Services
                 throw new NotFoundException($"Product with id:{id} not found");
             }
             await _productRepository.SoftDeleteAsync(id);
+            await _unitOfWork.SaveChangesAsync();
             return true;
         }
 
@@ -120,6 +124,7 @@ namespace Application.Services
             try
             {
                 await _productRepository.UpdateAsync(product);
+                await _unitOfWork.SaveChangesAsync();
             }
             catch (DbUpdateConcurrencyException)
             {
@@ -156,6 +161,7 @@ namespace Application.Services
             product.ModifiedDate = DateTime.UtcNow;
 
             await _productRepository.UpdateAsync(product);
+            await _unitOfWork.SaveChangesAsync();
             return true;
         }
     }

@@ -17,11 +17,14 @@ namespace Application.Services
         private readonly ICategoryRepository _categoryRepository;
         private readonly IProductRepository _productRepository;
         private readonly IMapper _mapper;
-        public CategoryService(ICategoryRepository categoryRepository, IProductRepository productRepository, IMapper mapper) 
+        private readonly IUnitOfWork _unitOfWork;
+
+        public CategoryService(ICategoryRepository categoryRepository, IProductRepository productRepository, IMapper mapper, IUnitOfWork unitOfWork) 
         {
             _categoryRepository = categoryRepository;
             _productRepository = productRepository;
             _mapper = mapper;
+            _unitOfWork = unitOfWork;
         }
         public async Task<CategoryDto> CreateAsync(CreateCategoryDto dto)
         {
@@ -35,6 +38,7 @@ namespace Application.Services
             var newcategory = _mapper.Map<Category>(dto);
             newcategory.CreatedDate=DateTime.UtcNow;
             await _categoryRepository.AddAsync(newcategory);
+            await _unitOfWork.SaveChangesAsync();
             return _mapper.Map<CategoryDto>(newcategory);
         }
 
@@ -88,6 +92,7 @@ namespace Application.Services
             }
 
             await _categoryRepository.SoftDeleteAsync(id);
+            await _unitOfWork.SaveChangesAsync();
             return true;
 
         }
@@ -119,6 +124,7 @@ namespace Application.Services
             category.ModifiedDate = DateTime.UtcNow;
 
             await _categoryRepository.UpdateAsync(category);
+            await _unitOfWork.SaveChangesAsync();
             return true;
         }
     }

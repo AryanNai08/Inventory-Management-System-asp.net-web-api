@@ -21,8 +21,6 @@ namespace Infrastructure.Repositories
         public async Task AddAsync(Category category)
         {
             await _dbContext.AddAsync(category);
-
-            await _dbContext.SaveChangesAsync();
         }
 
         public async Task<List<Category>> GetAllAsync()
@@ -45,13 +43,11 @@ namespace Infrastructure.Repositories
             var category= await _dbContext.Categories.Where(c => c.Id == id && !c.IsDeleted).FirstOrDefaultAsync();
             category.IsDeleted=true;
             category.ModifiedDate= DateTime.UtcNow;
-            await _dbContext.SaveChangesAsync();
         }
 
         public async Task UpdateAsync(Category category)
         {
             _dbContext.Categories.Update(category);
-            await _dbContext.SaveChangesAsync();
         }
     }
 }

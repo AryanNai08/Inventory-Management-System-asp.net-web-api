@@ -15,10 +15,13 @@ namespace Application.Services
     {
         private readonly ICustomerRepository _customerRepository;
         private readonly IMapper _mapper;
-        public CustomerService(ICustomerRepository customerRepository, IMapper mapper)
+        private readonly IUnitOfWork _unitOfWork;
+
+        public CustomerService(ICustomerRepository customerRepository, IMapper mapper, IUnitOfWork unitOfWork)
         {
             _customerRepository = customerRepository;
             _mapper = mapper;
+            _unitOfWork = unitOfWork;
         }
         public async Task<CustomerDto> CreateAsync(CreateCustomerDto dto)
         {
@@ -32,6 +35,7 @@ namespace Application.Services
             var newcustomer = _mapper.Map<Customer>(dto);
             newcustomer.CreatedDate = DateTime.UtcNow;
             await _customerRepository.AddAsync(newcustomer);
+            await _unitOfWork.SaveChangesAsync();
             return _mapper.Map<CustomerDto>(newcustomer);
         }
 
@@ -112,6 +116,7 @@ namespace Application.Services
                 throw new NotFoundException($"Customer with id:{id} not found");
             }
             await _customerRepository.SoftDeleteAsync(id);
+            await _unitOfWork.SaveChangesAsync();
             return true;
 
         }
@@ -143,6 +148,7 @@ namespace Application.Services
             customer.ModifiedDate = DateTime.UtcNow;
 
             await _customerRepository.UpdateAsync(customer);
+            await _unitOfWork.SaveChangesAsync();
             return true;
         }
     }

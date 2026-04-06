@@ -12,11 +12,13 @@ namespace Application.Services
     {
         private readonly IRolePrivilegeRepository _rolePrivilegeRepository;
         private readonly IMapper _mapper;
+        private readonly IUnitOfWork _unitOfWork;
 
-        public RolePrivilegeService(IRolePrivilegeRepository rolePrivilegeRepository, IMapper mapper)
+        public RolePrivilegeService(IRolePrivilegeRepository rolePrivilegeRepository, IMapper mapper, IUnitOfWork unitOfWork)
         {
             _rolePrivilegeRepository = rolePrivilegeRepository;
             _mapper = mapper;
+            _unitOfWork = unitOfWork;
         }
 
         public async Task AssignPrivilegeToRoleAsync(RolePrivilegeDto dto)
@@ -37,6 +39,7 @@ namespace Application.Services
             role.Privileges.Add(privilege);
 
             await _rolePrivilegeRepository.UpdateRoleAsync(role);
+            await _unitOfWork.SaveChangesAsync();
         }
 
         public async Task RemovePrivilegeFromRoleAsync(int roleId, int privilegeId)
@@ -54,6 +57,7 @@ namespace Application.Services
             role.Privileges.Remove(privilege);
 
             await _rolePrivilegeRepository.UpdateRoleAsync(role);
+            await _unitOfWork.SaveChangesAsync();
         }
 
         public async Task<List<ReadPrivilegeDto>> GetPrivilegesByRoleIdAsync(int roleId)

@@ -14,11 +14,14 @@ namespace Application.Services
         private readonly IWarehouseRepository _warehouseRepository;
         private readonly IProductRepository _productRepository;
         private readonly IMapper _mapper;
-        public WarehouseService(IWarehouseRepository warehouseRepository, IProductRepository productRepository, IMapper mapper)
+        private readonly IUnitOfWork _unitOfWork;
+
+        public WarehouseService(IWarehouseRepository warehouseRepository, IProductRepository productRepository, IMapper mapper, IUnitOfWork unitOfWork)
         {
             _warehouseRepository = warehouseRepository;
             _productRepository = productRepository;
             _mapper = mapper;
+            _unitOfWork = unitOfWork;
         }
         public async Task<WarehouseDto> CreateAsync(CreateWarehouseDto dto)
         {
@@ -32,6 +35,7 @@ namespace Application.Services
             var newwarehouse = _mapper.Map<Warehouse>(dto);
             newwarehouse.CreatedDate = DateTime.UtcNow;
             await _warehouseRepository.AddAsync(newwarehouse);
+            await _unitOfWork.SaveChangesAsync();
             return _mapper.Map<WarehouseDto>(newwarehouse);
         }
 
@@ -85,6 +89,7 @@ namespace Application.Services
             }
 
             await _warehouseRepository.SoftDeleteAsync(id);
+            await _unitOfWork.SaveChangesAsync();
             return true;
 
         }
@@ -116,6 +121,7 @@ namespace Application.Services
             warehouse.ModifiedDate = DateTime.UtcNow;
 
             await _warehouseRepository.UpdateAsync(warehouse);
+            await _unitOfWork.SaveChangesAsync();
             return true;
         }
     }

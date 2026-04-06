@@ -18,7 +18,6 @@ namespace Infrastructure.Repositories
         public async Task AddAsync(Product product)
         {
             await _dbContext.Products.AddAsync(product);
-            await _dbContext.SaveChangesAsync();
         }
 
         public async Task<PaginatedResult<Product>> GetAllAsync(PaginationParams @params)
@@ -103,13 +102,11 @@ namespace Infrastructure.Repositories
             var product = await _dbContext.Products.Where(c => c.Id == id && !c.IsDeleted).FirstOrDefaultAsync();
             product.IsDeleted = true;
             // ModifiedDate and DeletedBy are now set automatically in DbContext.SaveChangesAsync
-            await _dbContext.SaveChangesAsync();
         }
 
         public async Task UpdateAsync(Product product)
         {
             _dbContext.Products.Update(product);
-            await _dbContext.SaveChangesAsync();
         }
 
         public async Task<List<Product>> GetLowStockAsync()

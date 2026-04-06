@@ -10,11 +10,13 @@ namespace Application.Services
     {
         private readonly IMapper _mapper;
         private readonly IUserRepository _userRepository;
+        private readonly IUnitOfWork _unitOfWork;
 
-        public UserService(IMapper mapper,IUserRepository userRepository) 
+        public UserService(IMapper mapper, IUserRepository userRepository, IUnitOfWork unitOfWork) 
         {
-            _mapper=mapper;
-            _userRepository=userRepository;
+            _mapper = mapper;
+            _userRepository = userRepository;
+            _unitOfWork = unitOfWork;
         }
         public async Task<List<UserDto>> GetAllAsync()
         {
@@ -57,6 +59,7 @@ namespace Application.Services
                 throw new BadRequestException($"User with id:{id} not found");
 
             await _userRepository.SoftDeleteAsync(id);
+            await _unitOfWork.SaveChangesAsync();
 
             return true;
             
@@ -81,6 +84,7 @@ namespace Application.Services
             user.ModifiedDate=DateTime.UtcNow;
 
             await _userRepository.UpdateAsync(user);
+            await _unitOfWork.SaveChangesAsync();
             return true;
         }
     }

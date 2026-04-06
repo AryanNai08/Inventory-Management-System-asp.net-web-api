@@ -13,11 +13,13 @@ namespace Application.Services
     {
         private readonly IPrivilegeRepository _privilegeRepository;
         private readonly IMapper _mapper;
+        private readonly IUnitOfWork _unitOfWork;
 
-        public PrivilegeService(IPrivilegeRepository privilegeRepository, IMapper mapper)
+        public PrivilegeService(IPrivilegeRepository privilegeRepository, IMapper mapper, IUnitOfWork unitOfWork)
         {
             _privilegeRepository = privilegeRepository;
             _mapper = mapper;
+            _unitOfWork = unitOfWork;
         }
 
         public async Task<List<ReadPrivilegeDto>> GetAllPrivilegesAsync()
@@ -46,6 +48,7 @@ namespace Application.Services
             };
 
             await _privilegeRepository.CreatePrivilegeAsync(privilege);
+            await _unitOfWork.SaveChangesAsync();
         }
 
         public async Task UpdatePrivilegeAsync(int id, PrivilegeDto dto)
@@ -66,6 +69,7 @@ namespace Application.Services
             _mapper.Map(dto, privilege);
 
             await _privilegeRepository.UpdatePrivilegeAsync(privilege);
+            await _unitOfWork.SaveChangesAsync();
         }
 
         public async Task DeletePrivilegeAsync(int id)
@@ -77,6 +81,7 @@ namespace Application.Services
             if (privilege == null) throw new NotFoundException("Privilege not found");
 
             await _privilegeRepository.DeletePrivilegeAsync(privilege);
+            await _unitOfWork.SaveChangesAsync();
         }
     }
 }

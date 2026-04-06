@@ -22,13 +22,11 @@ namespace Infrastructure.Repositories
         public async Task AddAsync(PurchaseOrder purchaseOrder)
         {
             await _dbContext.PurchaseOrders.AddAsync(purchaseOrder);
-            await _dbContext.SaveChangesAsync();
         }
 
         public async Task UpdateAsync(PurchaseOrder purchaseOrder)
         {
             _dbContext.PurchaseOrders.Update(purchaseOrder);
-            await _dbContext.SaveChangesAsync();
         }
 
         public async Task<string> GenerateOrderNumberAsync()
@@ -110,7 +108,6 @@ namespace Infrastructure.Repositories
             {
                 order.StatusId = newStatusId;
                 // ModifiedDate and UpdatedBy are handled by DbContext.SaveChangesAsync automatically
-                await _dbContext.SaveChangesAsync();
             }
         }
     }

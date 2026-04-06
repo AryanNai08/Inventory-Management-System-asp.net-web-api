@@ -20,7 +20,6 @@ namespace Infrastructure.Repositories
         public async Task AddAsync(RefreshToken token)
         {
             await _dbContext.RefreshTokens.AddAsync(token);
-            await _dbContext.SaveChangesAsync();
         }
 
         public async Task<bool> TokenIdExist(int id)
@@ -46,7 +45,6 @@ namespace Infrastructure.Repositories
         public async Task UpdateAsync(RefreshToken token)
         {
             _dbContext.RefreshTokens.Update(token);
-            await _dbContext.SaveChangesAsync();
         }
     }
 }

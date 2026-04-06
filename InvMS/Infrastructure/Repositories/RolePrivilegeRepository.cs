@@ -33,7 +33,6 @@ namespace Infrastructure.Repositories
         public async Task UpdateRoleAsync(Role role)
         {
             _dbContext.Roles.Update(role);
-            await _dbContext.SaveChangesAsync();
         }
     }
 }

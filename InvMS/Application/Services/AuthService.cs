@@ -22,8 +22,9 @@ namespace Application.Services
         private readonly IMemoryCache _cache;
         private readonly IRefreshTokenRepository _refreshTokenRepository;
         private readonly IEmailService _emailService;
+        private readonly IUnitOfWork _unitOfWork;
 
-        public AuthService(IUserRepository userRepository, IMapper mapper, IConfiguration configuration, IRoleRepository roleRepository, IMemoryCache cache, IRefreshTokenRepository refreshTokenRepository, IEmailService emailService)
+        public AuthService(IUserRepository userRepository, IMapper mapper, IConfiguration configuration, IRoleRepository roleRepository, IMemoryCache cache, IRefreshTokenRepository refreshTokenRepository, IEmailService emailService, IUnitOfWork unitOfWork)
         {
             _userRepository = userRepository;
             _mapper = mapper;
@@ -32,6 +33,7 @@ namespace Application.Services
             _cache = cache;
             _refreshTokenRepository = refreshTokenRepository;
             _emailService = emailService;
+            _unitOfWork = unitOfWork;
         }
 
         public async Task<bool> ChangePasswordAsync(int userId, ChangePasswordDto dto)
@@ -50,6 +52,7 @@ namespace Application.Services
             user.ModifiedDate = DateTime.UtcNow;
 
             await _userRepository.UpdateAsync(user);
+            await _unitOfWork.SaveChangesAsync();
 
             return true;
         }
@@ -137,6 +140,8 @@ namespace Application.Services
                 await _refreshTokenRepository.AddAsync(refreshTokenEntity);
             }
 
+            await _unitOfWork.SaveChangesAsync();
+
             return new LoginResponseDto
             {
                 Username = user.Username,
@@ -206,6 +211,7 @@ namespace Application.Services
             storedToken.CreatedAt = DateTime.UtcNow;
 
             await _refreshTokenRepository.UpdateAsync(storedToken);
+            await _unitOfWork.SaveChangesAsync();
 
             return new LoginResponseDto
             {
@@ -250,6 +256,7 @@ namespace Application.Services
 
             // Insert only after all validations succeed
             await _userRepository.AddAsync(user);
+            await _unitOfWork.SaveChangesAsync();
 
             return _mapper.Map<UserDto>(user);
         }
@@ -300,6 +307,7 @@ namespace Application.Services
             user.ModifiedDate = DateTime.UtcNow;
 
             await _userRepository.UpdateAsync(user);
+            await _unitOfWork.SaveChangesAsync();
 
             _cache.Remove(cacheKey);
 

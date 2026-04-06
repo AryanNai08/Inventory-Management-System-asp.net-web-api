@@ -111,36 +111,20 @@ namespace Application.Services
             salesOrder.StatusId = 1; // 1 = Pending
             salesOrder.TotalAmount = dto.Items.Sum(i => i.Quantity * i.UnitPrice);
 
-            // 5. Generate Order Number and Save with Retry Loop for Concurrency
-            int maxRetries = 3;
-            bool isTracked = false;
-
-            for (int i = 0; i < maxRetries; i++)
+            // 5. Generate Order Number and Save with Transaction
+            await _unitOfWork.BeginTransactionAsync();
+            try
             {
-                try
-                {
-                    salesOrder.OrderNumber = await _salesOrderRepository.GenerateOrderNumberAsync();
-                    
-                    if (!isTracked)
-                    {
-                        await _salesOrderRepository.AddAsync(salesOrder);
-                        isTracked = true; // If AddAsync throws exception on SaveChangesAsync, entity is already tracked
-                    }
-                    else
-                    {
-                        // Entity is already tracked from a previous failed attempt, just save changes
-                        await _unitOfWork.SaveChangesAsync();
-                    }
-                    
-                    break; // Success
-                }
-                catch (DbUpdateException)
-                {
-                    if (i == maxRetries - 1)
-                        throw; // Rethrow on final attempt
-                    
-                    isTracked = true; // Mark as tracked so we don't call AddAsync again
-                }
+                salesOrder.OrderNumber = await _salesOrderRepository.GenerateOrderNumberAsync();
+                await _salesOrderRepository.AddAsync(salesOrder);
+                
+                await _unitOfWork.SaveChangesAsync();
+                await _unitOfWork.CommitAsync();
+            }
+            catch (Exception)
+            {
+                await _unitOfWork.RollbackAsync();
+                throw;
             }
 
             // 6. Return created order
@@ -212,8 +196,19 @@ namespace Application.Services
             // 6. Recalculate Total
             existingOrder.TotalAmount = dto.Items.Sum(i => i.Quantity * i.UnitPrice);
 
-            // 7. Save
-            await _salesOrderRepository.UpdateAsync(existingOrder);
+            // 7. Save with Transaction
+            await _unitOfWork.BeginTransactionAsync();
+            try
+            {
+                await _salesOrderRepository.UpdateAsync(existingOrder);
+                await _unitOfWork.SaveChangesAsync();
+                await _unitOfWork.CommitAsync();
+            }
+            catch (Exception)
+            {
+                await _unitOfWork.RollbackAsync();
+                throw;
+            }
 
             return await GetByIdAsync(id);
         }
@@ -272,6 +267,7 @@ namespace Application.Services
                 throw new BadRequestException("Only Confirmed orders can be shipped");
 
             await _salesOrderRepository.UpdateStatusAsync(id, 3); // 3 = Shipped
+            await _unitOfWork.SaveChangesAsync();
             return true;
         }
 
@@ -284,6 +280,7 @@ namespace Application.Services
                 throw new BadRequestException("Only Shipped orders can be delivered");
 
             await _salesOrderRepository.UpdateStatusAsync(id, 4); // 4 = Delivered
+            await _unitOfWork.SaveChangesAsync();
             return true;
         }
 
