@@ -17,6 +17,8 @@ namespace Application.Services
         private readonly ISalesOrderRepository _salesOrderRepository;
         private readonly ICustomerRepository _customerRepository;
         private readonly IProductRepository _productRepository;
+        private readonly IWarehouseRepository _warehouseRepository;
+        private readonly IProductWarehouseStockRepository _productStockRepository;
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
 
@@ -24,12 +26,16 @@ namespace Application.Services
             ISalesOrderRepository salesOrderRepository,
             ICustomerRepository customerRepository,
             IProductRepository productRepository,
+            IWarehouseRepository warehouseRepository,
+            IProductWarehouseStockRepository productStockRepository,
             IUnitOfWork unitOfWork,
             IMapper mapper)
         {
             _salesOrderRepository = salesOrderRepository;
             _customerRepository = customerRepository;
             _productRepository = productRepository;
+            _warehouseRepository = warehouseRepository;
+            _productStockRepository = productStockRepository;
             _unitOfWork = unitOfWork;
             _mapper = mapper;
         }
@@ -65,7 +71,12 @@ namespace Application.Services
             if (customer == null)
                 throw new NotFoundException($"Customer with ID {dto.CustomerId} not found");
 
-            // 2. Validate Products
+            // 2. Validate Warehouse
+            var warehouse = await _warehouseRepository.GetByIdAsync(dto.WarehouseId);
+            if (warehouse == null)
+                throw new NotFoundException($"Warehouse with ID {dto.WarehouseId} not found");
+
+            // 3. Validate Products and Stock
             var productIds = new HashSet<int>();
             foreach (var item in dto.Items)
             {
@@ -81,10 +92,13 @@ namespace Application.Services
                 if (item.UnitPrice != product.UnitPrice)
                     throw new BadRequestException($"Incorrect unit price for product '{product.Name}'. Expected {product.UnitPrice}, but received {item.UnitPrice}.");
                 
-                // Optional logic: Check if enough stock IS AVAILABLE at draft time? (Basic check)
-                if (product.CurrentStock < item.Quantity)
+                // Multi-Warehouse Stock Check
+                var stock = await _productStockRepository.GetByProductAndWarehouseAsync(item.ProductId, dto.WarehouseId);
+                int availableStock = stock?.Quantity ?? 0;
+
+                if (availableStock < item.Quantity)
                 {
-                    throw new BadRequestException($"Insufficient stock for '{product.Name}'. Available: {product.CurrentStock}, Requested: {item.Quantity}");
+                    throw new BadRequestException($"Insufficient stock for '{product.Name}' in warehouse '{warehouse.Name}'. Available: {availableStock}, Requested: {item.Quantity}");
                 }
             }
 
@@ -120,7 +134,12 @@ namespace Application.Services
             if (customer == null)
                 throw new NotFoundException($"Customer with ID {dto.CustomerId} not found");
 
-            // 3. Validate Products
+            // 3. Validate Warehouse
+            var warehouse = await _warehouseRepository.GetByIdAsync(dto.WarehouseId);
+            if (warehouse == null)
+                throw new NotFoundException($"Warehouse with ID {dto.WarehouseId} not found");
+
+            // 4. Validate Products and Stock
             var productIds = new HashSet<int>();
             foreach (var item in dto.Items)
             {
@@ -134,14 +153,18 @@ namespace Application.Services
                 if (item.UnitPrice != product.UnitPrice)
                     throw new BadRequestException($"Incorrect unit price for product '{product.Name}'. Expected {product.UnitPrice}, but received {item.UnitPrice}.");
                 
-                if (product.CurrentStock < item.Quantity)
+                var stock = await _productStockRepository.GetByProductAndWarehouseAsync(item.ProductId, dto.WarehouseId);
+                int availableStock = stock?.Quantity ?? 0;
+
+                if (availableStock < item.Quantity)
                 {
-                    throw new BadRequestException($"Insufficient stock for '{product.Name}'. Available: {product.CurrentStock}, Requested: {item.Quantity}");
+                    throw new BadRequestException($"Insufficient stock for '{product.Name}' in warehouse '{warehouse.Name}'. Available: {availableStock}, Requested: {item.Quantity}");
                 }
             }
 
-            // 4. Update core order details
+            // 5. Update core order details
             existingOrder.CustomerId = dto.CustomerId;
+            existingOrder.WarehouseId = dto.WarehouseId;
             existingOrder.Notes = dto.Notes;
             existingOrder.ModifiedDate = DateTime.UtcNow;
 
@@ -178,31 +201,32 @@ namespace Application.Services
             await _unitOfWork.BeginTransactionAsync();
             try
             {
-                // Deduct stock for each item
+                // Deduct stock for each item from the specific warehouse
                 foreach (var item in order.SalesOrderItems)
                 {
-                    var product = await _productRepository.GetByIdAsync(item.ProductId);
-                    if (product == null) throw new NotFoundException($"Product {item.ProductId} not found");
-
-                    if (product.CurrentStock < item.Quantity)
+                    // Concurrency Handling: Re-fetch stock inside transaction
+                    var stock = await _productStockRepository.GetByProductAndWarehouseAsync(item.ProductId, order.WarehouseId);
+                    
+                    if (stock == null || stock.Quantity < item.Quantity)
                     {
-                        throw new BadRequestException($"Insufficient stock for product '{product.Name}'. Available: {product.CurrentStock}, Needed: {item.Quantity}");
+                        var product = await _productRepository.GetByIdAsync(item.ProductId);
+                        throw new BadRequestException($"Insufficient stock for product '{product?.Name ?? "Unknown"}'. Available: {stock?.Quantity ?? 0}, Needed: {item.Quantity}. Stock may have changed, please retry.");
                     }
 
-                    product.CurrentStock -= item.Quantity;
-                    product.ModifiedDate = DateTime.UtcNow;
-                    await _productRepository.UpdateAsync(product);
+                    stock.Quantity -= item.Quantity;
+                    await _productStockRepository.UpdateAsync(stock);
                 }
 
                 await _salesOrderRepository.UpdateStatusAsync(id, 2); // 2 = Confirmed
 
+                await _unitOfWork.SaveChangesAsync();
                 await _unitOfWork.CommitAsync();
                 return true;
             }
             catch (DbUpdateConcurrencyException)
             {
                 await _unitOfWork.RollbackAsync();
-                throw new BadRequestException("A concurrency error occurred while updating product stock. Please try again.");
+                throw new BadRequestException("A concurrency error occurred while updating stock. Please try again.");
             }
             catch (Exception)
             {
@@ -249,23 +273,23 @@ namespace Application.Services
             await _unitOfWork.BeginTransactionAsync();
             try
             {
-                // If the order was already confirmed, we must RESTORE the stock
-                if (order.StatusId >= 2 && order.StatusId <= 3) // Confirmed or Shipped
+                // If the order was already confirmed or shipped, we must RESTORE the stock
+                if (order.StatusId == 2 || order.StatusId == 3) // 2 = Confirmed, 3 = Shipped
                 {
                     foreach (var item in order.SalesOrderItems)
                     {
-                        var product = await _productRepository.GetByIdAsync(item.ProductId);
-                        if (product != null)
+                        var stock = await _productStockRepository.GetByProductAndWarehouseAsync(item.ProductId, order.WarehouseId);
+                        if (stock != null)
                         {
-                            product.CurrentStock += item.Quantity;
-                            product.ModifiedDate = DateTime.UtcNow;
-                            await _productRepository.UpdateAsync(product);
+                            stock.Quantity += item.Quantity;
+                            await _productStockRepository.UpdateAsync(stock);
                         }
                     }
                 }
 
                 await _salesOrderRepository.UpdateStatusAsync(id, 5); // 5 = Cancelled
                 
+                await _unitOfWork.SaveChangesAsync();
                 await _unitOfWork.CommitAsync();
                 return true;
             }

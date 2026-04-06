@@ -17,6 +17,8 @@ namespace Application.Services
         private readonly IPurchaseOrderRepository _purchaseOrderRepository;
         private readonly ISupplierRepository _supplierRepository;
         private readonly IProductRepository _productRepository;
+        private readonly IWarehouseRepository _warehouseRepository;
+        private readonly IProductWarehouseStockRepository _productStockRepository;
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
 
@@ -24,12 +26,16 @@ namespace Application.Services
             IPurchaseOrderRepository purchaseOrderRepository,
             ISupplierRepository supplierRepository,
             IProductRepository productRepository,
+            IWarehouseRepository warehouseRepository,
+            IProductWarehouseStockRepository productStockRepository,
             IUnitOfWork unitOfWork,
             IMapper mapper)
         {
             _purchaseOrderRepository = purchaseOrderRepository;
             _supplierRepository = supplierRepository;
             _productRepository = productRepository;
+            _warehouseRepository = warehouseRepository;
+            _productStockRepository = productStockRepository;
             _unitOfWork = unitOfWork;
             _mapper = mapper;
         }
@@ -67,6 +73,11 @@ namespace Application.Services
             if (supplier == null)
                 throw new NotFoundException($"Supplier with ID {dto.SupplierId} not found");
 
+            // 1.1 Validate Warehouse
+            var warehouse = await _warehouseRepository.GetByIdAsync(dto.WarehouseId);
+            if (warehouse == null)
+                throw new NotFoundException($"Warehouse with ID {dto.WarehouseId} not found");
+
             // 2. Validate Products
             var productIds = new HashSet<int>();
             foreach (var item in dto.Items)
@@ -93,6 +104,7 @@ namespace Application.Services
 
             // 4. Generate details
             purchaseOrder.OrderNumber = await _purchaseOrderRepository.GenerateOrderNumberAsync();
+            purchaseOrder.WarehouseId = dto.WarehouseId;
             purchaseOrder.OrderDate = DateTime.UtcNow;
             purchaseOrder.CreatedDate = DateTime.UtcNow;
             purchaseOrder.StatusId = 1; // 1 = Draft
@@ -143,6 +155,7 @@ namespace Application.Services
 
             // 4. Update core order details
             existingOrder.SupplierId = dto.SupplierId;
+            existingOrder.WarehouseId = dto.WarehouseId;
             existingOrder.ExpectedDeliveryDate = dto.ExpectedDeliveryDate;
             existingOrder.Notes = dto.Notes;
             existingOrder.ModifiedDate = DateTime.UtcNow;
@@ -194,27 +207,46 @@ namespace Application.Services
             await _unitOfWork.BeginTransactionAsync();
             try
             {
-                // Update Product stock for each item
+                // Update ProductWarehouseStock for each item
                 foreach (var item in order.PurchaseOrderItems)
                 {
-                    var product = await _productRepository.GetByIdAsync(item.ProductId);
-                    if (product == null) throw new NotFoundException($"Product {item.ProductId} not found");
+                    var stock = await _productStockRepository.GetByProductAndWarehouseAsync(item.ProductId, order.WarehouseId);
+                    bool isNewStock = false;
 
-                    product.CurrentStock += item.Quantity;
-                    product.ModifiedDate = DateTime.UtcNow;
-                    await _productRepository.UpdateAsync(product);
+                    if (stock == null)
+                    {
+                        stock = new ProductWarehouseStock
+                        {
+                            ProductId = item.ProductId,
+                            WarehouseId = order.WarehouseId,
+                            Quantity = 0
+                        };
+                        isNewStock = true;
+                    }
+
+                    stock.Quantity += item.Quantity;
+
+                    if (isNewStock)
+                    {
+                        await _productStockRepository.AddAsync(stock);
+                    }
+                    else
+                    {
+                        await _productStockRepository.UpdateAsync(stock);
+                    }
                 }
 
                 // Update Order Status
                 await _purchaseOrderRepository.UpdateStatusAsync(id, 3); // 3 = Received
 
+                await _unitOfWork.SaveChangesAsync();
                 await _unitOfWork.CommitAsync();
                 return true;
             }
             catch (DbUpdateConcurrencyException)
             {
                 await _unitOfWork.RollbackAsync();
-                throw new BadRequestException("A concurrency error occurred while updating product stock. Please try again.");
+                throw new BadRequestException("A concurrency error occurred while updating stock. Please try again.");
             }
             catch (Exception)
             {
