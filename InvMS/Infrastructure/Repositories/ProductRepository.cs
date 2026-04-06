@@ -121,7 +121,9 @@ namespace Infrastructure.Repositories
             return await _dbContext.Products
                 .Include(p => p.Category)
                 .Include(p => p.Supplier)
-                .Where(p => !p.IsDeleted && p.CurrentStock <= p.ReorderLevel)
+                .Include(p => p.ProductWarehouseStocks)
+                .Where(p => !p.IsDeleted && 
+                           p.ProductWarehouseStocks.Sum(s => (int?)s.Quantity).GetValueOrDefault() <= p.ReorderLevel)
                 .ToListAsync();
         }
 
@@ -130,7 +132,9 @@ namespace Infrastructure.Repositories
             return await _dbContext.Products
                 .Include(p => p.Category)
                 .Include(p => p.Supplier)
-                .Where(p => !p.IsDeleted && p.CurrentStock == 0)
+                .Include(p => p.ProductWarehouseStocks)
+                .Where(p => !p.IsDeleted && 
+                           p.ProductWarehouseStocks.Sum(s => (int?)s.Quantity).GetValueOrDefault() == 0)
                 .ToListAsync();
         }
 

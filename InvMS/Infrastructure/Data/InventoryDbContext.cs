@@ -82,6 +82,7 @@ public partial class InventoryDbContext : DbContext
 
     public virtual DbSet<AdjustmentType> AdjustmentTypes { get; set; }
     public virtual DbSet<StockAdjustment> StockAdjustments { get; set; }
+    public virtual DbSet<ProductWarehouseStock> ProductWarehouseStocks { get; set; }
 
 
 
@@ -283,6 +284,10 @@ public partial class InventoryDbContext : DbContext
                 .HasForeignKey(d => d.SupplierId)
                 .OnDelete(DeleteBehavior.Restrict)
                 .HasConstraintName("FK__PurchaseO__Suppl__40058253");
+
+            entity.HasOne(d => d.Warehouse).WithMany()
+                .HasForeignKey(d => d.WarehouseId)
+                .OnDelete(DeleteBehavior.Restrict);
         });
 
         modelBuilder.Entity<PurchaseOrderItem>(entity =>
@@ -337,6 +342,10 @@ public partial class InventoryDbContext : DbContext
                 .HasForeignKey(d => d.CustomerId)
                 .OnDelete(DeleteBehavior.Restrict)
                 .HasConstraintName("FK__SalesOrde__Custo__540C7B00");
+
+            entity.HasOne(d => d.Warehouse).WithMany()
+                .HasForeignKey(d => d.WarehouseId)
+                .OnDelete(DeleteBehavior.Restrict);
         });
 
         modelBuilder.Entity<SalesOrderItem>(entity =>
@@ -399,6 +408,27 @@ public partial class InventoryDbContext : DbContext
                 .HasForeignKey(d => d.AdjustedBy)
                 .OnDelete(DeleteBehavior.Restrict)
                 .HasConstraintName("FK__StockAdju__Adjus__634EBE90");
+        });
+
+        modelBuilder.Entity<ProductWarehouseStock>(entity =>
+        {
+            entity.ToTable("ProductWarehouseStock");
+            entity.HasKey(e => e.Id);
+            entity.HasIndex(e => new { e.ProductId, e.WarehouseId }).IsUnique();
+            entity.Property(e => e.Quantity).HasDefaultValue(0);
+            entity.Property(e => e.RowVersion)
+                .IsRowVersion()
+                .IsConcurrencyToken();
+
+            entity.HasOne(d => d.Product)
+                .WithMany(p => p.ProductWarehouseStocks)
+                .HasForeignKey(d => d.ProductId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            entity.HasOne(d => d.Warehouse)
+                .WithMany(w => w.ProductWarehouseStocks)
+                .HasForeignKey(d => d.WarehouseId)
+                .OnDelete(DeleteBehavior.Restrict);
         });
     }
 }

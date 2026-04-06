@@ -28,7 +28,8 @@ namespace Infrastructure.Repositories
                 TotalSuppliers = await _dbContext.Suppliers.CountAsync(s => !s.IsDeleted),
 
                 LowStockItemsCount = await _dbContext.Products
-                    .CountAsync(p => !p.IsDeleted && p.CurrentStock <= p.ReorderLevel),
+                    .CountAsync(p => !p.IsDeleted && 
+                               p.ProductWarehouseStocks.Sum(s => (int?)s.Quantity).GetValueOrDefault() <= p.ReorderLevel),
 
                 TotalSales = await _dbContext.SalesOrders
                     .Where(so => so.StatusId != 5)
@@ -64,12 +65,14 @@ namespace Infrastructure.Repositories
         {
             return await _dbContext.Products
                 .Include(p => p.Category)
-                .Where(p => !p.IsDeleted && p.CurrentStock <= p.ReorderLevel)
+                .Include(p => p.ProductWarehouseStocks)
+                .Where(p => !p.IsDeleted && 
+                           p.ProductWarehouseStocks.Sum(s => (int?)s.Quantity).GetValueOrDefault() <= p.ReorderLevel)
                 .Select(p => new LowStock
                 {
                     ProductId = p.Id,
                     ProductName = p.Name,
-                    CurrentStock = p.CurrentStock,
+                    CurrentStock = p.ProductWarehouseStocks.Sum(s => (int?)s.Quantity).GetValueOrDefault(),
                     ReorderLevel = p.ReorderLevel,
                     CategoryName = p.Category.Name
                 })
