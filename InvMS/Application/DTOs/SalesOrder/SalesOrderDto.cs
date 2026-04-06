@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -13,6 +13,8 @@ namespace Application.DTOs.SalesOrder
         public DateTime OrderDate { get; set; }
         public int StatusId { get; set; }
         public string StatusName { get; set; }
+        public int WarehouseId { get; set; }
+        public string WarehouseName { get; set; }
         public decimal TotalAmount { get; set; }
         public string? Notes { get; set; }
 

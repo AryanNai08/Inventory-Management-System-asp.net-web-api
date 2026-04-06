@@ -13,6 +13,8 @@ namespace Application.DTOs.PurchaseOrder
         public DateTime? ExpectedDeliveryDate { get; set; }
         public int StatusId { get; set; }
         public string StatusName { get; set; } = string.Empty;
+        public int WarehouseId { get; set; }
+        public string WarehouseName { get; set; } = string.Empty;
         public decimal TotalAmount { get; set; }
         public string? Notes { get; set; }
 

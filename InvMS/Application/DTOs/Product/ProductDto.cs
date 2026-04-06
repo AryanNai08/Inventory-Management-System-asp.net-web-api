@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -18,6 +18,7 @@ namespace Application.DTOs.Product
         public string? SupplierName { get; set; }      // from navigation
         public int? WarehouseId { get; set; }
         public string? WarehouseName { get; set; }     // from navigation
+        public int CurrentStock { get; set; }          // Aggregate stock from all warehouses
         public byte[] RowVersion { get; set; }         // client needs this for updates
     }
 

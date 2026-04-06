@@ -10,6 +10,10 @@ namespace Application.DTOs.PurchaseOrder
         [Range(1, int.MaxValue, ErrorMessage = "A valid Supplier is required")]
         public int SupplierId { get; set; }
 
+        [Required]
+        [Range(1, int.MaxValue, ErrorMessage = "A valid Warehouse is required")]
+        public int WarehouseId { get; set; }
+
         public DateTime? ExpectedDeliveryDate { get; set; }
 
         [MaxLength(1000, ErrorMessage = "Notes cannot exceed 1000 characters")]
