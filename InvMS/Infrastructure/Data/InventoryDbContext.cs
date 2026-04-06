@@ -232,7 +232,6 @@ public partial class InventoryDbContext : DbContext
             entity.Property(e => e.CreatedDate).HasDefaultValueSql("(getutcdate())");
             entity.Property(e => e.Description).HasMaxLength(500);
             entity.Property(e => e.Name).HasMaxLength(200);
-            entity.Property(e => e.CurrentStock).HasDefaultValue(0);
             entity.Property(e => e.RowVersion)
                 .IsRowVersion()
                 .IsConcurrencyToken();
@@ -252,11 +251,6 @@ public partial class InventoryDbContext : DbContext
             entity.HasOne(e => e.Supplier)
                             .WithMany()
                             .HasForeignKey(e => e.SupplierId)
-                            .OnDelete(DeleteBehavior.SetNull);
-
-            entity.HasOne(e => e.Warehouse)
-                            .WithMany()
-                            .HasForeignKey(e => e.WarehouseId)
                             .OnDelete(DeleteBehavior.SetNull);
 
         });

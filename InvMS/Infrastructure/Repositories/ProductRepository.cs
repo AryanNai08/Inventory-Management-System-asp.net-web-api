@@ -26,7 +26,6 @@ namespace Infrastructure.Repositories
             var query = _dbContext.Products
                 .Include(p => p.Category)
                 .Include(p => p.Supplier)
-                .Include(p => p.Warehouse)
                 .Where(p => !p.IsDeleted)
                 .AsQueryable();
 
@@ -59,7 +58,6 @@ namespace Infrastructure.Repositories
             return await _dbContext.Products
                 .Include(p => p.Category)
                 .Include(p => p.Supplier)
-                .Include(p => p.Warehouse)
                 .Where(p => p.Id == id && !p.IsDeleted)
                 .FirstOrDefaultAsync();
         }
@@ -70,7 +68,6 @@ namespace Infrastructure.Repositories
             return await _dbContext.Products
                 .Include(p => p.Category)
                 .Include(p => p.Supplier)
-                .Include(p => p.Warehouse)
                 .Where(p => p.Sku == sku && !p.IsDeleted)
                 .FirstOrDefaultAsync();
         }
@@ -80,7 +77,6 @@ namespace Infrastructure.Repositories
             var query = _dbContext.Products
                 .Include(p => p.Category)
                 .Include(p => p.Supplier)
-                .Include(p => p.Warehouse)
                 .Where(p => !p.IsDeleted)
                 .AsQueryable();
 
@@ -150,7 +146,7 @@ namespace Infrastructure.Repositories
 
         public async Task<bool> ExistsByWarehouseIdAsync(int warehouseId)
         {
-            return await _dbContext.Products.AnyAsync(p => p.WarehouseId == warehouseId && !p.IsDeleted);
+            return await _dbContext.ProductWarehouseStocks.AnyAsync(p => p.WarehouseId == warehouseId);
         }
     }
 }

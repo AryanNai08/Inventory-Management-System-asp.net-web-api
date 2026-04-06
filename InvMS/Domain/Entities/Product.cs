@@ -16,12 +16,9 @@ public partial class Product
     public decimal UnitPrice { get; set; }
 
     public int ReorderLevel { get; set; }
-    public int CurrentStock { get; set; }
     public int CategoryId { get; set; }
 
     public int? SupplierId { get; set; }
-
-    public int? WarehouseId { get; set; }
 
     public bool IsDeleted { get; set; }
 
@@ -34,5 +31,4 @@ public partial class Product
     // Navigation properties
     public virtual Category Category { get; set; } = null!;
     public virtual Supplier? Supplier { get; set; }
-    public virtual Warehouse? Warehouse { get; set; }
 }

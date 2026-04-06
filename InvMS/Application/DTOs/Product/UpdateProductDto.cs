@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Text;
@@ -19,7 +19,6 @@ namespace Application.DTOs.Product
         [Required]
         public int CategoryId { get; set; }
         public int? SupplierId { get; set; }
-        public int? WarehouseId { get; set; }
         [Required]
         public byte[] RowVersion { get; set; }  // ← client MUST send this back
     }
