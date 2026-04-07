@@ -16,5 +16,6 @@ namespace Application.Interfaces.Auth
         public Task<bool> SendOtpAsync(ForgotPasswordDto dto);
 
         public Task<bool> ResetPasswordAsync(ResetPasswordDto dto);
+        Task LogoutAsync(string? refreshToken);
     }
 }

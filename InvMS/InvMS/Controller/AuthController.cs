@@ -130,6 +130,20 @@ namespace InvMS.Controller
             return Ok(new APIResponse<object>(result, "Password reset successfully"));
         }
 
+        [HttpPost("logout")]
+        [Authorize]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        public async Task<ActionResult<APIResponse<object>>> Logout()
+        {
+            var refreshToken = Request.Cookies["refreshtoken"];
+            await _authService.LogoutAsync(refreshToken);
+
+            Response.Cookies.Delete("accesstoken");
+            Response.Cookies.Delete("refreshtoken");
+
+            return Ok(new APIResponse<object>(null, "Logged out successfully"));
+        }
+
 
     }
 }

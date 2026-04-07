@@ -316,5 +316,16 @@ namespace Application.Services
             return true;
         }
 
+        public async Task LogoutAsync(string? refreshToken)
+        {
+            if (string.IsNullOrEmpty(refreshToken)) return;
+
+            var storedToken = await _refreshTokenRepository.GetByTokenAsync(refreshToken);
+            if (storedToken == null) return;
+
+            storedToken.IsRevoked = true;
+            await _refreshTokenRepository.UpdateAsync(storedToken);
+            await _unitOfWork.SaveChangesAsync();
+        }
     }
 }
