@@ -1,9 +1,9 @@
 using Domain.Entities;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Application.Common;
+using Domain.Common;
 
-namespace Application.Interfaces
+namespace Domain.Interfaces
 {
     public interface IStockAdjustmentRepository
     {

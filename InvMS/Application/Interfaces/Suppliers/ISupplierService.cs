@@ -5,9 +5,9 @@ using Domain.Entities;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Application.Common;
+using Domain.Common;
 
-namespace Application.Interfaces
+namespace Application.Interfaces.Suppliers
 {
     public interface ISupplierService
     {

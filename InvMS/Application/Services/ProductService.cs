@@ -1,11 +1,13 @@
-using Application.Common;
+using Domain.Common;
 using Application.DTOs.Product;
-using Application.Interfaces;
+using Domain.Interfaces;
 using AutoMapper;
 using Domain.Entities;
 using Domain.Exceptions;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.EntityFrameworkCore;
+using Domain.Interfaces;
+using Application.Interfaces.Products;
 
 namespace Application.Services
 {

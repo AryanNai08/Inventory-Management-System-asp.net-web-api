@@ -1,13 +1,15 @@
-using Application.Common;
+using Domain.Common;
 using Application.DTOs.Customer;
 using Application.DTOs.SalesOrder;
-using Application.Interfaces;
+using Domain.Interfaces;
 using AutoMapper;
 using Domain.Entities;
 using Domain.Exceptions;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using Domain.Interfaces;
+using Application.Interfaces.Customers;
 
 namespace Application.Services
 {

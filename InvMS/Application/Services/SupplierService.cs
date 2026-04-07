@@ -2,14 +2,16 @@ using Application.DTOs.Auth;
 using Application.DTOs.Product;
 using Application.DTOs.PurchaseOrder;
 using Application.DTOs.Supplier;
-using Application.Interfaces;
+using Domain.Interfaces;
 using AutoMapper;
 using Domain.Entities;
 using Domain.Exceptions;
 using System;
 using System.Collections.Generic;
 using System.Text;
-using Application.Common;
+using Domain.Common;
+using Domain.Interfaces;
+using Application.Interfaces.Suppliers;
 
 namespace Application.Services
 {

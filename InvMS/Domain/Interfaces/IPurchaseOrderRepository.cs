@@ -1,9 +1,9 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Domain.Entities;
-using Application.Common;
+using Domain.Common;
 
-namespace Application.Interfaces
+namespace Domain.Interfaces
 {
     public interface IPurchaseOrderRepository
     {

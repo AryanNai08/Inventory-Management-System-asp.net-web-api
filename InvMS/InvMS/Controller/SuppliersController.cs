@@ -4,11 +4,13 @@ using Application.DTOs.Category;
 using Application.DTOs.Supplier;
 using Application.DTOs.Product;
 using Application.DTOs.PurchaseOrder;
-using Application.Interfaces;
+using Domain.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Net;
+using Domain.Common;
+using Application.Interfaces.Suppliers;
 
 namespace InvMS.Controller
 {

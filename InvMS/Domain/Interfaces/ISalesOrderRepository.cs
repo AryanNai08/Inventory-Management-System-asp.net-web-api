@@ -2,9 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using Domain.Entities;
-using Application.Common;
+using Domain.Common;
 
-namespace Application.Interfaces
+namespace Domain.Interfaces
 {
     public interface ISalesOrderRepository
     {

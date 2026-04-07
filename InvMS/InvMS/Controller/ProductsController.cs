@@ -1,11 +1,13 @@
 using Application.Common;
 using Application.DTOs.Product;
-using Application.Interfaces;
+using Domain.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using System.Net;
+using Domain.Common;
+using Application.Interfaces.Products;
 
 namespace InvMS.Controller
 {

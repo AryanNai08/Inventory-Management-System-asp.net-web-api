@@ -1,5 +1,5 @@
 using Application.Common;
-using Application.Interfaces;
+using Domain.Interfaces;
 using AspNetCore.Reporting;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
@@ -9,6 +9,7 @@ using System;
 using System.IO;
 using System.Net;
 using System.Threading.Tasks;
+using Application.Interfaces.Dashboard;
 
 namespace InvMS.Controller
 {

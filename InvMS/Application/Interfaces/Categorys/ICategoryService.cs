@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using System.Text;
 
-namespace Application.Interfaces
+namespace Application.Interfaces.Categorys
 {
     public interface ICategoryService
     {

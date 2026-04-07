@@ -1,9 +1,9 @@
 using Application.DTOs.StockAdjustment;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Application.Common;
+using Domain.Common;
 
-namespace Application.Interfaces
+namespace Application.Interfaces.StockAdjustments
 {
     public interface IStockAdjustmentService
     {

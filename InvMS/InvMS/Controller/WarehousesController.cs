@@ -1,6 +1,7 @@
 using Application.Common;
 using Application.DTOs.Warehouse;
-using Application.Interfaces;
+using Application.Interfaces.Warehouse;
+using Domain.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Net;

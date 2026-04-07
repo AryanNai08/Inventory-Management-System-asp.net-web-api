@@ -1,5 +1,5 @@
-using Application.Common.Models;
-using Application.Interfaces;
+using Domain.Common.Models;
+using Domain.Interfaces;
 using Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using System;

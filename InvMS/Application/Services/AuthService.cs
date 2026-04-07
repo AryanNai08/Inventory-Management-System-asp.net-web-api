@@ -1,3 +1,4 @@
+using Domain.Interfaces.Auth;
 using AutoMapper;
 using Domain.Entities;
 using Domain.Exceptions;
@@ -9,7 +10,9 @@ using System.Text;
 using Microsoft.Extensions.Caching.Memory;
 using System.Linq;
 using Application.DTOs.Auth;
-using Application.Interfaces;
+using Domain.Interfaces;
+using Domain.Interfaces;
+using Application.Interfaces.Auth;
 
 namespace Application.Services
 {

@@ -1,8 +1,11 @@
+using Domain.Interfaces.Auth;
 using Application.DTOs.Auth;
-using Application.Interfaces;
+using Domain.Interfaces;
 using AutoMapper;
 using Domain.Entities;
 using Domain.Exceptions;
+using Domain.Interfaces;
+using Application.Interfaces.Auth;
 
 namespace Application.Services
 {

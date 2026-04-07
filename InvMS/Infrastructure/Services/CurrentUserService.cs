@@ -1,4 +1,5 @@
-using Application.Interfaces.Auth;
+
+using Domain.Interfaces;
 using Microsoft.AspNetCore.Http;
 using System.Security.Claims;
 
@@ -25,4 +26,10 @@ public class CurrentUserService : ICurrentUserService
     /// </summary>
     public string? Username =>
         _httpContextAccessor.HttpContext?.User?.FindFirstValue(ClaimTypes.Name);
+
+    /// <summary>
+    /// Returns the UserId (Username) for auditing purposes.
+    /// maps to the same claim for simplicity.
+    /// </summary>
+    public string? UserId => Username;
 }

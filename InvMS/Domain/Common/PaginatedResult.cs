@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace Application.Common
+namespace Domain.Common
 {
     public class PaginatedResult<T>
     {

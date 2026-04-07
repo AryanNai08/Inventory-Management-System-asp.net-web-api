@@ -1,7 +1,7 @@
 using Domain.Entities;
 using System.Threading.Tasks;
 
-namespace Application.Interfaces
+namespace Domain.Interfaces
 {
     public interface IProductWarehouseStockRepository
     {

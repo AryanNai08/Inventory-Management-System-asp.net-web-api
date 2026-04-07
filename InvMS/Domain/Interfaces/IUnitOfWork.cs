@@ -1,7 +1,7 @@
 using System;
 using System.Threading.Tasks;
 
-namespace Application.Interfaces
+namespace Domain.Interfaces
 {
     public interface IUnitOfWork : IDisposable
     {

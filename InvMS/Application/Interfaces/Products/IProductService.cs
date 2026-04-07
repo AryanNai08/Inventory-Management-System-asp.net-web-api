@@ -3,9 +3,9 @@ using Microsoft.AspNetCore.JsonPatch;
 using System;
 using System.Collections.Generic;
 using System.Text;
-using Application.Common;
+using Domain.Common;
 
-namespace Application.Interfaces
+namespace Application.Interfaces.Products
 {
     public interface IProductService
     {

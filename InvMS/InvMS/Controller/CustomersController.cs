@@ -1,11 +1,13 @@
 using Application.Common;
 using Application.DTOs.Customer;
 using Application.DTOs.SalesOrder;
-using Application.Interfaces;
+using Domain.Interfaces;
+using Domain.Common;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Net;
+using Application.Interfaces.Customers;
 
 namespace InvMS.Controller
 {

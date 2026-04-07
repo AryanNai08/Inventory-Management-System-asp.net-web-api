@@ -1,5 +1,5 @@
 using Application.DTOs.StockAdjustment;
-using Application.Interfaces;
+using Domain.Interfaces;
 using AutoMapper;
 using Domain.Entities;
 using Domain.Exceptions;
@@ -8,7 +8,9 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Application.Common;
+using Domain.Common;
+using Domain.Interfaces;
+using Application.Interfaces.StockAdjustments;
 
 namespace Application.Services
 {

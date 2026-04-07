@@ -1,4 +1,4 @@
-using Application.Interfaces.Auth;
+using Domain.Interfaces;
 using Domain.Common;
 using Domain.Entities;
 using Microsoft.EntityFrameworkCore;

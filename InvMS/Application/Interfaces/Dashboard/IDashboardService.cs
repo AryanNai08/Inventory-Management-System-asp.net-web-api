@@ -3,7 +3,7 @@ using Application.DTOs.Reports;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace Application.Interfaces
+namespace Application.Interfaces.Dashboard
 {
     public interface IDashboardService
     {

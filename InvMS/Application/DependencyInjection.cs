@@ -1,5 +1,5 @@
-using Application.Common;
-using Application.Interfaces;
+using Domain.Common;
+using Domain.Interfaces;
 using Application.Mappings;
 using Application.Services;
 using Microsoft.Extensions.Configuration;
@@ -7,6 +7,18 @@ using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using Domain.Interfaces;
+using Application.Interfaces.Auth;
+using Application.Interfaces.Categorys;
+using Application.Interfaces.RoleAndPrivileges;
+using Application.Interfaces.Products;
+using Application.Interfaces.Warehouse;
+using Application.Interfaces.Suppliers;
+using Application.Interfaces.Customers;
+using Application.Interfaces.PurchaseOrders;
+using Application.Interfaces.SalesOrder;
+using Application.Interfaces.StockAdjustments;
+using Application.Interfaces.Dashboard;
 
 namespace Application
 {

@@ -1,7 +1,7 @@
-using Application.Common;
+using Domain.Common;
 using Domain.Entities;
 
-namespace Application.Interfaces
+namespace Domain.Interfaces
 {
     public interface IProductRepository
     {

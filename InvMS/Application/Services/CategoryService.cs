@@ -1,6 +1,6 @@
 using Application.DTOs.Auth;
 using Application.DTOs.Category;
-using Application.Interfaces;
+using Domain.Interfaces;
 using AutoMapper;
 using Domain.Entities;
 using Domain.Exceptions;
@@ -8,6 +8,8 @@ using System;
 using System.Collections.Generic;
 using System.Security.AccessControl;
 using System.Text;
+using Domain.Interfaces;
+using Application.Interfaces.Categorys;
 
 namespace Application.Services
 {

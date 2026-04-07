@@ -1,11 +1,12 @@
 using Application.Common;
-using Application.Interfaces;
+using Domain.Interfaces;
 using Application.DTOs.Dashboard;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Net;
 using System.Threading.Tasks;
+using Application.Interfaces.Dashboard;
 
 namespace InvMS.Controller
 {

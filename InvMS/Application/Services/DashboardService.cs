@@ -1,12 +1,14 @@
 using Application.DTOs.Dashboard;
 using Application.DTOs.Reports;
-using Application.Interfaces;
+using Domain.Interfaces;
 using Domain.Exceptions;
-using Application.Common.Models;
+using Domain.Common.Models;
 using System.Linq;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Domain.Interfaces;
+using Application.Interfaces.Dashboard;
 
 namespace Application.Services
 {

@@ -1,9 +1,9 @@
-using Application.Common.Models;
-using Application.DTOs.Reports;
+using Domain.Common.Models;
+using Domain.Common.Models;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace Application.Interfaces
+namespace Domain.Interfaces
 {
     public interface IDashboardRepository
     {

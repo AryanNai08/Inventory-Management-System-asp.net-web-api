@@ -1,11 +1,11 @@
-using Application.Interfaces;
+using Domain.Interfaces;
 using Domain.Entities;
 using Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Text;
-using Application.Common;
+using Domain.Common;
 
 namespace Infrastructure.Repositories
 {

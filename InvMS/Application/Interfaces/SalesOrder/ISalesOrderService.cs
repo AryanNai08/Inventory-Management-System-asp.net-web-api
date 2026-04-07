@@ -2,9 +2,9 @@ using Application.DTOs.SalesOrder;
 using System;
 using System.Collections.Generic;
 using System.Text;
-using Application.Common;
+using Domain.Common;
 
-namespace Application.Interfaces
+namespace Application.Interfaces.SalesOrder
 {
     public interface ISalesOrderService
     {

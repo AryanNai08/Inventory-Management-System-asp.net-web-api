@@ -3,12 +3,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Application.DTOs.PurchaseOrder;
-using Application.Interfaces;
+using Domain.Interfaces;
 using AutoMapper;
 using Domain.Entities;
 using Domain.Exceptions;
 using Microsoft.EntityFrameworkCore;
-using Application.Common;
+using Domain.Common;
+using Domain.Interfaces;
+using Application.Interfaces.PurchaseOrders;
 
 namespace Application.Services
 {

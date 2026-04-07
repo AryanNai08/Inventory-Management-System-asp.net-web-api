@@ -1,4 +1,4 @@
-using Application.Interfaces;
+using Domain.Interfaces;
 using Microsoft.EntityFrameworkCore.Storage;
 using System;
 using System.Threading.Tasks;

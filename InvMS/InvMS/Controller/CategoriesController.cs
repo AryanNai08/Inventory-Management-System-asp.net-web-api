@@ -1,7 +1,8 @@
 using Application.Common;
 using Application.DTOs.Auth;
 using Application.DTOs.Category;
-using Application.Interfaces;
+using Application.Interfaces.Categorys;
+using Domain.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;

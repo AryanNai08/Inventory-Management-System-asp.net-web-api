@@ -1,6 +1,7 @@
 using Application.Common;
 using Application.DTOs.RolesAndPrivileges;
-using Application.Interfaces;
+using Application.Interfaces.RoleAndPrivileges;
+using Domain.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;

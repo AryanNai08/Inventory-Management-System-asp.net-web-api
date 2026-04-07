@@ -1,6 +1,7 @@
 using Application.Common;
 using Application.DTOs.StockAdjustment;
-using Application.Interfaces;
+using Domain.Interfaces;
+using Domain.Common;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -8,6 +9,7 @@ using System.Collections.Generic;
 using System.Net;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using Application.Interfaces.StockAdjustments;
 
 namespace InvMS.Controller
 {

@@ -1,8 +1,9 @@
-using Application.Interfaces;
+using Domain.Interfaces;
 using Domain.Entities;
 using Domain.Exceptions;
 using Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
+using Domain.Interfaces.Auth;
 
 namespace Infrastructure.Repositories
 {

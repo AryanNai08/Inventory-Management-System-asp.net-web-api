@@ -1,5 +1,6 @@
-﻿using Application.Interfaces;
+
 using AspNetCore.Reporting;
+using Domain.Interfaces;
 using Microsoft.AspNetCore.Hosting;
 using System;
 using System.Collections.Generic;

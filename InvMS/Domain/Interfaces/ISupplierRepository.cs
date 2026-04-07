@@ -2,10 +2,10 @@ using Domain.Entities;
 using System;
 using System.Collections.Generic;
 using System.Text;
-using Application.Common;
+using Domain.Common;
 using Domain.Entities;
 
-namespace Application.Interfaces
+namespace Domain.Interfaces
 {
     public interface ISupplierRepository
     {

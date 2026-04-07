@@ -1,8 +1,8 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace Application.Common.Models
+namespace Domain.Common.Models
 {
     public class SalesByProductReport
     {

@@ -1,10 +1,10 @@
-using Application.Interfaces;
-using Application.Interfaces.Auth;
-using Application.Services;
+using Domain.Interfaces;
+using Domain.Interfaces.Auth;
 using Infrastructure.Data;
 using Infrastructure.Repositories;
 using Infrastructure.Services;
 using Infrastructure.ThirdPartyServices;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -22,7 +22,8 @@ namespace Infrastructure
                     config.GetConnectionString("InventoryDb")));
 
             // Current user service (reads JWT claims for audit fields)
-            services.AddScoped<ICurrentUserService, CurrentUserService>();
+            services.AddScoped<CurrentUserService>();
+            services.AddScoped<ICurrentUserService>(sp => sp.GetRequiredService<CurrentUserService>());
 
             //repository
             services.AddScoped<IUserRepository, UserRepository>();
@@ -33,7 +34,7 @@ namespace Infrastructure
             services.AddScoped<IRolePrivilegeRepository, RolePrivilegeRepository>();
             services.AddScoped<ISupplierRepository, SupplierRepository>();
             services.AddScoped<ICustomerRepository, CustomerRepository>();
-            services.AddScoped<IEmailService,EmailService>();
+            services.AddScoped<IEmailService, EmailService>();
             services.AddScoped<IWarehouseRepository, WarehouseRepository>();
             services.AddScoped<IProductRepository, ProductRepository>();
             services.AddScoped<IPurchaseOrderRepository, PurchaseOrderRepository>();

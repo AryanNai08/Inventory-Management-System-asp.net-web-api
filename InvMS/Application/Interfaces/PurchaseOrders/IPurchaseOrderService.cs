@@ -1,9 +1,9 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Application.DTOs.PurchaseOrder;
-using Application.Common;
+using Domain.Common;
 
-namespace Application.Interfaces
+namespace Application.Interfaces.PurchaseOrders
 {
     public interface IPurchaseOrderService
     {

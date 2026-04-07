@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace Application.Interfaces
+namespace Domain.Interfaces.Auth
 {
     public interface IUserRepository
     {
