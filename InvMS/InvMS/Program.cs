@@ -137,7 +137,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 
             IssuerSigningKey = new SymmetricSecurityKey(
                 Encoding.UTF8.GetBytes(
-                    File.ReadAllText(builder.Configuration["Jwt:SecretKey"]).Trim()))
+                    builder.Configuration["Jwt:SecretKey"]!))
         };
 
     });
