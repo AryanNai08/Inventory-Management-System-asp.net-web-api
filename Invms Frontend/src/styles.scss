@@ -1,2 +1,23 @@
-/* You can add global styles to this file, and also import other style files */
-@import "tailwindcss";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@keyframes slideIn {
+  from { transform: translateX(100%); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+
+.toast-container-wrapper {
+  z-index: 9999 !important;
+}
+
+.toast-item {
+  animation: slideIn 0.3s ease-out forwards;
+}
+
+/* Base styles to ensure clean look */
+body {
+  @apply bg-slate-50 text-slate-900 antialiased;
+  margin: 0;
+  padding: 0;
+}
