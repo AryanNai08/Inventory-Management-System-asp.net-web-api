@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { UserService } from '../../services/user.service';
 import { ToastService } from '../../../../core/services/toast';
 import { StorageService } from '../../../../core/services/storage.service';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 
 @Component({
   selector: 'app-user-list',
@@ -14,15 +15,27 @@ export class UserList implements OnInit {
   isLoading = false;
   isAdmin = false;
 
+  // Edit Modal State
+  isEditModalOpen = false;
+  editForm: FormGroup;
+  selectedUserId: number | null = null;
+  isSaving = false;
+
   constructor(
     private userService: UserService,
     private toastService: ToastService,
-    private storageService: StorageService
+    private storageService: StorageService,
+    private fb: FormBuilder
   ) {
     this.isAdmin = this.storageService.isAdmin();
+    this.editForm = this.fb.group({
+      fullName: ['', [Validators.required]],
+      email: ['', [Validators.required, Validators.email]]
+    });
   }
 
   ngOnInit(): void {
+    // Ensuring immediate load
     this.fetchUsers();
   }
 
@@ -43,6 +56,44 @@ export class UserList implements OnInit {
     });
   }
 
+  onEdit(user: any): void {
+    this.selectedUserId = user.id;
+    this.editForm.patchValue({
+      fullName: user.fullName,
+      email: user.email
+    });
+    this.isEditModalOpen = true;
+  }
+
+  closeEditModal(): void {
+    this.isEditModalOpen = false;
+    this.selectedUserId = null;
+    this.editForm.reset();
+  }
+
+  onUpdate(): void {
+    if (this.editForm.invalid || !this.selectedUserId) return;
+
+    this.isSaving = true;
+    this.userService.updateUser(this.selectedUserId, this.editForm.value).subscribe({
+      next: (res) => {
+        this.isSaving = false;
+        if (res.status) {
+          this.toastService.success('Success', 'User updated successfully');
+          this.closeEditModal();
+          this.fetchUsers(); // Refresh list
+        } else {
+          this.toastService.error('Update Failed', res.error || 'Check your entry');
+        }
+      },
+      error: (err) => {
+        this.isSaving = false;
+        const msg = err.error?.Error || err.error?.message || 'Update failed';
+        this.toastService.error('Error', msg);
+      }
+    });
+  }
+
   onDelete(id: number): void {
     if (!confirm('Are you sure you want to delete this user? This action cannot be undone.')) {
       return;
@@ -52,7 +103,7 @@ export class UserList implements OnInit {
       next: (res) => {
         if (res.status) {
           this.toastService.success('Deleted', 'User has been removed successfully');
-          this.fetchUsers(); // Refresh list
+          this.fetchUsers();
         } else {
           this.toastService.error('Error', res.error || 'Failed to delete user');
         }
