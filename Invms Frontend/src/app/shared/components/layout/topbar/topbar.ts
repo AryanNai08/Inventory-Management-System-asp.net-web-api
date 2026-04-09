@@ -1,23 +1,36 @@
 import { Component, OnInit } from '@angular/core';
 import { StorageService } from '../../../../core/services/storage.service';
+import { AuthService } from '../../../../features/auth/services/auth';
 
 @Component({
   selector: 'app-topbar',
   standalone: false,
   templateUrl: './topbar.html',
-  styleUrl: './topbar.scss',
+  styleUrl: './topbar.scss'
 })
 export class Topbar implements OnInit {
-  username: string = '';
-  role: string = '';
+  username: string = 'User';
+  role: string = 'Staff';
+  showMenu: boolean = false;
 
-  constructor(private storageService: StorageService) {}
+  constructor(
+    private storageService: StorageService,
+    private authService: AuthService
+  ) {}
 
   ngOnInit(): void {
     const user = this.storageService.getUser();
     if (user) {
-      this.username = user.username;
-      this.role = user.roles && user.roles.length > 0 ? user.roles[0] : 'Staff';
+      this.username = user.fullName || user.username || 'User';
+      this.role = user.roles?.[0] || 'Staff';
     }
+  }
+
+  toggleMenu(): void {
+    this.showMenu = !this.showMenu;
+  }
+
+  onLogout(): void {
+    this.authService.logout();
   }
 }

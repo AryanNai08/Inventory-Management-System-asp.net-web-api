@@ -21,10 +21,30 @@ export class StorageService {
 
   getUser(): any | null {
     const user = localStorage.getItem(this.USER_KEY);
-    if (user) {
-      return JSON.parse(user);
-    }
-    return null;
+    return user ? JSON.parse(user) : null;
+  }
+
+  getRoles(): string[] {
+    const user = this.getUser();
+    return user?.roles || [];
+  }
+
+  getPermissions(): string[] {
+    const user = this.getUser();
+    // Assuming backend returns permissions under 'permissions' or we extract from JWT
+    return user?.permissions || [];
+  }
+
+  hasRole(role: string): boolean {
+    return this.getRoles().includes(role);
+  }
+
+  isAdmin(): boolean {
+    return this.hasRole('Admin');
+  }
+
+  hasPermission(permission: string): boolean {
+    return this.getPermissions().includes(permission);
   }
 
   clean(): void {

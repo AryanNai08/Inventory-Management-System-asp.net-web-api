@@ -20,7 +20,7 @@ import { errorInterceptor } from './core/http-interceptors/error.interceptor';
   ],
   providers: [
     provideHttpClient(
-      withInterceptors([authInterceptor, errorInterceptor])
+      withInterceptors([authInterceptor])
     )
   ],
   bootstrap: [App],

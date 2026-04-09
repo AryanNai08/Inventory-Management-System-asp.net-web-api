@@ -1,0 +1,91 @@
+<div class="min-h-screen bg-slate-50 p-6 lg:p-10">
+  <div class="mx-auto max-w-2xl">
+    <!-- Header -->
+    <div class="mb-8 flex items-center justify-between">
+      <div>
+        <h1 class="text-3xl font-black text-slate-900 tracking-tight">Create New User</h1>
+        <p class="mt-1 text-slate-500">Provide account details to register a new system member.</p>
+      </div>
+      <button routerLink="/dashboard" class="flex items-center gap-2 text-sm font-medium text-slate-400 hover:text-slate-600 transition-colors">
+        <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>
+        Back to Dashboard
+      </button>
+    </div>
+
+    <!-- Form Card -->
+    <div class="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-xl shadow-slate-200/50">
+      <form [formGroup]="userForm" (ngSubmit)="onSubmit()" class="p-8 lg:p-10">
+        <div class="grid grid-cols-1 gap-x-8 gap-y-6 md:grid-cols-2">
+          
+          <!-- Full Name -->
+          <div class="md:col-span-2">
+            <label for="fullName" class="block text-sm font-bold text-slate-700">Full Name</label>
+            <div class="mt-2">
+              <input formControlName="fullName" id="fullName" type="text" placeholder="John Doe"
+                class="block w-full rounded-xl border border-slate-200 bg-slate-50/50 px-4 py-3 text-slate-900 placeholder-slate-400 outline-none ring-blue-500 transition-all focus:border-blue-500 focus:bg-white focus:ring-4"
+                [class.border-red-300]="userForm.get('fullName')?.touched && userForm.get('fullName')?.invalid">
+            </div>
+            <p *ngIf="userForm.get('fullName')?.touched && userForm.get('fullName')?.invalid" class="mt-2 text-xs font-medium text-red-500">Name is required (min 3 chars).</p>
+          </div>
+
+          <!-- Email -->
+          <div>
+            <label for="email" class="block text-sm font-bold text-slate-700">Email Address</label>
+            <div class="mt-2">
+              <input formControlName="email" id="email" type="email" placeholder="john@example.com"
+                class="block w-full rounded-xl border border-slate-200 bg-slate-50/50 px-4 py-3 text-slate-900 placeholder-slate-400 outline-none ring-blue-500 transition-all focus:border-blue-500 focus:bg-white focus:ring-4"
+                [class.border-red-300]="userForm.get('email')?.touched && userForm.get('email')?.invalid">
+            </div>
+          </div>
+
+          <!-- Username -->
+          <div>
+            <label for="username" class="block text-sm font-bold text-slate-700">Username</label>
+            <div class="mt-2">
+              <input formControlName="username" id="username" type="text" placeholder="johndoe123"
+                class="block w-full rounded-xl border border-slate-200 bg-slate-50/50 px-4 py-3 text-slate-900 placeholder-slate-400 outline-none ring-blue-500 transition-all focus:border-blue-500 focus:bg-white focus:ring-4"
+                [class.border-red-300]="userForm.get('username')?.touched && userForm.get('username')?.invalid">
+            </div>
+          </div>
+
+          <!-- Role -->
+          <div>
+            <label for="roleId" class="block text-sm font-bold text-slate-700">System Role</label>
+            <div class="mt-2">
+              <select formControlName="roleId" id="roleId"
+                class="block w-full appearance-none rounded-xl border border-slate-200 bg-slate-50/50 px-4 py-3 text-slate-900 outline-none ring-blue-500 transition-all focus:border-blue-500 focus:bg-white focus:ring-4">
+                <option *ngFor="let role of roles" [value]="role.id">{{ role.name }}</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Initial Password -->
+          <div>
+            <label for="password" class="block text-sm font-bold text-slate-700">Initial Password</label>
+            <div class="mt-2">
+              <input formControlName="password" id="password" type="password" placeholder="••••••••"
+                class="block w-full rounded-xl border border-slate-200 bg-slate-50/50 px-4 py-3 text-slate-900 placeholder-slate-400 outline-none ring-blue-500 transition-all focus:border-blue-500 focus:bg-white focus:ring-4"
+                [class.border-red-300]="userForm.get('password')?.touched && userForm.get('password')?.invalid">
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Action -->
+        <div class="mt-10 pt-6 border-t border-slate-100 flex items-center justify-end gap-4">
+          <button type="button" routerLink="/dashboard" class="px-6 py-3 text-sm font-bold text-slate-600 hover:text-slate-900 transition-colors">
+            Cancel
+          </button>
+          <button type="submit" [disabled]="isLoading"
+            class="group relative flex items-center justify-center gap-3 overflow-hidden rounded-xl bg-blue-600 px-8 py-3 text-sm font-black text-white transition-all hover:bg-blue-700 active:scale-95 disabled:opacity-70 disabled:active:scale-100 shadow-lg shadow-blue-500/30">
+            <span *ngIf="!isLoading">Register User</span>
+            <span *ngIf="isLoading" class="flex items-center gap-2">
+              <svg class="h-4 w-4 animate-spin text-white" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+              Creating Account...
+            </span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

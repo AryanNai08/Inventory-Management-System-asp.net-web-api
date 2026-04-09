@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { Router } from '@angular/router';
 import { AuthService } from '../../../../features/auth/services/auth';
 import { StorageService } from '../../../../core/services/storage.service';
 
@@ -6,23 +7,25 @@ import { StorageService } from '../../../../core/services/storage.service';
   selector: 'app-sidebar',
   standalone: false,
   templateUrl: './sidebar.html',
-  styleUrl: './sidebar.scss',
+  styleUrl: './sidebar.scss'
 })
 export class Sidebar implements OnInit {
-  username: string = '';
-  role: string = '';
+  username: string = 'User';
+  role: string = 'Staff';
+  isAdmin: boolean = false;
 
   constructor(
     private authService: AuthService,
-    private storageService: StorageService
+    private storageService: StorageService,
+    private router: Router
   ) {}
 
   ngOnInit(): void {
     const user = this.storageService.getUser();
     if (user) {
-      this.username = user.username;
-      // Show first role or Staff as default
-      this.role = user.roles && user.roles.length > 0 ? user.roles[0] : 'Staff';
+      this.username = user.fullName || user.username || 'User';
+      this.role = user.roles?.[0] || 'Staff';
+      this.isAdmin = this.storageService.isAdmin();
     }
   }
 

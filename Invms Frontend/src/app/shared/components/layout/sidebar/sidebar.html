@@ -1,16 +1,19 @@
-<div class="flex h-full flex-col p-4 shadow-sm">
+<div class="flex h-full flex-col p-4 shadow-sm bg-white">
   <div class="mb-8 flex items-center justify-center pt-2">
     <h1 class="text-2xl font-black text-blue-600 tracking-wider">InvMS<span class="text-slate-800">.pro</span></h1>
   </div>
   
   <!-- User Profile Section -->
-  <div class="mb-4 flex items-center gap-3 p-3 bg-slate-50 rounded-xl relative group">
-    <div class="h-10 w-10 flex-shrink-0 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold">
+  <div class="mb-6 flex items-center gap-3 p-3 bg-slate-50 rounded-xl relative group">
+    <div class="h-10 w-10 flex-shrink-0 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold border-2 border-white shadow-sm">
       {{ username.charAt(0).toUpperCase() }}
     </div>
     <div class="min-w-0">
       <p class="text-sm font-bold text-slate-900 truncate">{{ username }}</p>
-      <p class="text-xs text-slate-500 capitalize cursor-help">{{ role }}</p>
+      <p class="text-[10px] text-slate-500 font-bold tracking-tight uppercase flex items-center gap-1">
+        <span class="h-1.5 w-1.5 rounded-full bg-green-500"></span>
+        {{ role }}
+      </p>
     </div>
     
     <!-- Role Tooltip -->
@@ -19,24 +22,37 @@
     </div>
   </div>
 
-  <nav class="flex-1 space-y-2">
-    <!-- Links (Keep existing) -->
-    <a routerLink="/dashboard" routerLinkActive="bg-blue-50 text-blue-700" class="flex items-center gap-3 rounded-lg px-4 py-3 text-slate-600 hover:bg-slate-50 hover:text-slate-900 transition-colors">
-      <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" /></svg>
-      <span class="font-medium">Dashboard</span>
+  <nav class="flex-1 space-y-1">
+    <div class="px-3 pb-2 text-[10px] font-black uppercase tracking-widest text-slate-400">Main Menu</div>
+    
+    <a routerLink="/dashboard" routerLinkActive="bg-blue-600 text-white shadow-lg shadow-blue-500/30" [routerLinkActiveOptions]="{exact: true}" 
+       class="flex items-center gap-3 rounded-xl px-4 py-3 text-slate-600 hover:bg-slate-50 hover:text-slate-900 transition-all duration-200 group">
+      <svg class="h-5 w-5 opacity-70 group-hover:opacity-100" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" /></svg>
+      <span class="font-bold text-sm">Dashboard</span>
     </a>
     
-    <a routerLink="/products" routerLinkActive="bg-blue-50 text-blue-700" class="flex items-center gap-3 rounded-lg px-4 py-3 text-slate-600 hover:bg-slate-50 hover:text-slate-900 transition-colors">
-      <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" /></svg>
-      <span class="font-medium">Products</span>
+    <a routerLink="/products" routerLinkActive="bg-blue-600 text-white shadow-lg shadow-blue-500/30" 
+       class="flex items-center gap-3 rounded-xl px-4 py-3 text-slate-600 hover:bg-slate-50 hover:text-slate-900 transition-all duration-200 group">
+      <svg class="h-5 w-5 opacity-70 group-hover:opacity-100" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" /></svg>
+      <span class="font-bold text-sm">Inventory</span>
     </a>
+
+    <!-- Admin Only Section -->
+    <ng-container *ngIf="isAdmin">
+      <div class="mt-6 px-3 pb-2 text-[10px] font-black uppercase tracking-widest text-slate-400">Administration</div>
+      <a routerLink="/users/add" routerLinkActive="bg-blue-600 text-white shadow-lg shadow-blue-500/30" 
+         class="flex items-center gap-3 rounded-xl px-4 py-3 text-slate-600 hover:bg-slate-50 hover:text-slate-900 transition-all duration-200 group border-2 border-transparent border-dashed hover:border-blue-200">
+        <svg class="h-5 w-5 opacity-70 group-hover:opacity-100" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" /></svg>
+        <span class="font-bold text-sm">Register User</span>
+      </a>
+    </ng-container>
   </nav>
 
   <!-- Bottom action -->
   <div class="mt-auto border-t border-slate-100 pt-4">
-    <button (click)="onLogout()" class="flex w-full items-center gap-3 rounded-lg px-4 py-3 text-red-600 hover:bg-red-50 transition-colors group">
+    <button (click)="onLogout()" class="flex w-full items-center gap-3 rounded-xl px-4 py-3 text-red-600 hover:bg-red-50 transition-all group font-black text-xs uppercase tracking-widest">
       <svg class="h-5 w-5 text-red-400 group-hover:text-red-600 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" /></svg>
-      <span class="font-medium">Sign Out</span>
+      Sign Out
     </button>
   </div>
 </div>
