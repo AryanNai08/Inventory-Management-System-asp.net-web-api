@@ -368,3 +368,19 @@ FodyWeavers.xsd
 # Configuration Secrets
 **/appsettings.json
 **/appsettings.Development.json
+
+# Frontend / Angular
+Invms Frontend/dist/
+Invms Frontend/tmp/
+Invms Frontend/out-tsc/
+Invms Frontend/bazel-out/
+Invms Frontend/.angular/cache/
+Invms Frontend/.sass-cache/
+Invms Frontend/connect.lock
+Invms Frontend/coverage/
+Invms Frontend/libpeerconnection.log
+Invms Frontend/testem.log
+Invms Frontend/typings/
+Invms Frontend/__screenshots__/
+npm-debug.log
+yarn-error.log
