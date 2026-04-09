@@ -69,6 +69,17 @@ builder.Services.Configure<ApiBehaviorOptions>(options =>
 //Store OTP temporarily in server memory
 builder.Services.AddMemoryCache();
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAngular", policy =>
+    {
+        policy.WithOrigins("http://localhost:4200", "https://localhost:4200")
+              .AllowAnyHeader()
+              .AllowAnyMethod()
+              .AllowCredentials();
+    });
+});
+
 // Add services to the container.
 
 builder.Services.AddControllers().AddNewtonsoftJson();
@@ -176,6 +187,8 @@ app.UseSwaggerUI(c =>
 
 
 app.UseHttpsRedirection();
+
+app.UseCors("AllowAngular");
 
 app.UseAuthentication();
 app.UseAuthorization();
