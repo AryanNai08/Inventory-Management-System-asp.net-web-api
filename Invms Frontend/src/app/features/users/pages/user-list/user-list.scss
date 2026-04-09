@@ -1,0 +1,31 @@
+/* User List Modern Styling */
+:host {
+  display: block;
+  min-height: 100%;
+}
+
+table {
+  border-spacing: 0;
+  width: 100%;
+}
+
+tr {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+// Add custom scrollbar for the table container
+.overflow-x-auto {
+  scrollbar-width: thin;
+  scrollbar-color: #cbd5e1 transparent;
+
+  &::-webkit-scrollbar {
+    height: 4px;
+  }
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  &::-webkit-scrollbar-thumb {
+    background-color: #cbd5e1;
+    border-radius: 20px;
+  }
+}

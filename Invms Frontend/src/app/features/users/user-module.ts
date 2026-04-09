@@ -3,10 +3,17 @@ import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule } from '@angular/forms';
 import { RouterModule, Routes } from '@angular/router';
 import { UserAdd } from './pages/user-add/user-add';
+import { UserList } from './pages/user-list/user-list';
 import { ChangePassword } from './pages/change-password/change-password';
 import { authGuard } from '../../core/guards/auth-guard';
 
 const routes: Routes = [
+  { 
+    path: '', 
+    component: UserList,
+    canActivate: [authGuard],
+    data: { role: 'Admin' }
+  },
   { 
     path: 'add', 
     component: UserAdd,
@@ -23,6 +30,7 @@ const routes: Routes = [
 @NgModule({
   declarations: [
     UserAdd,
+    UserList,
     ChangePassword
   ],
   imports: [

@@ -15,7 +15,10 @@ export const API_CONFIG = {
     USERS: {
       BASE: '/api/users',
       ME: '/api/users/me',
-      GET_ALL: '/api/users/GetAllUsers'
+      GET_ALL: '/api/users/GetAllUsers',
+      BY_ID: (id: number) => `/api/users/${id}`,
+      DELETE: (id: number) => `/api/users/${id}`,
+      UPDATE: (id: number) => `/api/users/${id}`
     }
   }
 };
