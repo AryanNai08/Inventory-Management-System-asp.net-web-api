@@ -10,7 +10,9 @@ import { CategoryService } from '../../../categories/services/category.service';
   styleUrl: './dashboard-home.scss'
 })
 export class DashboardHome implements OnInit {
-  isAdmin = false;
+  canManageUsers = false;
+  canViewCategories = false;
+  
   username = '';
   userCount = 0;
   categoryCount = 0;
@@ -21,15 +23,22 @@ export class DashboardHome implements OnInit {
     private userService: UserService,
     private categoryService: CategoryService
   ) {
-    this.isAdmin = this.storageService.isAdmin();
+    this.checkPermissions();
     this.username = this.storageService.getUser()?.username || 'User';
   }
 
+  checkPermissions(): void {
+    this.canManageUsers = this.storageService.hasPermission('ManageUsers');
+    this.canViewCategories = this.storageService.hasPermission('ViewCategories');
+  }
+
   ngOnInit(): void {
-    if (this.isAdmin) {
+    if (this.canManageUsers) {
       this.fetchUserCount();
     }
-    this.fetchCategoryCount();
+    if (this.canViewCategories) {
+      this.fetchCategoryCount();
+    }
   }
 
   fetchUserCount(): void {

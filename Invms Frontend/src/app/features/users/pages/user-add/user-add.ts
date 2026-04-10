@@ -3,6 +3,7 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthService } from '../../../auth/services/auth';
 import { ToastService } from '../../../../core/services/toast';
+import { StorageService } from '../../../../core/services/storage.service';
 
 @Component({
   selector: 'app-user-add',
@@ -23,10 +24,17 @@ export class UserAdd implements OnInit {
     private fb: FormBuilder,
     private authService: AuthService,
     private toastService: ToastService,
+    private storageService: StorageService,
     private router: Router
   ) { }
 
   ngOnInit(): void {
+    if (!this.storageService.hasPermission('ManageUserRegistration')) {
+      this.toastService.error('Access Denied', 'You do not have permission to register new users');
+      this.router.navigate(['/dashboard']);
+      return;
+    }
+
     this.userForm = this.fb.group({
       fullName: ['', [Validators.required, Validators.minLength(3)]],
       email: ['', [Validators.required, Validators.email]],

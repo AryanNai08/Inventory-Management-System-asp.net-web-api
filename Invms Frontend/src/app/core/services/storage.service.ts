@@ -6,9 +6,15 @@ import { Injectable } from '@angular/core';
 export class StorageService {
   private readonly TOKEN_KEY = 'auth_token';
   private readonly USER_KEY = 'usr_details';
+  private permissionsCache: string[] = [];
+
+  constructor() {
+    this.refreshPermissionsCache();
+  }
 
   saveToken(token: string): void {
     localStorage.setItem(this.TOKEN_KEY, token);
+    this.refreshPermissionsCache();
   }
 
   getToken(): string | null {
@@ -24,14 +30,36 @@ export class StorageService {
     return user ? JSON.parse(user) : null;
   }
 
+  private refreshPermissionsCache(): void {
+    const token = this.getToken();
+    if (!token) {
+      this.permissionsCache = [];
+      return;
+    }
+
+    try {
+      const payloadBase64 = token.split('.')[1];
+      const decodedJson = atob(payloadBase64);
+      const decoded = JSON.parse(decodedJson);
+
+      // Handle both single string and array of strings for "Permission" claim
+      const permissionClaim = decoded['Permission'];
+      if (Array.isArray(permissionClaim)) {
+        this.permissionsCache = permissionClaim.map(p => p.toLowerCase());
+      } else if (typeof permissionClaim === 'string') {
+        this.permissionsCache = [permissionClaim.toLowerCase()];
+      } else {
+        this.permissionsCache = [];
+      }
+    } catch (e) {
+      console.error('Error decoding JWT permissions:', e);
+      this.permissionsCache = [];
+    }
+  }
+
   getRoles(): string[] {
     const user = this.getUser();
     return (user?.roles || []).map((r: string) => r.toLowerCase());
-  }
-
-  getPermissions(): string[] {
-    const user = this.getUser();
-    return (user?.permissions || []).map((p: string) => p.toLowerCase());
   }
 
   hasRole(role: string): boolean {
@@ -43,11 +71,17 @@ export class StorageService {
   }
 
   hasPermission(permission: string): boolean {
-    return this.getPermissions().includes(permission.toLowerCase());
+    if (!permission) return false;
+    return this.permissionsCache.includes(permission.toLowerCase());
+  }
+
+  getPermissions(): string[] {
+    return this.permissionsCache;
   }
 
   clean(): void {
     localStorage.removeItem(this.TOKEN_KEY);
     localStorage.removeItem(this.USER_KEY);
+    this.permissionsCache = [];
   }
 }

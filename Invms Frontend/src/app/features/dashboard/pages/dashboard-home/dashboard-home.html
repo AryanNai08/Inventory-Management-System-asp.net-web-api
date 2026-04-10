@@ -11,8 +11,8 @@
   <!-- Statistics Grid -->
   <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
     
-    <!-- User Management Card (Admin Only) -->
-    <div *ngIf="isAdmin" routerLink="/users" class="group relative cursor-pointer">
+    <!-- User Management Card -->
+    <div *ngIf="canManageUsers" routerLink="/users" class="group relative cursor-pointer">
       <div class="absolute -inset-1 bg-gradient-to-r from-blue-500 to-indigo-500 rounded-2xl blur opacity-10 group-hover:opacity-25 transition duration-500"></div>
       <div class="relative bg-white/70 backdrop-blur-xl border border-white/50 p-6 rounded-2xl shadow-xl shadow-slate-200/50 hover:shadow-2xl hover:shadow-blue-100 transition-all duration-300 hover:-translate-y-1">
         <div class="flex items-center justify-between mb-4">
@@ -46,7 +46,7 @@
     </div>
 
     <!-- Categories Management -->
-    <div routerLink="/categories" class="group relative cursor-pointer">
+    <div *ngIf="canViewCategories" routerLink="/categories" class="group relative cursor-pointer">
       <div class="absolute -inset-1 bg-gradient-to-r from-orange-400 to-rose-400 rounded-2xl blur opacity-10 group-hover:opacity-25 transition duration-500"></div>
       <div class="relative bg-white/70 backdrop-blur-xl border border-white/50 p-6 rounded-2xl shadow-xl shadow-slate-200/50 hover:shadow-2xl hover:shadow-orange-100 transition-all duration-300 hover:-translate-y-1">
         <div class="flex items-center justify-between mb-4">

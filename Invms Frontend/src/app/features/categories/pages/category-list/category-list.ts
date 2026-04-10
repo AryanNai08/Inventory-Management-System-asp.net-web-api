@@ -1,6 +1,5 @@
 import { Component, OnInit } from '@angular/core';
 import { CategoryService } from '../../services/category.service';
-import { UserService } from '../../../users/services/user.service';
 import { ToastService } from '../../../../core/services/toast';
 import { StorageService } from '../../../../core/services/storage.service';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
@@ -13,7 +12,6 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 })
 export class CategoryList implements OnInit {
   categories: any[] = [];
-  users: any[] = [];
   isLoading = false;
   
   // Role Access
@@ -29,7 +27,6 @@ export class CategoryList implements OnInit {
 
   constructor(
     private categoryService: CategoryService,
-    private userService: UserService,
     private toastService: ToastService,
     private storageService: StorageService,
     private fb: FormBuilder
@@ -43,30 +40,14 @@ export class CategoryList implements OnInit {
 
   ngOnInit(): void {
     this.fetchCategories();
-    // Only fetch users if current user has access (Admin only)
-    if (this.storageService.isAdmin()) {
-      this.fetchUsers();
-    }
   }
 
-  fetchUsers(): void {
-    this.userService.getAllUsers().subscribe({
-      next: (res) => {
-        if (res.status) {
-          this.users = res.data || [];
-        }
-      },
-      error: () => {
-        // Silently ignore - role lookup is a nice-to-have
-      }
-    });
-  }
+
 
   checkPermissions(): void {
-    const roles = this.storageService.getRoles().map(r => r.toUpperCase());
-    this.canCreate = roles.includes('ADMIN') || roles.includes('MANAGER');
-    this.canEdit = roles.includes('ADMIN') || roles.includes('MANAGER');
-    this.canDelete = roles.includes('ADMIN');
+    this.canCreate = this.storageService.hasPermission('CreateCategory');
+    this.canEdit = this.storageService.hasPermission('UpdateCategory');
+    this.canDelete = this.storageService.hasPermission('DeleteCategory');
   }
 
   fetchCategories(): void {
@@ -155,12 +136,5 @@ export class CategoryList implements OnInit {
     });
   }
 
-  getUserWithRole(username: string | null): string {
-    if (!username) return '-';
-    const user = this.users.find(u => u.username?.toLowerCase() === username.toLowerCase());
-    if (user && user.roles?.length > 0) {
-      return `${username}(${user.roles[0]})`;
-    }
-    return username;
-  }
+
 }

@@ -13,7 +13,10 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 export class UserList implements OnInit {
   users: any[] = [];
   isLoading = false;
-  isAdmin = false;
+  
+  // Permission Access
+  canManageUsers = false;
+  canRegisterUsers = false;
 
   // Edit Modal State
   isEditModalOpen = false;
@@ -27,11 +30,16 @@ export class UserList implements OnInit {
     private storageService: StorageService,
     private fb: FormBuilder
   ) {
-    this.isAdmin = this.storageService.isAdmin();
+    this.checkPermissions();
     this.editForm = this.fb.group({
       fullName: ['', [Validators.required]],
       email: ['', [Validators.required, Validators.email]]
     });
+  }
+
+  checkPermissions(): void {
+    this.canManageUsers = this.storageService.hasPermission('ManageUsers');
+    this.canRegisterUsers = this.storageService.hasPermission('ManageUserRegistration');
   }
 
   ngOnInit(): void {
