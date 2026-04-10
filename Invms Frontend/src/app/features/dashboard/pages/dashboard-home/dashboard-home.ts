@@ -3,6 +3,7 @@ import { StorageService } from '../../../../core/services/storage.service';
 import { UserService } from '../../../users/services/user.service';
 import { CategoryService } from '../../../categories/services/category.service';
 import { SupplierService } from '../../../suppliers/services/supplier.service';
+import { CustomerService } from '../../../customers/services/customer.service';
 
 @Component({
   selector: 'app-dashboard-home',
@@ -13,18 +14,21 @@ import { SupplierService } from '../../../suppliers/services/supplier.service';
 export class DashboardHome implements OnInit {
   canManageUsers = false;
   canViewCategories = false;
+  canViewCustomers = false;
   
   username = '';
   userCount = 0;
   categoryCount = 0;
   supplierCount = 0;
+  customerCount = 0;
   isLoading = false;
 
   constructor(
     public storageService: StorageService,
     private userService: UserService,
     private categoryService: CategoryService,
-    private supplierService: SupplierService
+    private supplierService: SupplierService,
+    private customerService: CustomerService
   ) {
     this.checkPermissions();
     this.username = this.storageService.getUser()?.username || 'User';
@@ -33,6 +37,7 @@ export class DashboardHome implements OnInit {
   checkPermissions(): void {
     this.canManageUsers = this.storageService.hasPermission('ManageUsers');
     this.canViewCategories = this.storageService.hasPermission('ViewCategories');
+    this.canViewCustomers = this.storageService.hasPermission('ViewCustomers');
   }
 
   ngOnInit(): void {
@@ -44,6 +49,9 @@ export class DashboardHome implements OnInit {
     }
     if (this.storageService.hasPermission('ViewSuppliers')) {
       this.fetchSupplierCount();
+    }
+    if (this.canViewCustomers) {
+      this.fetchCustomerCount();
     }
   }
 
@@ -81,6 +89,17 @@ export class DashboardHome implements OnInit {
       next: (res: any) => {
         if (res.status) {
           this.supplierCount = res.data?.totalCount || 0;
+        }
+      }
+    });
+  }
+
+  fetchCustomerCount(): void {
+    const params = { pageNumber: 1, pageSize: 1 };
+    this.customerService.getAllCustomers(params).subscribe({
+      next: (res: any) => {
+        if (res.status) {
+          this.customerCount = res.data?.totalCount || 0;
         }
       }
     });

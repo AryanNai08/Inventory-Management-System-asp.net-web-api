@@ -33,6 +33,13 @@ export const API_CONFIG = {
       CREATE: '/api/Suppliers/CreateSupplier',
       UPDATE: (id: number) => `/api/Suppliers/${id}`,
       DELETE: (id: number) => `/api/Suppliers/${id}`
+    },
+    CUSTOMERS: {
+      GET_ALL: '/api/Customers/GetAllCustomers',
+      BY_ID: (id: number) => `/api/Customers/${id}`,
+      CREATE: '/api/Customers/CreateCustomer',
+      UPDATE: (id: number) => `/api/Customers/${id}`,
+      DELETE: (id: number) => `/api/Customers/${id}`
     }
   }
 };
