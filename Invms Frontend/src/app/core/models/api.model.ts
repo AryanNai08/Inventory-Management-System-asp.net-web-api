@@ -15,3 +15,10 @@ export interface PaginatedResult<T> {
   hasNextPage: boolean;
   hasPreviousPage: boolean;
 }
+
+export interface PaginationParams {
+  pageNumber: number;
+  pageSize: number;
+  sortColumn?: string;
+  sortOrder?: 'asc' | 'desc';
+}

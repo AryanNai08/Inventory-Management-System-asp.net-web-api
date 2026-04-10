@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { StorageService } from '../../../../core/services/storage.service';
 import { UserService } from '../../../users/services/user.service';
 import { CategoryService } from '../../../categories/services/category.service';
+import { SupplierService } from '../../../suppliers/services/supplier.service';
 
 @Component({
   selector: 'app-dashboard-home',
@@ -16,12 +17,14 @@ export class DashboardHome implements OnInit {
   username = '';
   userCount = 0;
   categoryCount = 0;
+  supplierCount = 0;
   isLoading = false;
 
   constructor(
-    private storageService: StorageService,
+    public storageService: StorageService,
     private userService: UserService,
-    private categoryService: CategoryService
+    private categoryService: CategoryService,
+    private supplierService: SupplierService
   ) {
     this.checkPermissions();
     this.username = this.storageService.getUser()?.username || 'User';
@@ -38,6 +41,9 @@ export class DashboardHome implements OnInit {
     }
     if (this.canViewCategories) {
       this.fetchCategoryCount();
+    }
+    if (this.storageService.hasPermission('ViewSuppliers')) {
+      this.fetchSupplierCount();
     }
   }
 
@@ -62,6 +68,20 @@ export class DashboardHome implements OnInit {
       },
       error: () => {
         this.isLoading = false;
+      }
+    });
+  }
+
+  fetchSupplierCount(): void {
+    // We can use the service with a small page size just to get the totalCount
+    const params = { pageNumber: 1, pageSize: 1 };
+    
+    // Lazy inject or just add to constructor. I will add to constructor in next chunk.
+    this.supplierService.getAllSuppliers(params).subscribe({
+      next: (res: any) => {
+        if (res.status) {
+          this.supplierCount = res.data?.totalCount || 0;
+        }
       }
     });
   }
