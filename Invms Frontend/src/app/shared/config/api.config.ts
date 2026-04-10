@@ -19,6 +19,13 @@ export const API_CONFIG = {
       BY_ID: (id: number) => `/api/users/${id}`,
       DELETE: (id: number) => `/api/users/${id}`,
       UPDATE: (id: number) => `/api/users/${id}`
+    },
+    CATEGORIES: {
+      GET_ALL: '/api/Categories/GetAllCategories',
+      BY_ID: (id: number) => `/api/Categories/${id}`,
+      CREATE: '/api/Categories/CreateCategory',
+      UPDATE: (id: number) => `/api/Categories/${id}`,
+      DELETE: (id: number) => `/api/Categories/${id}`
     }
   }
 };

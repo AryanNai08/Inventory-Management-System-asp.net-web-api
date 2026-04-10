@@ -123,4 +123,13 @@ export class UserList implements OnInit {
       default: return 'bg-slate-100 text-slate-700 ring-slate-200';
     }
   }
+
+  getUserWithRole(username: string | null): string {
+    if (!username) return '-';
+    const user = this.users.find(u => u.username?.toLowerCase() === username.toLowerCase());
+    if (user && user.roles?.length > 0) {
+      return `${username}(${user.roles[0]})`;
+    }
+    return username;
+  }
 }

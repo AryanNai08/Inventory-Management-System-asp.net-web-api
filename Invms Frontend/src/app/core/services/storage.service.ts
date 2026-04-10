@@ -26,25 +26,24 @@ export class StorageService {
 
   getRoles(): string[] {
     const user = this.getUser();
-    return user?.roles || [];
+    return (user?.roles || []).map((r: string) => r.toLowerCase());
   }
 
   getPermissions(): string[] {
     const user = this.getUser();
-    // Assuming backend returns permissions under 'permissions' or we extract from JWT
-    return user?.permissions || [];
+    return (user?.permissions || []).map((p: string) => p.toLowerCase());
   }
 
   hasRole(role: string): boolean {
-    return this.getRoles().includes(role);
+    return this.getRoles().includes(role.toLowerCase());
   }
 
   isAdmin(): boolean {
-    return this.hasRole('Admin');
+    return this.hasRole('admin');
   }
 
   hasPermission(permission: string): boolean {
-    return this.getPermissions().includes(permission);
+    return this.getPermissions().includes(permission.toLowerCase());
   }
 
   clean(): void {

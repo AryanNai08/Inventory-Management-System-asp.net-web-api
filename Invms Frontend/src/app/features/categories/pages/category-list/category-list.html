@@ -10,24 +10,25 @@
         </svg>
       </button>
       <div>
-        <h1 class="text-3xl font-black text-slate-900 tracking-tight">User Management</h1>
-        <p class="text-slate-500 font-medium">Manage system access and roles across the organization.</p>
+        <h1 class="text-3xl font-black text-slate-900 tracking-tight">Stock Categories</h1>
+        <p class="text-slate-500 font-medium">Organize and classify your inventory products.</p>
       </div>
     </div>
     <div class="flex items-center gap-3">
-      <button (click)="fetchUsers()"
+      <button (click)="fetchCategories()"
         class="p-2.5 rounded-xl border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 transition-all active:scale-95 shadow-sm">
         <svg class="w-5 h-5" [class.animate-spin]="isLoading" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
             d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
         </svg>
       </button>
-      <button routerLink="/users/add"
+      <!-- RBAC: Only Admin & Manager can create -->
+      <button *ngIf="canCreate" (click)="openCreateModal()"
         class="flex items-center gap-2 px-5 py-2.5 bg-blue-600 text-white rounded-xl font-bold hover:bg-blue-700 hover:shadow-lg hover:shadow-blue-200 transition-all active:scale-95 shadow-md">
         <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
         </svg>
-        Register New User
+        Add Category
       </button>
     </div>
   </div>
@@ -42,12 +43,11 @@
       class="relative overflow-hidden bg-white/70 backdrop-blur-xl border border-white/50 rounded-2xl shadow-xl shadow-slate-200/50">
 
       <div class="overflow-x-auto">
-        <table class="w-full text-left border-collapse min-w-[900px]">
+        <table class="w-full text-left border-collapse min-w-[1000px]">
           <thead>
             <tr class="border-b border-slate-100/50 bg-slate-50/50">
-              <th class="px-6 py-4 text-[11px] font-black uppercase tracking-widest text-slate-400">User Identity</th>
-              <th class="px-6 py-4 text-[11px] font-black uppercase tracking-widest text-slate-400">User Name</th>
-              <th class="px-6 py-4 text-[11px] font-black uppercase tracking-widest text-slate-400">Access Role</th>
+              <th class="px-6 py-4 text-[11px] font-black uppercase tracking-widest text-slate-400">Category Name</th>
+              <th class="px-6 py-4 text-[11px] font-black uppercase tracking-widest text-slate-400">Description</th>
               <th class="px-6 py-4 text-[11px] font-black uppercase tracking-widest text-slate-400">Created By</th>
               <th class="px-6 py-4 text-[11px] font-black uppercase tracking-widest text-slate-400">Last Modified</th>
               <th class="px-6 py-4 text-right text-[11px] font-black uppercase tracking-widest text-slate-400">Actions
@@ -56,60 +56,57 @@
           </thead>
           <tbody class="divide-y divide-slate-50">
             <!-- Loading State -->
-            <tr *ngIf="isLoading && users.length === 0">
+            <tr *ngIf="isLoading && categories.length === 0">
               <td colspan="5" class="px-6 py-20 text-center">
                 <div class="flex flex-col items-center gap-3">
                   <div class="w-10 h-10 border-4 border-blue-100 border-t-blue-600 rounded-full animate-spin"></div>
-                  <p class="text-slate-400 font-bold">Synchronizing user data...</p>
+                  <p class="text-slate-400 font-bold">Fetching categories...</p>
                 </div>
               </td>
             </tr>
 
+            <!-- Empty State -->
+            <tr *ngIf="!isLoading && categories.length === 0">
+              <td colspan="5" class="px-6 py-20 text-center">
+                <p class="text-slate-400 font-bold">No categories found. Start by adding one!</p>
+              </td>
+            </tr>
+
             <!-- Data Rows -->
-            <tr *ngFor="let user of users" class="group hover:bg-blue-50/30 transition-colors">
+            <tr *ngFor="let cat of categories" class="group hover:bg-blue-50/30 transition-colors">
               <td class="px-6 py-5">
                 <div class="flex items-center gap-4">
                   <div
-                    class="h-10 w-10 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white font-black text-sm shadow-sm">
-                    {{ user.fullName.charAt(0).toUpperCase() }}
+                    class="h-10 w-10 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white font-black text-sm shadow-sm ring-4 ring-white">
+                    {{ cat.name.charAt(0).toUpperCase() }}
                   </div>
-                  <div>
-                    <p class="text-sm font-black text-slate-800 tracking-tight">{{ user.fullName }}</p>
-                    <p class="text-[11px] font-bold text-slate-400">{{ user.email }}</p>
-                  </div>
+                  <p class="text-sm font-black text-slate-800 tracking-tight">{{ cat.name }}</p>
                 </div>
               </td>
               <td class="px-6 py-5">
-                <span class="text-xs font-bold text-slate-600">{{ user.username }}</span>
+                <p class="text-xs font-bold text-slate-500 max-w-xs truncate">{{ cat.description }}</p>
               </td>
               <td class="px-6 py-5">
-                <div class="flex flex-wrap gap-1">
-                  <span *ngFor="let role of user.roles"
-                    class="inline-flex items-center px-2 py-0.5 rounded-lg text-[9px] font-black uppercase tracking-wider ring-1 ring-inset"
-                    [ngClass]="getRoleBadgeClass(role)">
-                    {{ role }}
-                  </span>
-                </div>
+                <span class="text-xs font-bold text-slate-600">{{ cat.createdBy || '-' }}</span>
+                <p class="text-[10px] text-slate-400 font-semibold">{{ cat.createdDate | date:'mediumDate' }}</p>
               </td>
               <td class="px-6 py-5">
-                <span class="text-xs font-bold text-slate-600">{{ getUserWithRole(user.createdBy) }}</span>
-                <p class="text-[10px] text-slate-400 font-semibold">{{ user.createdDate | date:'mediumDate' }}</p>
-              </td>
-              <td class="px-6 py-5">
-                <span class="text-xs font-bold text-slate-600">{{ getUserWithRole(user.updatedBy) }}</span>
-                <p class="text-[10px] text-slate-400 font-semibold">{{ user.modifiedDate ? (user.modifiedDate |
+                <span class="text-xs font-bold text-slate-600">{{ cat.updatedBy || '-' }}</span>
+                <p class="text-[10px] text-slate-400 font-semibold">{{ cat.modifiedDate ? (cat.modifiedDate |
                   date:'mediumDate') : '-' }}</p>
               </td>
               <td class="px-6 py-5 text-right">
                 <div class="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                  <button (click)="onEdit(user)"
+                  <!-- RBAC: Manager & Admin can edit -->
+                  <button *ngIf="canEdit" (click)="openEditModal(cat)"
                     class="p-2 rounded-lg text-slate-400 hover:text-blue-600 hover:bg-blue-50 transition-all">
                     <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                         d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                     </svg>
                   </button>
-                  <button (click)="onDelete(user.id)"
+                  <!-- RBAC: ONLY Admin can delete -->
+                  <button *ngIf="canDelete" (click)="onDelete(cat.id)"
                     class="p-2 rounded-lg text-slate-400 hover:text-red-600 hover:bg-red-50 transition-all">
                     <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -126,44 +123,45 @@
     </div>
   </div>
 
-  <!-- Edit User Modal -->
-  <div *ngIf="isEditModalOpen" class="fixed inset-0 z-[100] flex items-center justify-center p-4">
+  <!-- Create/Edit Modal -->
+  <div *ngIf="isModalOpen" class="fixed inset-0 z-[100] flex items-center justify-center p-4">
     <!-- Backdrop -->
     <div class="absolute inset-0 bg-slate-900/40 backdrop-blur-sm animate-in fade-in duration-300"
-      (click)="closeEditModal()"></div>
+      (click)="closeModal()"></div>
 
     <!-- Modal Content -->
     <div
-      class="relative w-full max-w-md bg-white rounded-3xl shadow-2xl overflow-hidden animate-in zoom-in-95 slide-in-from-bottom-8 duration-300">
+      class="relative w-full max-w-md bg-white rounded-3xl shadow-2xl overflow-hidden animate-in zoom-in-95 slide-in-from-bottom-8 duration-300 border border-white/50">
       <div class="px-8 py-6 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
         <div>
-          <h3 class="text-xl font-black text-slate-900 tracking-tight">Edit Profile</h3>
-          <p class="text-sm font-bold text-slate-400">Update user identification details.</p>
+          <h3 class="text-xl font-black text-slate-900 tracking-tight">{{ selectedCategoryId ? 'Update' : 'New' }}
+            Category</h3>
+          <p class="text-sm font-bold text-slate-400">Organize your products effectively.</p>
         </div>
-        <button (click)="closeEditModal()" class="text-slate-400 hover:text-slate-600 p-1">
+        <button (click)="closeModal()" class="text-slate-400 hover:text-slate-600 p-1">
           <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12" />
           </svg>
         </button>
       </div>
 
-      <form [formGroup]="editForm" (ngSubmit)="onUpdate()" class="p-8 space-y-6">
+      <form [formGroup]="categoryForm" (ngSubmit)="onSubmit()" class="p-8 space-y-6">
         <div>
-          <label class="block text-[11px] font-black uppercase tracking-widest text-slate-400 mb-2 ms-1">Full
+          <label class="block text-[11px] font-black uppercase tracking-widest text-slate-400 mb-2 ms-1">Category
             Name</label>
-          <input formControlName="fullName" type="text" placeholder="e.g. John Doe"
+          <input formControlName="name" type="text" placeholder="e.g. Electronics, Furniture..."
             class="w-full px-5 py-3.5 bg-slate-50 border-2 border-transparent focus:border-blue-500 focus:bg-white rounded-2xl outline-none font-bold text-slate-700 transition-all placeholder:text-slate-300">
         </div>
 
         <div>
-          <label class="block text-[11px] font-black uppercase tracking-widest text-slate-400 mb-2 ms-1">Email
-            Address</label>
-          <input formControlName="email" type="email" placeholder="e.g. john@company.com"
-            class="w-full px-5 py-3.5 bg-slate-50 border-2 border-transparent focus:border-blue-500 focus:bg-white rounded-2xl outline-none font-bold text-slate-700 transition-all placeholder:text-slate-300">
+          <label
+            class="block text-[11px] font-black uppercase tracking-widest text-slate-400 mb-2 ms-1">Description</label>
+          <textarea formControlName="description" rows="3" placeholder="Briefly describe the category purpose..."
+            class="w-full px-5 py-3.5 bg-slate-50 border-2 border-transparent focus:border-blue-500 focus:bg-white rounded-2xl outline-none font-bold text-slate-700 transition-all placeholder:text-slate-300 resize-none"></textarea>
         </div>
 
         <div class="pt-4">
-          <button type="submit" [disabled]="editForm.invalid || isSaving"
+          <button type="submit" [disabled]="categoryForm.invalid || isSaving"
             class="w-full py-4 bg-blue-600 text-white rounded-2xl font-black text-sm tracking-widest uppercase hover:bg-blue-700 hover:shadow-xl hover:shadow-blue-200 transition-all disabled:opacity-50 disabled:shadow-none flex items-center justify-center gap-2">
             <svg *ngIf="isSaving" class="animate-spin h-5 w-5 text-white" fill="none" viewBox="0 0 24 24">
               <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
@@ -171,7 +169,8 @@
                 d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
               </path>
             </svg>
-            {{ isSaving ? 'Saving Changes...' : 'Confirm Update' }}
+            {{ isSaving ? (selectedCategoryId ? 'Updating...' : 'Creating...') : (selectedCategoryId ? 'Update Category'
+            : 'Create Category') }}
           </button>
         </div>
       </form>

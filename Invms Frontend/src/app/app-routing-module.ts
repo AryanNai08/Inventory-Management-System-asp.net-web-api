@@ -17,6 +17,11 @@ export const routes: Routes = [
     path: 'users',
     canActivate: [authGuard],
     loadChildren: () => import('./features/users/user-module').then(m => m.UserModule)
+  },
+  {
+    path: 'categories',
+    canActivate: [authGuard],
+    loadChildren: () => import('./features/categories/category-module').then(m => m.CategoryModule)
   }
 ];
 
