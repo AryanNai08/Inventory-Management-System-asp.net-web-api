@@ -10,5 +10,6 @@ namespace Domain.Interfaces
         Task<Role> GetRoleWithPrivilegesAsync(int roleId);
         Task<Privilege> GetPrivilegeByIdAsync(int privilegeId);
         Task UpdateRoleAsync(Role role);
+        Task<bool> AnyPrivilegeInRoleAsync(int roleId);
     }
 }

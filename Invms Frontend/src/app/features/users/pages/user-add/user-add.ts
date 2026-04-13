@@ -4,6 +4,7 @@ import { Router } from '@angular/router';
 import { AuthService } from '../../../auth/services/auth';
 import { ToastService } from '../../../../core/services/toast';
 import { StorageService } from '../../../../core/services/storage.service';
+import { RoleService } from '../../../roles/services/role.service';
 
 @Component({
   selector: 'app-user-add',
@@ -14,17 +15,14 @@ import { StorageService } from '../../../../core/services/storage.service';
 export class UserAdd implements OnInit {
   userForm!: FormGroup;
   isLoading = false;
-  roles = [
-    { id: 4, name: 'Admin' },
-    { id: 5, name: 'Manager' },
-    { id: 6, name: 'Staff' }
-  ];
+  roles: any[] = [];
 
   constructor(
     private fb: FormBuilder,
     private authService: AuthService,
     private toastService: ToastService,
     private storageService: StorageService,
+    private roleService: RoleService,
     private router: Router
   ) { }
 
@@ -40,7 +38,29 @@ export class UserAdd implements OnInit {
       email: ['', [Validators.required, Validators.email]],
       username: ['', [Validators.required, Validators.minLength(4)]],
       password: ['', [Validators.required, Validators.minLength(6)]],
-      roleId: [3, Validators.required] // Default to Staff
+      roleId: [null, Validators.required]
+    });
+
+    this.loadRoles();
+  }
+
+  loadRoles(): void {
+    this.roleService.getAllRoles().subscribe({
+      next: (res) => {
+        this.roles = res.data || [];
+        if (this.roles.length > 0) {
+          // Safe find (no crash)
+          const defaultRole = this.roles.find(
+            r => r.name?.toLowerCase() === 'staff'
+          );
+
+          // Better fallback → FIRST role (not last)
+          const selectedRole = defaultRole || this.roles[0];
+
+          this.userForm.patchValue({ roleId: selectedRole.id });
+        }
+      },
+      error: () => this.toastService.error('System', 'Failed to load dynamic roles')
     });
   }
 

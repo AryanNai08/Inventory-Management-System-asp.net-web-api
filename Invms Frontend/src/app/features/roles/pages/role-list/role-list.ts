@@ -174,7 +174,10 @@ export class RoleList implements OnInit {
           this.toast.success('System cleanup', 'Role removed successfully');
           this.loadRoles();
         },
-        error: () => this.toast.error('Access error', 'Failed to delete role')
+        error: (err) => {
+          const msg = err.error?.Message || err.error?.Error || 'Failed to delete role';
+          this.toast.error('Access Denied', msg);
+        }
       });
     }
   }

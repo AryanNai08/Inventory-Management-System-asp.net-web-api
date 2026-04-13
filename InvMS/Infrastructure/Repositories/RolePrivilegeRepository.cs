@@ -34,5 +34,11 @@ namespace Infrastructure.Repositories
         {
             _dbContext.Roles.Update(role);
         }
+
+        public async Task<bool> AnyPrivilegeInRoleAsync(int roleId)
+        {
+            return await _dbContext.Roles
+                .AnyAsync(r => r.Id == roleId && r.Privileges.Any());
+        }
     }
 }

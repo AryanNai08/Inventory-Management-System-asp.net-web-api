@@ -8,20 +8,27 @@ using Application.Tests.Fixtures;
 using Domain.Interfaces;
 using Domain.Entities;
 using Domain.Exceptions;
+using Domain.Interfaces.Auth;
 
 namespace Application.Tests.Services
 {
     public class RoleServiceTests : ServiceTestFixture
     {
         private readonly Mock<IRoleRepository> _mockRoleRepository;
+        private readonly Mock<IRolePrivilegeRepository> _mockRolePrivilegeRepository;
+        private readonly Mock<IUserRepository> _mockUserRepository;
         private readonly RoleService _roleService;
 
         public RoleServiceTests()
         {
             _mockRoleRepository = new Mock<IRoleRepository>();
+            _mockRolePrivilegeRepository = new Mock<IRolePrivilegeRepository>();
+            _mockUserRepository = new Mock<IUserRepository>();
 
             _roleService = new RoleService(
                 _mockRoleRepository.Object,
+                _mockRolePrivilegeRepository.Object,
+                _mockUserRepository.Object,
                 MockMapper.Object,
                 MockUnitOfWork.Object);
         }
@@ -213,11 +220,13 @@ namespace Application.Tests.Services
         }
 
         [Fact]
-        public async Task DeleteRoleAsync_Should_DeleteRole_When_RoleExists()
+        public async Task DeleteRoleAsync_Should_DeleteRole_When_RoleExists_And_Not_In_Use()
         {
             // Arrange
             var role = TestDataBuilder.CreateTestRole(1);
             _mockRoleRepository.Setup(x => x.GetByIdAsync(1)).ReturnsAsync(role);
+            _mockRolePrivilegeRepository.Setup(x => x.AnyPrivilegeInRoleAsync(1)).ReturnsAsync(false);
+            _mockUserRepository.Setup(x => x.AnyUserHasRoleAsync(1)).ReturnsAsync(false);
             _mockRoleRepository.Setup(x => x.DeleteRoleAsync(role)).Returns(Task.CompletedTask);
             MockUnitOfWork.Setup(x => x.SaveChangesAsync()).ReturnsAsync(1);
 
@@ -227,6 +236,33 @@ namespace Application.Tests.Services
             // Assert
             _mockRoleRepository.Verify(x => x.DeleteRoleAsync(role), Times.Once);
             MockUnitOfWork.Verify(x => x.SaveChangesAsync(), Times.Once);
+        }
+
+        [Fact]
+        public async Task DeleteRoleAsync_Should_Throw_BadRequest_When_RoleHasPrivileges()
+        {
+            // Arrange
+            var role = TestDataBuilder.CreateTestRole(1);
+            _mockRoleRepository.Setup(x => x.GetByIdAsync(1)).ReturnsAsync(role);
+            _mockRolePrivilegeRepository.Setup(x => x.AnyPrivilegeInRoleAsync(1)).ReturnsAsync(true);
+
+            // Act & Assert
+            var ex = await Assert.ThrowsAsync<BadRequestException>(() => _roleService.DeleteRoleAsync(1));
+            ex.Message.Should().Contain("still has assigned privileges");
+        }
+
+        [Fact]
+        public async Task DeleteRoleAsync_Should_Throw_BadRequest_When_RoleHasUsers()
+        {
+            // Arrange
+            var role = TestDataBuilder.CreateTestRole(1);
+            _mockRoleRepository.Setup(x => x.GetByIdAsync(1)).ReturnsAsync(role);
+            _mockRolePrivilegeRepository.Setup(x => x.AnyPrivilegeInRoleAsync(1)).ReturnsAsync(false);
+            _mockUserRepository.Setup(x => x.AnyUserHasRoleAsync(1)).ReturnsAsync(true);
+
+            // Act & Assert
+            var ex = await Assert.ThrowsAsync<BadRequestException>(() => _roleService.DeleteRoleAsync(1));
+            ex.Message.Should().Contain("currently assigned to one or more users");
         }
 
         #endregion

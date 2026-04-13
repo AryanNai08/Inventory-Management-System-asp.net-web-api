@@ -68,5 +68,11 @@ namespace Infrastructure.Repositories
         {
             _dbContext.Users.Update(user);
         }
+
+        public async Task<bool> AnyUserHasRoleAsync(int roleId)
+        {
+            return await _dbContext.Users
+                .AnyAsync(u => u.Roles.Any(r => r.Id == roleId) && !u.IsDeleted);
+        }
     }
 }

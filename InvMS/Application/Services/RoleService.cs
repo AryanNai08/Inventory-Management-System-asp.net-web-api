@@ -9,18 +9,28 @@ using System.Collections.Generic;
 using System.Text;
 using Domain.Interfaces;
 using Application.Interfaces.RoleAndPrivileges;
+using Domain.Interfaces.Auth;
 
 namespace Application.Services
 {
     public class RoleService : IRoleService
     {
         private readonly IRoleRepository _roleRepository;
+        private readonly IRolePrivilegeRepository _rolePrivilegeRepository;
+        private readonly IUserRepository _userRepository;
         private readonly IMapper _mapper;
         private readonly IUnitOfWork _unitOfWork;
 
-        public RoleService(IRoleRepository roleRepository, IMapper mapper, IUnitOfWork unitOfWork)
+        public RoleService(
+            IRoleRepository roleRepository, 
+            IRolePrivilegeRepository rolePrivilegeRepository,
+            IUserRepository userRepository,
+            IMapper mapper, 
+            IUnitOfWork unitOfWork)
         {
             _roleRepository = roleRepository;
+            _rolePrivilegeRepository = rolePrivilegeRepository;
+            _userRepository = userRepository;
             _mapper = mapper;
             _unitOfWork = unitOfWork;
         }
@@ -93,6 +103,18 @@ namespace Application.Services
             var role = await _roleRepository.GetByIdAsync(id);
             if (role == null)
                 throw new NotFoundException("Role not found!");
+
+            // 1. Check if role has privileges
+            if (await _rolePrivilegeRepository.AnyPrivilegeInRoleAsync(id))
+            {
+                throw new BadRequestException("Cannot delete role: It still has assigned privileges.");
+            }
+
+            // 2. Check if role is assigned to users
+            if (await _userRepository.AnyUserHasRoleAsync(id))
+            {
+                throw new BadRequestException("Cannot delete role: It is currently assigned to one or more users.");
+            }
 
             await _roleRepository.DeleteRoleAsync(role);
             await _unitOfWork.SaveChangesAsync();

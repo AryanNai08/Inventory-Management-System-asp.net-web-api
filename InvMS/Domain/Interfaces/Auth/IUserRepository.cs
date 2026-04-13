@@ -18,7 +18,7 @@ namespace Domain.Interfaces.Auth
         Task UpdateAsync(User user);
 
         Task SoftDeleteAsync(int id);
-
+        Task<bool> AnyUserHasRoleAsync(int roleId);
     }
 }
   
