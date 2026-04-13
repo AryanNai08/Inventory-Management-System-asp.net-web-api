@@ -4,6 +4,7 @@ import { UserService } from '../../../users/services/user.service';
 import { CategoryService } from '../../../categories/services/category.service';
 import { SupplierService } from '../../../suppliers/services/supplier.service';
 import { CustomerService } from '../../../customers/services/customer.service';
+import { WarehouseService } from '../../../warehouses/services/warehouse.service';
 
 @Component({
   selector: 'app-dashboard-home',
@@ -15,12 +16,14 @@ export class DashboardHome implements OnInit {
   canManageUsers = false;
   canViewCategories = false;
   canViewCustomers = false;
+  canViewWarehouses = false;
   
   username = '';
   userCount = 0;
   categoryCount = 0;
   supplierCount = 0;
   customerCount = 0;
+  warehouseCount = 0;
   isLoading = false;
 
   constructor(
@@ -28,7 +31,8 @@ export class DashboardHome implements OnInit {
     private userService: UserService,
     private categoryService: CategoryService,
     private supplierService: SupplierService,
-    private customerService: CustomerService
+    private customerService: CustomerService,
+    private warehouseService: WarehouseService
   ) {
     this.checkPermissions();
     this.username = this.storageService.getUser()?.username || 'User';
@@ -38,6 +42,7 @@ export class DashboardHome implements OnInit {
     this.canManageUsers = this.storageService.hasPermission('ManageUsers');
     this.canViewCategories = this.storageService.hasPermission('ViewCategories');
     this.canViewCustomers = this.storageService.hasPermission('ViewCustomers');
+    this.canViewWarehouses = this.storageService.hasPermission('ViewWarehouses');
   }
 
   ngOnInit(): void {
@@ -53,6 +58,19 @@ export class DashboardHome implements OnInit {
     if (this.canViewCustomers) {
       this.fetchCustomerCount();
     }
+    if (this.canViewWarehouses) {
+      this.fetchWarehouseCount();
+    }
+  }
+
+  fetchWarehouseCount(): void {
+    this.warehouseService.getAllWarehouses().subscribe({
+      next: (res: any) => {
+        if (res.status) {
+          this.warehouseCount = res.data?.length || 0;
+        }
+      }
+    });
   }
 
   fetchUserCount(): void {
