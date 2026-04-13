@@ -3,6 +3,7 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth';
 import { ToastService } from '../../../../core/services/toast';
+import { StorageService } from '../../../../core/services/storage.service';
 
 @Component({
   selector: 'app-login-page',
@@ -19,7 +20,8 @@ export class LoginPage implements OnInit {
     private fb: FormBuilder,
     private router: Router,
     private authService: AuthService,
-    private toastService: ToastService
+    private toastService: ToastService,
+    private storageService: StorageService
   ) {}
 
   ngOnInit(): void {
@@ -38,6 +40,10 @@ export class LoginPage implements OnInit {
       next: (response) => {
         this.isLoading = false;
         if (response.status) {
+          // Explicitly ensure storage is synced before navigation (Step 4 of plan)
+          this.storageService.saveToken(response.data.token);
+          this.storageService.saveUser(response.data);
+
           this.toastService.success('Login Successful', 'Welcome back to InvMS!');
           this.router.navigate(['/dashboard']);
         } else {

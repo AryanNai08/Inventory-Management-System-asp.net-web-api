@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { BehaviorSubject, Observable } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
@@ -7,6 +8,10 @@ export class StorageService {
   private readonly TOKEN_KEY = 'auth_token';
   private readonly USER_KEY = 'usr_details';
   private permissionsCache: string[] = [];
+  
+  // Signal to notify components that storage is hydrated and permissions are ready
+  private initializedSubject = new BehaviorSubject<boolean>(false);
+  public initialization$ = this.initializedSubject.asObservable();
 
   constructor() {
     this.refreshPermissionsCache();
@@ -30,20 +35,23 @@ export class StorageService {
     return user ? JSON.parse(user) : null;
   }
 
-  private refreshPermissionsCache(): void {
+  public refreshPermissionsCache(): void {
     const token = this.getToken();
     if (!token) {
       this.permissionsCache = [];
+      this.initializedSubject.next(true); // Always signal ready (even if empty)
       return;
     }
 
     try {
-      const payloadBase64 = token.split('.')[1];
-      const decodedJson = atob(payloadBase64);
+      const payloadBase64Url = token.split('.')[1];
+      // Robust decoding for Base64Url (JWT standard)
+      const base64 = payloadBase64Url.replace(/-/g, '+').replace(/_/g, '/');
+      const decodedJson = atob(base64);
       const decoded = JSON.parse(decodedJson);
 
-      // Handle both single string and array of strings for "Permission" claim
-      const permissionClaim = decoded['Permission'];
+      // Backend uses "Permission" (Capitalized, Singular)
+      const permissionClaim = decoded['Permission'] || decoded['permission'] || [];
       if (Array.isArray(permissionClaim)) {
         this.permissionsCache = permissionClaim.map(p => p.toLowerCase());
       } else if (typeof permissionClaim === 'string') {
@@ -51,9 +59,13 @@ export class StorageService {
       } else {
         this.permissionsCache = [];
       }
+      
+      // Notify all listening components that permissions are fully hydrated
+      this.initializedSubject.next(true);
     } catch (e) {
       console.error('Error decoding JWT permissions:', e);
       this.permissionsCache = [];
+      this.initializedSubject.next(true);
     }
   }
 
@@ -83,5 +95,6 @@ export class StorageService {
     localStorage.removeItem(this.TOKEN_KEY);
     localStorage.removeItem(this.USER_KEY);
     this.permissionsCache = [];
+    this.initializedSubject.next(false);
   }
 }
