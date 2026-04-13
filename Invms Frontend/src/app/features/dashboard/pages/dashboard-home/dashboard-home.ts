@@ -5,6 +5,7 @@ import { CategoryService } from '../../../categories/services/category.service';
 import { SupplierService } from '../../../suppliers/services/supplier.service';
 import { CustomerService } from '../../../customers/services/customer.service';
 import { WarehouseService } from '../../../warehouses/services/warehouse.service';
+import { RoleService } from '../../../roles/services/role.service';
 
 @Component({
   selector: 'app-dashboard-home',
@@ -14,12 +15,14 @@ import { WarehouseService } from '../../../warehouses/services/warehouse.service
 })
 export class DashboardHome implements OnInit {
   canManageUsers = false;
+  canManageRoles = false;
   canViewCategories = false;
   canViewCustomers = false;
   canViewWarehouses = false;
   
   username = '';
   userCount = 0;
+  roleCount = 0;
   categoryCount = 0;
   supplierCount = 0;
   customerCount = 0;
@@ -32,7 +35,8 @@ export class DashboardHome implements OnInit {
     private categoryService: CategoryService,
     private supplierService: SupplierService,
     private customerService: CustomerService,
-    private warehouseService: WarehouseService
+    private warehouseService: WarehouseService,
+    private roleService: RoleService
   ) {
     this.checkPermissions();
     this.username = this.storageService.getUser()?.username || 'User';
@@ -40,6 +44,7 @@ export class DashboardHome implements OnInit {
 
   checkPermissions(): void {
     this.canManageUsers = this.storageService.hasPermission('ManageUsers');
+    this.canManageRoles = this.storageService.hasPermission('ManageRoles');
     this.canViewCategories = this.storageService.hasPermission('ViewCategories');
     this.canViewCustomers = this.storageService.hasPermission('ViewCustomers');
     this.canViewWarehouses = this.storageService.hasPermission('ViewWarehouses');
@@ -48,6 +53,9 @@ export class DashboardHome implements OnInit {
   ngOnInit(): void {
     if (this.canManageUsers) {
       this.fetchUserCount();
+    }
+    if (this.canManageRoles) {
+      this.fetchRoleCount();
     }
     if (this.canViewCategories) {
       this.fetchCategoryCount();
@@ -61,6 +69,16 @@ export class DashboardHome implements OnInit {
     if (this.canViewWarehouses) {
       this.fetchWarehouseCount();
     }
+  }
+
+  fetchRoleCount(): void {
+    this.roleService.getAllRoles().subscribe({
+      next: (res) => {
+        if (res.status) {
+          this.roleCount = res.data?.length || 0;
+        }
+      }
+    });
   }
 
   fetchWarehouseCount(): void {
@@ -99,10 +117,7 @@ export class DashboardHome implements OnInit {
   }
 
   fetchSupplierCount(): void {
-    // We can use the service with a small page size just to get the totalCount
     const params = { pageNumber: 1, pageSize: 1 };
-    
-    // Lazy inject or just add to constructor. I will add to constructor in next chunk.
     this.supplierService.getAllSuppliers(params).subscribe({
       next: (res: any) => {
         if (res.status) {
