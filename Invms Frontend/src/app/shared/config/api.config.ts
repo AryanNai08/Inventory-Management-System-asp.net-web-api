@@ -47,6 +47,21 @@ export const API_CONFIG = {
       CREATE: '/api/Warehouses/CreateWarehouse',
       UPDATE: (id: number) => `/api/Warehouses/${id}`,
       DELETE: (id: number) => `/api/Warehouses/${id}`
+    },
+    ROLES: {
+      GET_ALL: '/api/Roles/all',
+      CREATE: '/api/Roles/create',
+      UPDATE: (id: number) => `/api/Roles/update/${id}`,
+      DELETE: (id: number) => `/api/Roles/delete/${id}`
+    },
+    PRIVILEGES: {
+      GET_ALL: '/api/Privileges/all',
+      BY_ID: (id: number) => `/api/Privileges/id/${id}`
+    },
+    ROLE_PRIVILEGES: {
+      ASSIGN: '/api/RolePrivileges/assign',
+      BY_ROLE: (roleId: number) => `/api/RolePrivileges/${roleId}/privileges`,
+      REMOVE: (roleId: number, privId: number) => `/api/RolePrivileges/${roleId}/${privId}`
     }
   }
 };

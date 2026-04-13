@@ -25,6 +25,7 @@ export class Sidebar implements OnInit {
   canViewSalesOrders = false;
   canViewStockAdjustments = false;
   canViewReports = false;
+  canManageRoles = false;
 
   constructor(
     private authService: AuthService,
@@ -53,6 +54,7 @@ export class Sidebar implements OnInit {
     this.canViewSalesOrders = this.storageService.hasPermission('ViewSalesOrders');
     this.canViewStockAdjustments = this.storageService.hasPermission('ViewStockAdjustments');
     this.canViewReports = this.storageService.hasPermission('ViewReports');
+    this.canManageRoles = this.storageService.hasPermission('ManageRoles');
   }
 
   onLogout(): void {
