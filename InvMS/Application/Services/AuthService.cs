@@ -1,18 +1,19 @@
-using Domain.Interfaces.Auth;
+using Application.DTOs.Auth;
+using Application.Interfaces.Auth;
 using AutoMapper;
 using Domain.Entities;
 using Domain.Exceptions;
+using Domain.Interfaces;
+using Domain.Interfaces;
+using Domain.Interfaces.Auth;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using System.Text;
-using Microsoft.Extensions.Caching.Memory;
 using System.Linq;
-using Application.DTOs.Auth;
-using Domain.Interfaces;
-using Domain.Interfaces;
-using Application.Interfaces.Auth;
+using System.Security.Claims;
+using System.Security.Cryptography;
+using System.Text;
 
 namespace Application.Services
 {
@@ -270,7 +271,8 @@ namespace Application.Services
             if (user == null)
                 throw new NotFoundException("User not found");
 
-            var otp = new Random().Next(100000, 999999).ToString();
+            
+            var otp = RandomNumberGenerator.GetInt32(100000, 999999).ToString();
 
             var cacheKey = $"otp:{dto.Email}";
 

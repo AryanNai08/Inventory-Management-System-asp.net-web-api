@@ -202,4 +202,5 @@ using (var scope = app.Services.CreateScope())
     await DbSeeder.SeedAdminAsync(dbContext);
 }
 
-app.Run();
+await app.RunAsync();
+
