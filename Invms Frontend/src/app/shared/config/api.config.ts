@@ -62,6 +62,13 @@ export const API_CONFIG = {
       ASSIGN: '/api/RolePrivileges/assign',
       BY_ROLE: (roleId: number) => `/api/RolePrivileges/${roleId}/privileges`,
       REMOVE: (roleId: number, privId: number) => `/api/RolePrivileges/${roleId}/${privId}`
+    },
+    REPORTS: {
+      SALES_BY_PRODUCT: '/api/reports/sales-by-product',
+      PURCHASES_BY_SUPPLIER: '/api/reports/purchases-by-supplier',
+      STOCK_MOVEMENT: '/api/reports/stock-movement',
+      REVENUE: '/api/reports/revenue',
+      ORDER_STATUS_SUMMARY: '/api/reports/order-status-summary'
     }
   }
 };

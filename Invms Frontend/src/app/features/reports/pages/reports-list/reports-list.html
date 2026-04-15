@@ -1,0 +1,128 @@
+<div class="reports-container">
+  <!-- Permission Denied Message -->
+  <div *ngIf="!hasViewReportsPermission" class="permission-denied">
+    <div class="alert alert-warning">
+      <strong>Access Denied</strong>
+      <p>You do not have permission to view reports. Please contact an administrator.</p>
+    </div>
+  </div>
+
+  <!-- Main Reports Content -->
+  <div *ngIf="hasViewReportsPermission" class="reports-content">
+    <!-- Header -->
+    <div class="reports-header">
+      <h1>Reports</h1>
+      <p class="subtitle">Generate and download business reports in PDF format</p>
+    </div>
+
+    <!-- Info Alert -->
+    <div class="alert alert-info">
+      <strong>How to use:</strong> Click on any report card below to select date ranges or parameters, then click "Generate & Download" to create your PDF report.
+    </div>
+
+    <!-- Reports Grid -->
+    <div class="reports-grid">
+      <div 
+        *ngFor="let report of reports" 
+        class="report-card"
+        (click)="onReportClick(report)"
+        role="button"
+        tabindex="0"
+        (keyup.enter)="onReportClick(report)"
+        (keyup.space)="onReportClick(report)">
+        <div class="report-icon">
+          {{ getIconElement(report.icon) }}
+        </div>
+        <div class="report-content">
+          <h3>{{ report.title }}</h3>
+          <p>{{ report.description }}</p>
+          <span class="report-action">Generate Report</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Report Generation Modal -->
+  <div class="modal-overlay" *ngIf="isModalOpen && selectedReport" (click)="closeModal()">
+    <div class="modal" (click)="$event.stopPropagation()">
+      <!-- Modal Header -->
+      <div class="modal-header">
+        <h2>{{ selectedReport.title }}</h2>
+        <button class="close-btn" (click)="closeModal()" ariaLabel="Close dialog">
+          &times;
+        </button>
+      </div>
+
+      <!-- Modal Body -->
+      <div class="modal-body">
+        <p class="modal-description">{{ selectedReport.description }}</p>
+
+        <!-- Report Parameters Form -->
+        <form [formGroup]="reportForm" (ngSubmit)="generateReport()" class="report-form">
+          <!-- Date Range Section (if required) -->
+          <div *ngIf="selectedReport.requiresDateRange" class="form-section">
+            <h4>Select Date Range</h4>
+            
+            <div class="form-group">
+              <label>Start Date</label>
+              <input 
+                type="date" 
+                formControlName="startDate"
+                class="form-control"
+                [max]="reportForm.get('endDate')?.value">
+            </div>
+
+            <div class="form-group">
+              <label>End Date</label>
+              <input 
+                type="date" 
+                formControlName="endDate"
+                class="form-control"
+                [min]="reportForm.get('startDate')?.value">
+            </div>
+          </div>
+
+          <!-- Year Section (if required) -->
+          <div *ngIf="selectedReport.requiresYear" class="form-section">
+            <h4>Select Year</h4>
+            
+            <div class="form-group">
+              <label>Year</label>
+              <select formControlName="year" class="form-control">
+                <option *ngFor="let year of availableYears" [value]="year">
+                  {{ year }}
+                </option>
+              </select>
+            </div>
+          </div>
+
+          <!-- No Parameters Section -->
+          <div *ngIf="!selectedReport.requiresDateRange && !selectedReport.requiresYear" class="form-section">
+            <p class="no-params-message">This report requires no additional parameters. Click "Generate & Download" to proceed.</p>
+          </div>
+        </form>
+      </div>
+
+      <!-- Modal Footer -->
+      <div class="modal-footer">
+        <button 
+          type="button" 
+          class="btn btn-secondary" 
+          (click)="closeModal()"
+          [disabled]="isGenerating">
+          Cancel
+        </button>
+        <button 
+          type="button" 
+          class="btn btn-primary" 
+          (click)="generateReport()"
+          [disabled]="isGenerating">
+          <span *ngIf="!isGenerating">Generate & Download</span>
+          <span *ngIf="isGenerating">
+            <span class="spinner"></span> Generating...
+          </span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

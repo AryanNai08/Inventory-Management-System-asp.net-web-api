@@ -1,6 +1,7 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
-import { DashboardHome } from './pages/dashboard-home/dashboard-home';
+import { ReportsListComponent } from './pages/reports-list/reports-list';
+import { authGuard } from '../../core/guards/auth-guard';
 import { AppLayout } from '../../shared/components/layout/app-layout/app-layout';
 
 const routes: Routes = [
@@ -8,9 +9,11 @@ const routes: Routes = [
     path: '',
     component: AppLayout,
     children: [
-      { 
-        path: '', 
-        component: DashboardHome 
+      {
+        path: '',
+        component: ReportsListComponent,
+        canActivate: [authGuard],
+        data: { roles: ['Admin', 'Manager', 'Staff'] }
       }
     ]
   }
@@ -20,4 +23,4 @@ const routes: Routes = [
   imports: [RouterModule.forChild(routes)],
   exports: [RouterModule]
 })
-export class DashboardRoutingModule { }
+export class ReportsRoutingModule { }

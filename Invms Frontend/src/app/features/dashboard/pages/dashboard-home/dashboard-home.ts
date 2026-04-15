@@ -22,6 +22,7 @@ export class DashboardHome implements OnInit, OnDestroy {
   get canViewCategories() { return this.storageService.hasPermission('ViewCategories'); }
   get canViewCustomers() { return this.storageService.hasPermission('ViewCustomers'); }
   get canViewWarehouses() { return this.storageService.hasPermission('ViewWarehouses'); }
+  get canViewReports() { return this.storageService.hasPermission('ViewReports'); }
 
   username = '';
   userCount = 0;
