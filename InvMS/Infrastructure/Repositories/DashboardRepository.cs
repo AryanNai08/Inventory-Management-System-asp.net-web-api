@@ -110,7 +110,7 @@ namespace Infrastructure.Repositories
                 query = query.Where(soi => soi.SalesOrder.OrderDate >= startDate.Value);
 
             if (endDate.HasValue)
-                query = query.Where(soi => soi.SalesOrder.OrderDate <= endDate.Value);
+                query = query.Where(soi => soi.SalesOrder.OrderDate < endDate.Value.AddDays(1));
 
             return await query
                 .GroupBy(soi => new { soi.ProductId, soi.Product.Name, soi.Product.Sku })
@@ -136,7 +136,7 @@ namespace Infrastructure.Repositories
                 query = query.Where(po => po.OrderDate >= startDate.Value);
 
             if (endDate.HasValue)
-                query = query.Where(po => po.OrderDate <= endDate.Value);
+                query = query.Where(po => po.OrderDate < endDate.Value.AddDays(1));
 
             return await query
                 .GroupBy(po => new { po.SupplierId, po.Supplier.Name })
@@ -203,8 +203,9 @@ namespace Infrastructure.Repositories
 
             if (endDate.HasValue)
             {
-                salesQuery = salesQuery.Where(so => so.OrderDate <= endDate.Value);
-                purchaseQuery = purchaseQuery.Where(po => po.OrderDate <= endDate.Value);
+                var inclusiveEndDate = endDate.Value.AddDays(1);
+                salesQuery = salesQuery.Where(so => so.OrderDate < inclusiveEndDate);
+                purchaseQuery = purchaseQuery.Where(po => po.OrderDate < inclusiveEndDate);
             }
 
             var totalRevenue = await salesQuery.SumAsync(so => so.TotalAmount);
