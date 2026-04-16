@@ -69,6 +69,11 @@ export const API_CONFIG = {
       STOCK_MOVEMENT: '/api/reports/stock-movement',
       REVENUE: '/api/reports/revenue',
       ORDER_STATUS_SUMMARY: '/api/reports/order-status-summary'
+    },
+    DASHBOARD: {
+      SUMMARY: '/api/Dashboard/summary',
+      TOP_SELLING: '/api/Dashboard/top-selling',
+      LOW_STOCK: '/api/Dashboard/low-stock'
     }
   }
 };

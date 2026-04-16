@@ -10,9 +10,17 @@
   <!-- Main Reports Content -->
   <div *ngIf="hasViewReportsPermission" class="reports-content">
     <!-- Header -->
-    <div class="reports-header">
-      <h1>Reports</h1>
-      <p class="subtitle">Generate and download business reports in PDF format</p>
+    <div class="reports-header flex items-center gap-4">
+      <button routerLink="/dashboard"
+        class="p-2.5 rounded-xl border border-slate-200 bg-white text-slate-400 hover:text-slate-600 hover:bg-slate-50 transition-all active:scale-95 shadow-sm">
+        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.1" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+        </svg>
+      </button>
+      <div>
+        <h1 class="text-3xl font-black text-slate-900 tracking-tight">Reports</h1>
+        <p class="text-slate-500 font-medium">Generate and download business reports in PDF format</p>
+      </div>
     </div>
 
     <!-- Info Alert -->

@@ -21,32 +21,51 @@ namespace Infrastructure.Repositories
 
         public async Task<DashboardSummary> GetSummaryStatsAsync()
         {
-            var summary = new DashboardSummary
+            // Combine all numerical stats into one single database round-trip
+            // Using a dummy projection to execute multiple aggregations in one SQL query
+            var stats = await _dbContext.Products
+                .AsNoTracking()
+                .Select(_ => new
+                {
+                    TotalProducts = _dbContext.Products.Count(p => !p.IsDeleted),
+                    TotalCustomers = _dbContext.Customers.Count(c => !c.IsDeleted),
+                    TotalSuppliers = _dbContext.Suppliers.Count(s => !s.IsDeleted),
+                    
+                    LowStockCount = _dbContext.Products.Count(p => !p.IsDeleted && 
+                        p.ProductWarehouseStocks.Sum(s => (int?)s.Quantity) <= p.ReorderLevel),
+
+                    TotalSales = _dbContext.SalesOrders
+                        .Where(so => so.StatusId != 5)
+                        .Sum(so => (decimal?)so.TotalAmount) ?? 0,
+
+                    TotalPurchases = _dbContext.PurchaseOrders
+                        .Where(po => po.StatusId == 3)
+                        .Sum(po => (decimal?)po.TotalAmount) ?? 0
+                })
+                .FirstOrDefaultAsync() ?? new { 
+                    TotalProducts = 0, TotalCustomers = 0, TotalSuppliers = 0, 
+                    LowStockCount = 0, TotalSales = 0m, TotalPurchases = 0m 
+                };
+
+            // Top selling products requires a GroupBy which is better handled separately
+            var topSellingProducts = await GetTopSellingProductsAsync(5);
+
+            return new DashboardSummary
             {
-                TotalProducts = await _dbContext.Products.CountAsync(p => !p.IsDeleted),
-                TotalCustomers = await _dbContext.Customers.CountAsync(c => !c.IsDeleted),
-                TotalSuppliers = await _dbContext.Suppliers.CountAsync(s => !s.IsDeleted),
-
-                LowStockItemsCount = await _dbContext.Products
-                    .CountAsync(p => !p.IsDeleted && 
-                               p.ProductWarehouseStocks.Sum(s => (int?)s.Quantity).GetValueOrDefault() <= p.ReorderLevel),
-
-                TotalSales = await _dbContext.SalesOrders
-                    .Where(so => so.StatusId != 5)
-                    .SumAsync(so => so.TotalAmount),
-
-                TotalPurchases = await _dbContext.PurchaseOrders
-                    .Where(po => po.StatusId == 3)
-                    .SumAsync(po => po.TotalAmount)
+                TotalProducts = stats.TotalProducts,
+                TotalCustomers = stats.TotalCustomers,
+                TotalSuppliers = stats.TotalSuppliers,
+                LowStockItemsCount = stats.LowStockCount,
+                TotalSales = stats.TotalSales,
+                TotalPurchases = stats.TotalPurchases,
+                TopSellingProducts = topSellingProducts
             };
-
-            summary.TopSellingProducts = await GetTopSellingProductsAsync(5);
-            return summary;
         }
 
         public async Task<List<TopProduct>> GetTopSellingProductsAsync(int count)
         {
             return await _dbContext.SalesOrderItems
+                .AsNoTracking()
                 .Where(items => items.SalesOrder.StatusId != 5)
                 .GroupBy(items => new { items.ProductId, items.Product.Name })
                 .Select(group => new TopProduct
