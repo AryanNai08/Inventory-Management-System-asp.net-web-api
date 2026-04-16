@@ -10,7 +10,9 @@ using Domain.Exceptions;
 using Microsoft.EntityFrameworkCore;
 using Domain.Common;
 using Domain.Interfaces;
+using Microsoft.Data.SqlClient;
 using Application.Interfaces.PurchaseOrders;
+using System.Data.SqlClient;
 
 namespace Application.Services
 {
@@ -84,7 +86,6 @@ namespace Application.Services
             var productIds = new HashSet<int>();
             foreach (var item in dto.Items)
             {
-                // Check for duplicate products in the same order
                 if (!productIds.Add(item.ProductId))
                     throw new BadRequestException($"Duplicate Product ID {item.ProductId} found in the order items.");
 
@@ -92,43 +93,67 @@ namespace Application.Services
                 if (product == null)
                     throw new NotFoundException($"Product with ID {item.ProductId} not found");
 
-                // Validate Supplier
                 if (product.SupplierId != dto.SupplierId)
                     throw new BadRequestException($"Product '{product.Name}' (ID: {product.Id}) is supplied by Supplier ID {product.SupplierId}, not the selected Supplier ID {dto.SupplierId}.");
 
-                // Validate Unit Cost (Optional: strictly match catalog price)
                 if (item.UnitCost != product.UnitPrice)
                     throw new BadRequestException($"Incorrect unit cost for product '{product.Name}'. Expected {product.UnitPrice}, but received {item.UnitCost}.");
             }
 
-            // 3. Map to Entity
-            var purchaseOrder = _mapper.Map<PurchaseOrder>(dto);
-
-            // 4. Generate details
-            purchaseOrder.WarehouseId = dto.WarehouseId;
-            purchaseOrder.OrderDate = DateTime.UtcNow;
-            purchaseOrder.CreatedDate = DateTime.UtcNow;
-            purchaseOrder.StatusId = 1; // 1 = Draft
-            purchaseOrder.TotalAmount = dto.Items.Sum(i => i.Quantity * i.UnitCost); // Calculate total
-
-            // 5. Generate Order Number and Save with Transaction
-            await _unitOfWork.BeginTransactionAsync();
-            try
+            // 3. Generate Order Number and Save with Retry Logic
+            int retries = 3;
+            while (retries-- > 0)
             {
-                purchaseOrder.OrderNumber = await _purchaseOrderRepository.GenerateOrderNumberAsync();
-                await _purchaseOrderRepository.AddAsync(purchaseOrder);
-                
-                await _unitOfWork.SaveChangesAsync();
-                await _unitOfWork.CommitAsync();
-            }
-            catch (Exception)
-            {
-                await _unitOfWork.RollbackAsync();
-                throw;
+                await _unitOfWork.BeginTransactionAsync();
+                try
+                {
+                    // [FIX] Move entity creation inside the loop to avoid EF tracking issues on retry
+                    var purchaseOrder = _mapper.Map<PurchaseOrder>(dto);
+                    purchaseOrder.WarehouseId = dto.WarehouseId;
+                    purchaseOrder.OrderDate = DateTime.UtcNow;
+                    purchaseOrder.CreatedDate = DateTime.UtcNow;
+                    purchaseOrder.StatusId = 1; // 1 = Draft
+                    purchaseOrder.TotalAmount = dto.Items.Sum(i => i.Quantity * i.UnitCost);
+
+                    purchaseOrder.OrderNumber = await _purchaseOrderRepository.GenerateOrderNumberAsync();
+                    await _purchaseOrderRepository.AddAsync(purchaseOrder);
+                    
+                    await _unitOfWork.SaveChangesAsync();
+                    await _unitOfWork.CommitAsync();
+                    
+                    // Success! Return directly
+                    return await GetByIdAsync(purchaseOrder.Id);
+                }
+                catch (DbUpdateException ex) when (IsUniqueConstraintViolation(ex))
+                {
+                    await _unitOfWork.RollbackAsync();
+                    
+                    if (retries == 0)
+                    {
+                        throw new BadRequestException("Failed to generate a unique purchase order number after multiple attempts. Please try again.");
+                    }
+                    
+                    await Task.Delay(100);
+                    continue;
+                }
+                catch (Exception)
+                {
+                    await _unitOfWork.RollbackAsync();
+                    throw;
+                }
             }
 
-            // 6. Return created order
-            return await GetByIdAsync(purchaseOrder.Id);
+            throw new BadRequestException("An unexpected error occurred during purchase order creation.");
+        }
+
+        private bool IsUniqueConstraintViolation(DbUpdateException ex)
+        {
+            if (ex.InnerException is SqlException sqlEx)
+            {
+                // 2627 = Unique constraint violation, 2601 = Duplicate key index
+                return sqlEx.Number == 2627 || sqlEx.Number == 2601;
+            }
+            return false;
         }
 
         public async Task<PurchaseOrderDto> UpdateAsync(int id, UpdatePurchaseOrderDto dto)
