@@ -16,12 +16,18 @@ namespace Application.Services
         private readonly IProductRepository _productRepository;
         private readonly IMapper _mapper;
         private readonly IUnitOfWork _unitOfWork;
+        private readonly ICurrentUserService _currentUserService;
 
-        public ProductService(IProductRepository productRepository, IMapper mapper, IUnitOfWork unitOfWork)
+        public ProductService(
+            IProductRepository productRepository, 
+            IMapper mapper, 
+            IUnitOfWork unitOfWork,
+            ICurrentUserService currentUserService)
         {
             _productRepository = productRepository;
             _mapper = mapper;
             _unitOfWork = unitOfWork;
+            _currentUserService = currentUserService;
         }
 
         public async Task<ProductDto> CreateAsync(CreateProductDto dto)
@@ -36,23 +42,33 @@ namespace Application.Services
             await _productRepository.AddAsync(newproduct);
             await _unitOfWork.SaveChangesAsync();
                 
-            // Reload with navigation properties so CategoryName, SupplierName, WarehouseName are populated
-            var createdProduct = await _productRepository.GetByIdAsync(newproduct.Id);
-            return _mapper.Map<ProductDto>(createdProduct);
+            // Reload with optimized projection (Read Model)
+            var readModel = await _productRepository.GetProjectedByIdAsync(newproduct.Id);
+            var result = _mapper.Map<ProductDto>(readModel);
+            
+            // Apply Security
+            if (!_currentUserService.IsInRole("Admin")) result.PurchasePrice = null;
+            
+            return result;
         }
 
         public async Task<PaginatedResult<ProductDto>> GetAllAsync(PaginationParams @params)
         {
-            var paginatedProducts = await _productRepository.GetAllAsync(@params);
+            var paginatedReadModels = await _productRepository.GetProjectedAllAsync(@params);
             
-            if (paginatedProducts.TotalCount <= 0) 
+            if (paginatedReadModels.TotalCount <= 0) 
             {
                 throw new NotFoundException("No Products found!!");
             }
 
-            var dtos = _mapper.Map<List<ProductDto>>(paginatedProducts.Items);
+            bool isAdmin = _currentUserService.IsInRole("Admin");
+            var dtos = paginatedReadModels.Items.Select(rm => {
+                var dto = _mapper.Map<ProductDto>(rm);
+                if (!isAdmin) dto.PurchasePrice = null;
+                return dto;
+            }).ToList();
             
-            return new PaginatedResult<ProductDto>(dtos, paginatedProducts.TotalCount, @params.PageNumber, @params.PageSize);
+            return new PaginatedResult<ProductDto>(dtos, paginatedReadModels.TotalCount, @params.PageNumber, @params.PageSize);
         }
 
         public async Task<ProductDto> GetByIdAsync(int id)
@@ -61,12 +77,18 @@ namespace Application.Services
             {
                 throw new BadRequestException("Id must be greater than 0");
             }
-            var product=await _productRepository.GetByIdAsync(id);
-            if(product == null)
+
+            var readModel = await _productRepository.GetProjectedByIdAsync(id);
+            
+            if(readModel == null)
             {
                 throw new NotFoundException($"Product with id:{id} not found");
             }
-            return _mapper.Map<ProductDto>(product);
+
+            var dto = _mapper.Map<ProductDto>(readModel);
+            if (!_currentUserService.IsInRole("Admin")) dto.PurchasePrice = null;
+
+            return dto;
         }
 
         public async Task<ProductDto> GetBySkuAsync(string sku)

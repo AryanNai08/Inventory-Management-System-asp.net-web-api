@@ -1,11 +1,14 @@
 using Domain.Common;
 using Domain.Entities;
+using Domain.Models;
 
 namespace Domain.Interfaces
 {
     public interface IProductRepository
     {
         Task<PaginatedResult<Product>> GetAllAsync(PaginationParams @params);
+        Task<PaginatedResult<ProductReadModel>> GetProjectedAllAsync(PaginationParams @params);
+        Task<ProductReadModel?> GetProjectedByIdAsync(int id);
         Task<Product> GetByIdAsync(int id);
         Task<Product> GetBySkuAsync(string sku);
         Task<List<Product>> SearchAsync(string name, int? categoryId, int? supplierId);

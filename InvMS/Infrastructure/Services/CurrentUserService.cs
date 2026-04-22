@@ -32,4 +32,10 @@ public class CurrentUserService : ICurrentUserService
     /// maps to the same claim for simplicity.
     /// </summary>
     public string? UserId => Username;
+
+    /// <summary>
+    /// Checks if the current user is in a specific role.
+    /// </summary>
+    public bool IsInRole(string role) =>
+        _httpContextAccessor.HttpContext?.User?.IsInRole(role) ?? false;
 }

@@ -17,4 +17,9 @@ public interface ICurrentUserService
     /// Returns the Username of the logged-in user (from ClaimTypes.Name in JWT).
     /// </summary>
     string? Username { get; }
+
+    /// <summary>
+    /// Checks if the current user is in a specific role.
+    /// </summary>
+    bool IsInRole(string role);
 }

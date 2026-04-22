@@ -10,6 +10,7 @@ using Application.DTOs.Supplier;
 using Application.DTOs.Warehouse;
 using AutoMapper;
 using Domain.Entities;
+using Domain.Enums;
 
 namespace Application.Mappings
 {
@@ -120,7 +121,11 @@ namespace Application.Mappings
             // Product
             CreateMap<Product, ProductDto>()
                 .ForMember(dest => dest.CategoryName, opt => opt.MapFrom(src => src.Category.Name))
-                .ForMember(dest => dest.SupplierName, opt => opt.MapFrom(src => src.Supplier != null ? src.Supplier.Name : null));
+                .ForMember(dest => dest.SupplierName, opt => opt.MapFrom(src => src.Supplier != null ? src.Supplier.Name : null))
+                .ForMember(dest => dest.TotalStock, opt => opt.MapFrom(src => src.ProductWarehouseStocks.Sum(s => (int?)s.Quantity) ?? 0))
+                .ForMember(dest => dest.StockStatus, opt => opt.MapFrom(src => 
+                    StockStatusHelper.GetStatus(src.ProductWarehouseStocks.Sum(s => (int?)s.Quantity) ?? 0, src.ReorderLevel)))
+                .ForMember(dest => dest.RowVersion, opt => opt.MapFrom(src => src.RowVersion != null ? Convert.ToBase64String(src.RowVersion) : null));
 
             CreateMap<CreateProductDto, Product>()
                 .ForMember(dest => dest.Id, opt => opt.Ignore())
@@ -134,6 +139,12 @@ namespace Application.Mappings
                 .ForMember(dest => dest.CreatedDate, opt => opt.Ignore())
                 .ForMember(dest => dest.ModifiedDate, opt => opt.Ignore())
                 .ForMember(dest => dest.RowVersion, opt => opt.Ignore());  // handled manually in service
+
+            // Read Model Mapping
+            CreateMap<Domain.Models.ProductReadModel, ProductDto>()
+                .ForMember(dest => dest.StockStatus, opt => opt.MapFrom(src =>
+                    StockStatusHelper.GetStatus(src.TotalStock, src.ReorderLevel)))
+                .ForMember(dest => dest.RowVersion, opt => opt.MapFrom(src => Convert.ToBase64String(src.RowVersion)));
 
             //purchaseorder
             //create

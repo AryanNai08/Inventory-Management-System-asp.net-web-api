@@ -3,7 +3,8 @@ using Domain.Entities;
 using Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Domain.Common;
-
+using Domain.Enums;
+using Domain.Models;
 
 namespace Infrastructure.Repositories
 {
@@ -13,6 +14,77 @@ namespace Infrastructure.Repositories
         public ProductRepository(InventoryDbContext dbContext)
         {
             _dbContext= dbContext;
+        }
+
+        public async Task<PaginatedResult<ProductReadModel>> GetProjectedAllAsync(PaginationParams @params)
+        {
+            var baseQuery = _dbContext.Products
+                .Where(p => !p.IsDeleted)
+                .AsNoTracking();
+
+            // 1. Calculate TotalCount
+            var count = await baseQuery.CountAsync();
+
+            // 2. Sorting
+            if (!string.IsNullOrWhiteSpace(@params.SortColumn))
+            {
+                if (@params.SortColumn.Equals("Name", StringComparison.OrdinalIgnoreCase))
+                    baseQuery = @params.SortOrder == "desc" ? baseQuery.OrderByDescending(p => p.Name) : baseQuery.OrderBy(p => p.Name);
+                else if (@params.SortColumn.Equals("SalePrice", StringComparison.OrdinalIgnoreCase))
+                    baseQuery = @params.SortOrder == "desc" ? baseQuery.OrderByDescending(p => p.SalePrice) : baseQuery.OrderBy(p => p.SalePrice);
+                else
+                    baseQuery = baseQuery.OrderBy(p => p.Id);
+            }
+            else
+            {
+                baseQuery = baseQuery.OrderBy(p => p.Id);
+            }
+
+            // 3. High-Performance Projection (to Domain Read Model)
+            var items = await baseQuery
+                .Skip((@params.PageNumber - 1) * @params.PageSize)
+                .Take(@params.PageSize)
+                .Select(p => new ProductReadModel {
+                    Id = p.Id,
+                    Name = p.Name,
+                    Sku = p.Sku,
+                    Description = p.Description,
+                    PurchasePrice = p.PurchasePrice,
+                    SalePrice = p.SalePrice,
+                    ReorderLevel = p.ReorderLevel,
+                    CategoryId = p.CategoryId,
+                    CategoryName = p.Category.Name,
+                    SupplierId = p.SupplierId,
+                    SupplierName = p.Supplier != null ? p.Supplier.Name : null,
+                    TotalStock = p.ProductWarehouseStocks.Select(s => (int?)s.Quantity).Sum() ?? 0,
+                    RowVersion = p.RowVersion
+                })
+                .ToListAsync();
+
+            return new PaginatedResult<ProductReadModel>(items, count, @params.PageNumber, @params.PageSize);
+        }
+
+        public async Task<ProductReadModel?> GetProjectedByIdAsync(int id)
+        {
+            return await _dbContext.Products
+                .Where(p => p.Id == id && !p.IsDeleted)
+                .AsNoTracking()
+                .Select(p => new ProductReadModel {
+                    Id = p.Id,
+                    Name = p.Name,
+                    Sku = p.Sku,
+                    Description = p.Description,
+                    PurchasePrice = p.PurchasePrice,
+                    SalePrice = p.SalePrice,
+                    ReorderLevel = p.ReorderLevel,
+                    CategoryId = p.CategoryId,
+                    CategoryName = p.Category.Name,
+                    SupplierId = p.SupplierId,
+                    SupplierName = p.Supplier != null ? p.Supplier.Name : null,
+                    TotalStock = p.ProductWarehouseStocks.Select(s => (int?)s.Quantity).Sum() ?? 0,
+                    RowVersion = p.RowVersion
+                })
+                .FirstOrDefaultAsync();
         }
 
         public async Task AddAsync(Product product)
