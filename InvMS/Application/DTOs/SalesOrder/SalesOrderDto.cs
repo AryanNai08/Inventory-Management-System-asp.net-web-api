@@ -17,6 +17,7 @@ namespace Application.DTOs.SalesOrder
         public string WarehouseName { get; set; }
         public decimal TotalAmount { get; set; }
         public string? Notes { get; set; }
+        public List<string> Warnings { get; set; } = new();
 
         public List<SalesOrderItemDto> Items {  get; set; }
     }

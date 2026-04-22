@@ -96,8 +96,8 @@ namespace Application.Services
                 if (product.SupplierId != dto.SupplierId)
                     throw new BadRequestException($"Product '{product.Name}' (ID: {product.Id}) is supplied by Supplier ID {product.SupplierId}, not the selected Supplier ID {dto.SupplierId}.");
 
-                if (item.UnitCost != product.UnitPrice)
-                    throw new BadRequestException($"Incorrect unit cost for product '{product.Name}'. Expected {product.UnitPrice}, but received {item.UnitCost}.");
+                if (item.UnitCost <= 0)
+                    throw new BadRequestException($"Unit cost for product '{product.Name}' must be greater than zero.");
             }
 
             // 3. Generate Order Number and Save with Retry Logic
@@ -188,8 +188,8 @@ namespace Application.Services
                     throw new BadRequestException($"Product '{product.Name}' (ID: {product.Id}) is supplied by Supplier ID {product.SupplierId}, not the selected Supplier ID {dto.SupplierId}.");
 
                 // Validate Unit Cost (Optional: strictly match catalog price)
-                if (item.UnitCost != product.UnitPrice)
-                    throw new BadRequestException($"Incorrect unit cost for product '{product.Name}'. Expected {product.UnitPrice}, but received {item.UnitCost}.");
+                if (item.UnitCost <= 0)
+                    throw new BadRequestException($"Unit cost for product '{product.Name}' must be greater than zero.");
             }
 
             // 4. Update core order details

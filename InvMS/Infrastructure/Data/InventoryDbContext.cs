@@ -239,6 +239,8 @@ public partial class InventoryDbContext : DbContext
                 .HasMaxLength(50)
                 .HasColumnName("SKU");
             entity.Property(e => e.UnitPrice).HasColumnType("decimal(18, 2)");
+            entity.Property(e => e.PurchasePrice).HasColumnType("decimal(18, 2)");
+            entity.Property(e => e.SalePrice).HasColumnType("decimal(18, 2)");
             entity.Property(e => e.CreatedBy).HasMaxLength(100);
             entity.Property(e => e.UpdatedBy).HasMaxLength(100);
             entity.Property(e => e.DeletedBy).HasMaxLength(100);

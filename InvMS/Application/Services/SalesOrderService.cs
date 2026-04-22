@@ -12,6 +12,7 @@ using Domain.Common;
 using Domain.Interfaces;
 using Microsoft.Data.SqlClient;
 using Application.Interfaces.SalesOrder;
+using Microsoft.Extensions.Logging;
 
 namespace Application.Services
 {
@@ -24,6 +25,7 @@ namespace Application.Services
         private readonly IProductWarehouseStockRepository _productStockRepository;
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
+        private readonly ILogger<SalesOrderService> _logger;
 
         public SalesOrderService(
             ISalesOrderRepository salesOrderRepository,
@@ -32,7 +34,8 @@ namespace Application.Services
             IWarehouseRepository warehouseRepository,
             IProductWarehouseStockRepository productStockRepository,
             IUnitOfWork unitOfWork,
-            IMapper mapper)
+            IMapper mapper,
+            ILogger<SalesOrderService> logger)
         {
             _salesOrderRepository = salesOrderRepository;
             _customerRepository = customerRepository;
@@ -41,6 +44,7 @@ namespace Application.Services
             _productStockRepository = productStockRepository;
             _unitOfWork = unitOfWork;
             _mapper = mapper;
+            _logger = logger;
         }
 
         public async Task<PaginatedResult<SalesOrderDto>> GetAllAsync(PaginationParams @params)
@@ -90,8 +94,19 @@ namespace Application.Services
                 if (product == null)
                     throw new NotFoundException($"Product with ID {item.ProductId} not found");
 
-                if (item.UnitPrice != product.UnitPrice)
-                    throw new BadRequestException($"Incorrect unit price for product '{product.Name}'. Expected {product.UnitPrice}, but received {item.UnitPrice}.");
+                if (item.UnitPrice <= 0)
+                    throw new BadRequestException($"Unit price for product '{product.Name}' must be greater than zero.");
+                
+                if (product.PurchasePrice.HasValue && item.UnitPrice < product.PurchasePrice.Value)
+                {
+                    _logger.LogWarning("CRITICAL: Below-cost sale detected: ProductId={ProductId}, Cost={Cost}, Price={Price}", 
+                        product.Id, product.PurchasePrice, item.UnitPrice);
+                }
+                else if (product.SalePrice.HasValue && item.UnitPrice < product.SalePrice.Value)
+                {
+                    _logger.LogInformation("INFO: Discount applied: ProductId={ProductId}, Catalog={Catalog}, Price={Price}", 
+                        product.Id, product.SalePrice, item.UnitPrice);
+                }
                 
                 var stock = await _productStockRepository.GetByProductAndWarehouseAsync(item.ProductId, dto.WarehouseId);
                 int availableStock = stock?.Quantity ?? 0;
@@ -122,8 +137,8 @@ namespace Application.Services
                     await _unitOfWork.SaveChangesAsync();
                     await _unitOfWork.CommitAsync();
                     
-                    // Success! Return directly
-                    return await GetByIdAsync(salesOrder.Id);
+                    // Success! Return directly with warnings
+                    return await GetByIdWithWarningsAsync(salesOrder.Id);
                 }
                 catch (DbUpdateException ex) when (IsUniqueConstraintViolation(ex))
                 {
@@ -189,8 +204,19 @@ namespace Application.Services
                 if (product == null)
                     throw new NotFoundException($"Product with ID {item.ProductId} not found");
 
-                if (item.UnitPrice != product.UnitPrice)
-                    throw new BadRequestException($"Incorrect unit price for product '{product.Name}'. Expected {product.UnitPrice}, but received {item.UnitPrice}.");
+                if (item.UnitPrice <= 0)
+                    throw new BadRequestException($"Unit price for product '{product.Name}' must be greater than zero.");
+
+                if (product.PurchasePrice.HasValue && item.UnitPrice < product.PurchasePrice.Value)
+                {
+                    _logger.LogWarning("CRITICAL: Below-cost sale detected during update: ProductId={ProductId}, Cost={Cost}, Price={Price}",
+                        product.Id, product.PurchasePrice, item.UnitPrice);
+                }
+                else if (product.SalePrice.HasValue && item.UnitPrice < product.SalePrice.Value)
+                {
+                    _logger.LogInformation("INFO: Discount applied during update: ProductId={ProductId}, Catalog={Catalog}, Price={Price}",
+                        product.Id, product.SalePrice, item.UnitPrice);
+                }
                 
                 var stock = await _productStockRepository.GetByProductAndWarehouseAsync(item.ProductId, dto.WarehouseId);
                 int availableStock = stock?.Quantity ?? 0;
@@ -237,7 +263,33 @@ namespace Application.Services
                 throw;
             }
 
-            return await GetByIdAsync(id);
+            return await GetByIdWithWarningsAsync(id);
+        }
+
+        public async Task<SalesOrderDto> GetByIdWithWarningsAsync(int id)
+        {
+            var result = await GetByIdAsync(id);
+            if (result == null) return null;
+
+            foreach (var item in result.Items)
+            {
+                var product = await _productRepository.GetByIdAsync(item.ProductId);
+                if (product == null) continue;
+
+                // 1. Check for Below Cost (Critical)
+                if (product.PurchasePrice.HasValue && item.UnitPrice < product.PurchasePrice.Value)
+                {
+                    result.Warnings.Add($"CRITICAL: '{product.Name}' is being sold BELOW COST (Cost: {product.PurchasePrice:C}, Price: {item.UnitPrice:C})");
+                }
+                // 2. Check for Discount (Informational)
+                else if (product.SalePrice.HasValue && item.UnitPrice < product.SalePrice.Value)
+                {
+                    decimal discount = product.SalePrice.Value - item.UnitPrice;
+                    result.Warnings.Add($"INFO: '{product.Name}' is discounted by {discount:C} (Catalog: {product.SalePrice:C}, Price: {item.UnitPrice:C})");
+                }
+            }
+
+            return result;
         }
 
         public async Task<bool> ConfirmAsync(int id)

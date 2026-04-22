@@ -14,6 +14,8 @@ public partial class Product
     public string? Description { get; set; }
 
     public decimal UnitPrice { get; set; }
+    public decimal? PurchasePrice { get; set; }
+    public decimal? SalePrice { get; set; }
 
     public int ReorderLevel { get; set; }
     public int CategoryId { get; set; }
