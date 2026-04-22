@@ -21,3 +21,50 @@ body {
   margin: 0;
   padding: 0;
 }
+
+/* Vibrant Action Buttons (Modern Premium - Matches UI Gradients) */
+.btn-action-edit, .btn-action-delete {
+  padding: 8px 18px;
+  border-radius: 12px;
+  font-size: 10px;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 1.2px;
+  border: none;
+  cursor: pointer;
+  color: white;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.btn-action-edit {
+  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%); /* Indigo to Violet */
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+}
+
+.btn-action-delete {
+  background: linear-gradient(135deg, #f43f5e 0%, #e11d48 100%); /* Rose to Red */
+  box-shadow: 0 4px 12px rgba(244, 63, 94, 0.3);
+}
+
+.unauthorized-msg {
+  font-size: 10px;
+  color: #64748b;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  padding: 6px 14px;
+  background: #f1f5f9;
+  border-radius: 10px;
+  border: 1px solid #e2e8f0;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.unauthorized-msg::before {
+  content: '🔒';
+  font-size: 12px;
+}
