@@ -1,0 +1,257 @@
+<div class="p-8 max-w-[1600px] mx-auto animate-in fade-in slide-in-from-bottom-4 duration-700">
+  <!-- Header Section -->
+  <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+    <div class="flex items-center gap-4">
+      <button routerLink="/dashboard"
+        class="p-2.5 rounded-xl border border-slate-200 bg-white text-slate-400 hover:text-slate-600 hover:bg-slate-50 transition-all active:scale-95 shadow-sm">
+        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.1" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+        </svg>
+      </button>
+      <div>
+        <h1 class="text-3xl font-black text-slate-900 tracking-tight">Products</h1>
+        <p class="text-slate-500 font-medium">Manage your inventory items, pricing, and stock levels.</p>
+      </div>
+    </div>
+    <div class="flex items-center gap-3">
+      <button (click)="fetchProducts()"
+        class="p-2.5 rounded-xl border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 transition-all active:scale-95 shadow-sm">
+        <svg class="w-5 h-5" [class.animate-spin]="isLoading" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+        </svg>
+      </button>
+      <button *ngIf="canManage" (click)="openCreateModal()"
+        class="flex items-center gap-2 px-5 py-2.5 bg-blue-600 text-white rounded-xl font-bold hover:bg-blue-700 hover:shadow-lg hover:shadow-blue-200 transition-all active:scale-95 shadow-md">
+        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+        </svg>
+        Add Product
+      </button>
+    </div>
+  </div>
+
+  <!-- Table Container -->
+  <div class="relative group">
+    <div
+      class="absolute -inset-1 bg-gradient-to-r from-blue-100 to-indigo-100 rounded-2xl blur opacity-25 group-hover:opacity-40 transition duration-1000 group-hover:duration-200">
+    </div>
+
+    <div
+      class="relative overflow-hidden bg-white/70 backdrop-blur-xl border border-white/50 rounded-2xl shadow-xl shadow-slate-200/50">
+
+      <div class="overflow-x-auto">
+        <table class="w-full text-left border-collapse min-w-[1200px]">
+          <thead>
+            <tr class="border-b border-slate-100/50 bg-slate-50/50">
+              <th class="px-6 py-4 text-[11px] font-black uppercase tracking-widest text-slate-400">Product Info</th>
+              <th class="px-6 py-4 text-[11px] font-black uppercase tracking-widest text-slate-400">Inventory</th>
+              <th class="px-6 py-4 text-[11px] font-black uppercase tracking-widest text-slate-400">Pricing</th>
+              <th class="px-6 py-4 text-[11px] font-black uppercase tracking-widest text-slate-400">Entity Details</th>
+              <th class="px-6 py-4 text-[11px] font-black uppercase tracking-widest text-slate-400">Created By</th>
+              <th class="px-6 py-4 text-[11px] font-black uppercase tracking-widest text-slate-400">Last Modified</th>
+              <th class="px-6 py-4 text-right text-[11px] font-black uppercase tracking-widest text-slate-400">Actions</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-50">
+            <!-- Loading State -->
+            <tr *ngIf="isLoading && products.length === 0">
+              <td colspan="5" class="px-6 py-20 text-center">
+                <div class="flex flex-col items-center gap-3">
+                  <div class="w-10 h-10 border-4 border-blue-100 border-t-blue-600 rounded-full animate-spin"></div>
+                  <p class="text-slate-400 font-bold">Fetching products...</p>
+                </div>
+              </td>
+            </tr>
+
+            <!-- Empty State -->
+            <tr *ngIf="!isLoading && products.length === 0">
+              <td colspan="5" class="px-6 py-20 text-center">
+                <p class="text-slate-400 font-bold">No products found. Start by adding one!</p>
+              </td>
+            </tr>
+
+            <!-- Data Rows -->
+            <tr *ngFor="let p of products" class="group hover:bg-blue-50/30 transition-colors">
+              <td class="px-6 py-5">
+                <div class="flex items-center gap-4">
+                  <div
+                    class="h-10 w-10 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white font-black text-xs shadow-sm ring-4 ring-white">
+                    {{ p.name.charAt(0).toUpperCase() }}
+                  </div>
+                  <div>
+                    <p class="text-sm font-black text-slate-800 tracking-tight">{{ p.name }}</p>
+                    <p class="text-[10px] font-bold text-slate-400">SKU: {{ p.sku }}</p>
+                  </div>
+                </div>
+              </td>
+              <td class="px-6 py-5">
+                <div class="flex items-center gap-2">
+                  <span [class]="p.totalStock <= p.reorderLevel ? 'bg-amber-100 text-amber-700 ring-amber-200' : 'bg-emerald-100 text-emerald-700 ring-emerald-200'"
+                    class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider ring-1 ring-inset">
+                    {{ p.totalStock }} in stock
+                  </span>
+                </div>
+                <p class="text-[9px] font-bold text-slate-400 mt-1 uppercase tracking-tighter">Reorder at {{ p.reorderLevel }}</p>
+              </td>
+              <td class="px-6 py-5">
+                <div class="space-y-1">
+                  <p class="text-xs font-black text-slate-700">Sale: ${{ p.salePrice }}</p>
+                  <p class="text-[10px] font-bold text-slate-400">Cost: ${{ p.purchasePrice }}</p>
+                </div>
+              </td>
+              <td class="px-6 py-5">
+                <div class="space-y-1">
+                  <p class="text-xs font-bold text-slate-600">Category: {{ p.categoryName }}</p>
+                  <p class="text-[10px] font-bold text-slate-400">Supplier: {{ p.supplierName }}</p>
+                </div>
+              </td>
+              <td class="px-6 py-5">
+                <span class="text-xs font-bold text-slate-600">{{ p.createdBy || '-' }}</span>
+                <p class="text-[10px] text-slate-400 font-semibold">{{ p.createdDate | date:'mediumDate' }}</p>
+              </td>
+              <td class="px-6 py-5">
+                <span class="text-xs font-bold text-slate-600">{{ p.updatedBy || '-' }}</span>
+                <p class="text-[10px] text-slate-400 font-semibold">{{ p.modifiedDate ? (p.modifiedDate | date:'mediumDate') : '-' }}</p>
+              </td>
+              <td class="px-6 py-5 text-right">
+                <div class="flex items-center justify-end gap-2">
+                  <button *ngIf="canManage" (click)="openEditModal(p)" class="btn-action-edit">
+                    Edit
+                  </button>
+                  <button *ngIf="canDelete" (click)="onDelete(p.id)" class="btn-action-delete">
+                    Delete
+                  </button>
+                  <span *ngIf="!canManage && !canDelete" class="unauthorized-msg">
+                    Action Restricted
+                  </span>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Pagination Footer -->
+      <div *ngIf="totalPages > 1" class="px-6 py-4 bg-slate-50/50 border-t border-slate-100 flex items-center justify-between">
+        <p class="text-xs font-bold text-slate-500">
+          Showing <span class="text-slate-900">{{ products.length }}</span> of <span class="text-slate-900">{{ totalCount }}</span> products
+        </p>
+        <div class="flex items-center gap-2">
+          <button [disabled]="!hasPreviousPage" (click)="onPageChange(currentPage - 1)"
+            class="p-2 rounded-lg border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 transition-all disabled:opacity-40">
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7" /></svg>
+          </button>
+          
+          <div class="flex items-center gap-1">
+            <button *ngFor="let p of [].constructor(totalPages); let i = index"
+              (click)="onPageChange(i + 1)"
+              [class]="(i + 1) === currentPage ? 'bg-blue-600 text-white shadow-md shadow-blue-100' : 'bg-white text-slate-600 hover:bg-slate-50 border border-slate-200'"
+              class="w-8 h-8 rounded-lg text-xs font-black transition-all">
+              {{ i + 1 }}
+            </button>
+          </div>
+
+          <button [disabled]="!hasNextPage" (click)="onPageChange(currentPage + 1)"
+            class="p-2 rounded-lg border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 transition-all disabled:opacity-40">
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7" /></svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Create/Edit Modal -->
+  <div *ngIf="isModalOpen" class="fixed inset-0 z-[100] flex items-center justify-center p-4">
+    <div class="absolute inset-0 bg-slate-900/40 backdrop-blur-sm animate-in fade-in duration-300" (click)="closeModal()"></div>
+
+    <div class="relative w-full max-w-3xl bg-white rounded-3xl shadow-2xl overflow-hidden animate-in zoom-in-95 slide-in-from-bottom-8 duration-300 border border-white/50">
+      <div class="px-8 py-6 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
+        <div>
+          <h3 class="text-xl font-black text-slate-900 tracking-tight">{{ selectedProductId ? 'Update' : 'New' }} Product</h3>
+          <p class="text-sm font-bold text-slate-400">Define product specifications and global tracking rules.</p>
+        </div>
+        <button (click)="closeModal()" class="text-slate-400 hover:text-slate-600 p-1">
+          <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+
+      <form [formGroup]="productForm" (ngSubmit)="onSubmit()" class="p-8">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div class="md:col-span-2">
+            <label class="block text-[11px] font-black uppercase tracking-widest text-slate-400 mb-2 ms-1">Product Name</label>
+            <input formControlName="name" type="text" placeholder="e.g. Wireless Mouse, High Performance Laptop..."
+              class="w-full px-5 py-3.5 bg-slate-50 border-2 border-transparent focus:border-blue-500 focus:bg-white rounded-2xl outline-none font-bold text-slate-700 transition-all placeholder:text-slate-300">
+          </div>
+
+          <div>
+            <label class="block text-[11px] font-black uppercase tracking-widest text-slate-400 mb-2 ms-1">SKU Code</label>
+            <input formControlName="sku" type="text" placeholder="e.g. WM-001"
+              class="w-full px-5 py-3.5 bg-slate-50 border-2 border-transparent focus:border-blue-500 focus:bg-white rounded-2xl outline-none font-bold text-slate-700 transition-all placeholder:text-slate-300">
+          </div>
+
+          <div>
+            <label class="block text-[11px] font-black uppercase tracking-widest text-slate-400 mb-2 ms-1">Reorder Level</label>
+            <input formControlName="reorderLevel" type="number"
+              class="w-full px-5 py-3.5 bg-slate-50 border-2 border-transparent focus:border-blue-500 focus:bg-white rounded-2xl outline-none font-bold text-slate-700 transition-all">
+          </div>
+
+          <div>
+            <label class="block text-[11px] font-black uppercase tracking-widest text-slate-400 mb-2 ms-1">Purchase Price</label>
+            <input formControlName="purchasePrice" type="number"
+              class="w-full px-5 py-3.5 bg-slate-50 border-2 border-transparent focus:border-blue-500 focus:bg-white rounded-2xl outline-none font-bold text-slate-700 transition-all">
+          </div>
+
+          <div>
+            <label class="block text-[11px] font-black uppercase tracking-widest text-slate-400 mb-2 ms-1">Sale Price</label>
+            <input formControlName="salePrice" type="number"
+              class="w-full px-5 py-3.5 bg-slate-50 border-2 border-transparent focus:border-blue-500 focus:bg-white rounded-2xl outline-none font-bold text-slate-700 transition-all">
+          </div>
+
+          <!-- Price Validation Error -->
+          <div *ngIf="productForm.errors?.['priceInvalid'] && productForm.touched" class="md:col-span-2">
+            <p class="text-[10px] text-red-500 font-black uppercase tracking-widest bg-red-50 p-3 rounded-xl border border-red-100 flex items-center gap-2">
+              <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
+              Profitability Alert: Sale Price must be greater than Purchase Price
+            </p>
+          </div>
+
+          <div>
+            <label class="block text-[11px] font-black uppercase tracking-widest text-slate-400 mb-2 ms-1">Category</label>
+            <select formControlName="categoryId" class="w-full px-5 py-3.5 bg-slate-50 border-2 border-transparent focus:border-blue-500 focus:bg-white rounded-2xl outline-none font-bold text-slate-700 transition-all appearance-none">
+              <option value="">Select Category</option>
+              <option *ngFor="let cat of categories" [value]="cat.id">{{ cat.name }}</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-[11px] font-black uppercase tracking-widest text-slate-400 mb-2 ms-1">Primary Supplier</label>
+            <select formControlName="supplierId" class="w-full px-5 py-3.5 bg-slate-50 border-2 border-transparent focus:border-blue-500 focus:bg-white rounded-2xl outline-none font-bold text-slate-700 transition-all appearance-none">
+              <option value="">Select Supplier</option>
+              <option *ngFor="let sup of suppliers" [value]="sup.id">{{ sup.name }}</option>
+            </select>
+          </div>
+
+          <div class="md:col-span-2">
+            <label class="block text-[11px] font-black uppercase tracking-widest text-slate-400 mb-2 ms-1">Description</label>
+            <textarea formControlName="description" rows="2" placeholder="Item technical specifications..."
+              class="w-full px-5 py-3.5 bg-slate-50 border-2 border-transparent focus:border-blue-500 focus:bg-white rounded-2xl outline-none font-bold text-slate-700 transition-all placeholder:text-slate-300 resize-none"></textarea>
+          </div>
+        </div>
+
+        <div class="pt-8">
+          <button type="submit" [disabled]="productForm.invalid || isSaving"
+            class="w-full py-4 bg-blue-600 text-white rounded-2xl font-black text-sm tracking-widest uppercase hover:bg-blue-700 hover:shadow-xl hover:shadow-blue-200 transition-all disabled:opacity-50 disabled:shadow-none flex items-center justify-center gap-2">
+            <svg *ngIf="isSaving" class="animate-spin h-5 w-5 text-white" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+            {{ isSaving ? 'Synchronizing...' : (selectedProductId ? 'Update Product' : 'Register Product') }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

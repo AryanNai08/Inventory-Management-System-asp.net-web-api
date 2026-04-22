@@ -48,6 +48,15 @@ export const API_CONFIG = {
       UPDATE: (id: number) => `/api/Warehouses/${id}`,
       DELETE: (id: number) => `/api/Warehouses/${id}`
     },
+    PRODUCTS: {
+      GET_ALL: '/api/Products/GetAllProducts',
+      BY_ID: (id: number) => `/api/Products/${id}`,
+      CREATE: '/api/Products/CreateProduct',
+      UPDATE: (id: number) => `/api/Products/${id}`,
+      DELETE: (id: number) => `/api/Products/${id}`,
+      LOW_STOCK: '/api/Products/low-stock',
+      SEARCH: '/api/Products/search'
+    },
     ROLES: {
       GET_ALL: '/api/Roles/all',
       CREATE: '/api/Roles/create',

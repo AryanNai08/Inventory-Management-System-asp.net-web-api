@@ -38,7 +38,7 @@ export class LoginPage implements OnInit {
 
     this.authService.login(this.loginForm.value).subscribe({
       next: (response) => {
-        this.isLoading = false;
+        setTimeout(() => this.isLoading = false);
         if (response.status) {
           // Explicitly ensure storage is synced before navigation (Step 4 of plan)
           this.storageService.saveToken(response.data.token);
@@ -52,7 +52,7 @@ export class LoginPage implements OnInit {
         }
       },
       error: (err) => {
-        this.isLoading = false;
+        setTimeout(() => this.isLoading = false);
         const msg = err.error?.message || err.error?.error || 'Invalid username or password';
         this.toastService.error('Login Failed', msg);
       }
