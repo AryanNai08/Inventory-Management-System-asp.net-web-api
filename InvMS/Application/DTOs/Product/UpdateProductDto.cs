@@ -13,8 +13,6 @@ namespace Application.DTOs.Product
         public string Sku { get; set; }
         public string? Description { get; set; }
         [Range(0, double.MaxValue)]
-        public decimal UnitPrice { get; set; }
-        [Range(0, double.MaxValue)]
         public decimal? PurchasePrice { get; set; }
         [Range(0, double.MaxValue)]
         public decimal? SalePrice { get; set; }

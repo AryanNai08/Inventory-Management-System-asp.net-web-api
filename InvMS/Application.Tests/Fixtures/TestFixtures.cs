@@ -68,7 +68,8 @@ namespace Application.Tests.Fixtures
             int id = 1,
             string sku = "PROD-001",
             string name = "Test Product",
-            decimal unitPrice = 100m,
+            decimal purchasePrice = 100m,
+            decimal salePrice = 120m,
             int categoryId = 1,
             int supplierId = 1,
             int warehouseId = 1)
@@ -78,7 +79,8 @@ namespace Application.Tests.Fixtures
                 Id = id,
                 Sku = sku,
                 Name = name,
-                UnitPrice = unitPrice,
+                PurchasePrice = purchasePrice,
+                SalePrice = salePrice,
                 CategoryId = categoryId,
                 SupplierId = supplierId,
                 CreatedDate = DateTime.UtcNow

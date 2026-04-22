@@ -33,7 +33,7 @@ namespace Application.Tests.Services
         {
             // Arrange
             var existingProduct = TestDataBuilder.CreateTestProduct(sku: "PROD-001");
-            var createProductDto = new CreateProductDto { Sku = "PROD-001", Name = "Product", UnitPrice = 100 };
+            var createProductDto = new CreateProductDto { Sku = "PROD-001", Name = "Product", PurchasePrice = 100, SalePrice = 120 };
 
             _mockProductRepository.Setup(x => x.GetBySkuAsync("PROD-001")).ReturnsAsync(existingProduct);
 
@@ -44,10 +44,9 @@ namespace Application.Tests.Services
         [Fact]
         public async Task CreateAsync_Should_CreateProduct_When_SkuIsUnique()
         {
-            // Arrange
-            var createProductDto = new CreateProductDto { Sku = "PROD-001", Name = "Product", UnitPrice = 100 };
+            var createProductDto = new CreateProductDto { Sku = "PROD-001", Name = "Product", PurchasePrice = 100, SalePrice = 120 };
             var newProduct = TestDataBuilder.CreateTestProduct(sku: "PROD-001");
-            var productDto = new ProductDto { Id = 1, Sku = "PROD-001", Name = "Product", UnitPrice = 100 };
+            var productDto = new ProductDto { Id = 1, Sku = "PROD-001", Name = "Product", PurchasePrice = 100, SalePrice = 120 };
 
             _mockProductRepository.Setup(x => x.GetBySkuAsync("PROD-001")).ReturnsAsync((Product)null);
             _mockProductRepository.Setup(x => x.AddAsync(It.IsAny<Product>())).Returns(Task.CompletedTask);

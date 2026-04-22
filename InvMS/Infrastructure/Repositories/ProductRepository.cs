@@ -33,8 +33,8 @@ namespace Infrastructure.Repositories
             {
                 if (@params.SortColumn.Equals("Name", StringComparison.OrdinalIgnoreCase))
                     query = @params.SortOrder == "desc" ? query.OrderByDescending(p => p.Name) : query.OrderBy(p => p.Name);
-                else if (@params.SortColumn.Equals("UnitPrice", StringComparison.OrdinalIgnoreCase))
-                    query = @params.SortOrder == "desc" ? query.OrderByDescending(p => p.UnitPrice) : query.OrderBy(p => p.UnitPrice);
+                else if (@params.SortColumn.Equals("SalePrice", StringComparison.OrdinalIgnoreCase))
+                    query = @params.SortOrder == "desc" ? query.OrderByDescending(p => p.SalePrice) : query.OrderBy(p => p.SalePrice);
                 else
                     query = query.OrderBy(p => p.Id);
             }

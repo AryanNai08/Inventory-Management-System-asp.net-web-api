@@ -9,6 +9,7 @@ using Domain.Entities;
 using Domain.Exceptions;
 using Domain.Common;
 using Domain.Enums;
+using Microsoft.Extensions.Logging;
 
 namespace Application.Tests.Services
 {
@@ -36,7 +37,8 @@ namespace Application.Tests.Services
                 _mockWarehouseRepository.Object,
                 _mockStockRepository.Object,
                 MockUnitOfWork.Object,
-                MockMapper.Object);
+                MockMapper.Object,
+                new Mock<ILogger<SalesOrderService>>().Object);
         }
 
         #region GetAllAsync Tests

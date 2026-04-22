@@ -13,7 +13,6 @@ public partial class Product
 
     public string? Description { get; set; }
 
-    public decimal UnitPrice { get; set; }
     public decimal? PurchasePrice { get; set; }
     public decimal? SalePrice { get; set; }
 
