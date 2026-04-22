@@ -57,6 +57,10 @@ namespace Infrastructure.Repositories
                     SupplierId = p.SupplierId,
                     SupplierName = p.Supplier != null ? p.Supplier.Name : null,
                     TotalStock = p.ProductWarehouseStocks.Select(s => (int?)s.Quantity).Sum() ?? 0,
+                    CreatedBy = p.CreatedBy,
+                    CreatedDate = p.CreatedDate,
+                    UpdatedBy = p.UpdatedBy,
+                    ModifiedDate = p.ModifiedDate,
                     RowVersion = p.RowVersion
                 })
                 .ToListAsync();
@@ -82,6 +86,10 @@ namespace Infrastructure.Repositories
                     SupplierId = p.SupplierId,
                     SupplierName = p.Supplier != null ? p.Supplier.Name : null,
                     TotalStock = p.ProductWarehouseStocks.Select(s => (int?)s.Quantity).Sum() ?? 0,
+                    CreatedBy = p.CreatedBy,
+                    CreatedDate = p.CreatedDate,
+                    UpdatedBy = p.UpdatedBy,
+                    ModifiedDate = p.ModifiedDate,
                     RowVersion = p.RowVersion
                 })
                 .FirstOrDefaultAsync();

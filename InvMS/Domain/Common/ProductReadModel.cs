@@ -14,6 +14,10 @@ namespace Domain.Models
         public string? SupplierName { get; set; }
         public int? SupplierId { get; set; }
         public int TotalStock { get; set; }
+        public string? CreatedBy { get; set; }
+        public DateTime CreatedDate { get; set; }
+        public string? UpdatedBy { get; set; }
+        public DateTime? ModifiedDate { get; set; }
         public byte[] RowVersion { get; set; } = null!;
     }
 }

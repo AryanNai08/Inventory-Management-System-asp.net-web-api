@@ -1,3 +1,4 @@
+using System;
 using Domain.Enums;
 
 namespace Application.DTOs.Product
@@ -17,6 +18,10 @@ namespace Application.DTOs.Product
         public string? SupplierName { get; set; }
         public int TotalStock { get; set; }
         public StockStatus StockStatus { get; set; }
+        public string? CreatedBy { get; set; }
+        public DateTime CreatedDate { get; set; }
+        public string? UpdatedBy { get; set; }
+        public DateTime? ModifiedDate { get; set; }
         public string RowVersion { get; set; }
     }
 }
