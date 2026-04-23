@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { DashboardService } from '../../services/dashboard.service';
 import { DashboardSummaryDto, LowStockDto, TopProductDto } from '../../models/dashboard.model';
 
@@ -21,7 +21,10 @@ export class DashboardAnalytics implements OnInit {
     return this.isLoadingSummary || this.isLoadingLowStock;
   }
 
-  constructor(private dashboardService: DashboardService) {}
+  constructor(
+    private dashboardService: DashboardService,
+    private cdr: ChangeDetectorRef
+  ) {}
 
   ngOnInit(): void {
     this.loadData();
@@ -40,10 +43,12 @@ export class DashboardAnalytics implements OnInit {
           this.topSellingProducts = res.data?.topSellingProducts || [];
         }
         this.isLoadingSummary = false;
+        this.cdr.detectChanges();
       },
       error: (err) => {
         this.handleError(err);
         this.isLoadingSummary = false;
+        this.cdr.detectChanges();
       }
     });
 
@@ -53,10 +58,12 @@ export class DashboardAnalytics implements OnInit {
           this.lowStockProducts = res.data;
         }
         this.isLoadingLowStock = false;
+        this.cdr.detectChanges();
       },
       error: (err) => {
         this.handleError(err);
         this.isLoadingLowStock = false;
+        this.cdr.detectChanges();
       }
     });
   }

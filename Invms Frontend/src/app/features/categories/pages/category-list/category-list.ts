@@ -3,6 +3,7 @@ import { CategoryService } from '../../services/category.service';
 import { ToastService } from '../../../../core/services/toast';
 import { StorageService } from '../../../../core/services/storage.service';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { ChangeDetectorRef } from '@angular/core';
 
 @Component({
   selector: 'app-category-list',
@@ -29,7 +30,8 @@ export class CategoryList implements OnInit {
     private categoryService: CategoryService,
     private toastService: ToastService,
     private storageService: StorageService,
-    private fb: FormBuilder
+    private fb: FormBuilder,
+    private cdr: ChangeDetectorRef
   ) {
     this.checkPermissions();
     this.categoryForm = this.fb.group({
@@ -58,11 +60,13 @@ export class CategoryList implements OnInit {
         if (res.status) {
           this.categories = res.data || [];
         }
+        this.cdr.detectChanges();
       },
       error: (err) => {
         this.isLoading = false;
         const msg = err.error?.Error || err.error?.message || 'Failed to fetch categories';
         this.toastService.error('Error', msg);
+        this.cdr.detectChanges();
       }
     });
   }
@@ -106,11 +110,13 @@ export class CategoryList implements OnInit {
         } else {
           this.toastService.error('Failed', res.error || 'Operation failed');
         }
+        this.cdr.detectChanges();
       },
       error: (err) => {
         this.isSaving = false;
         const msg = err.error?.Error || err.error?.message || 'Operation failed';
         this.toastService.error('Error', msg);
+        this.cdr.detectChanges();
       }
     });
   }

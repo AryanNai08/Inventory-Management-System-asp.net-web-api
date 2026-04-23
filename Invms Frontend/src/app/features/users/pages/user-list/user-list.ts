@@ -3,6 +3,7 @@ import { UserService } from '../../services/user.service';
 import { ToastService } from '../../../../core/services/toast';
 import { StorageService } from '../../../../core/services/storage.service';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { ChangeDetectorRef } from '@angular/core';
 
 @Component({
   selector: 'app-user-list',
@@ -28,7 +29,8 @@ export class UserList implements OnInit {
     private userService: UserService,
     private toastService: ToastService,
     private storageService: StorageService,
-    private fb: FormBuilder
+    private fb: FormBuilder,
+    private cdr: ChangeDetectorRef
   ) {
     this.checkPermissions();
     this.editForm = this.fb.group({
@@ -55,11 +57,13 @@ export class UserList implements OnInit {
         if (res.status) {
           this.users = res.data || [];
         }
+        this.cdr.detectChanges();
       },
       error: (err) => {
         this.isLoading = false;
         const msg = err.error?.Error || err.error?.message || 'Failed to fetch users';
         this.toastService.error('Error', msg);
+        this.cdr.detectChanges();
       }
     });
   }
@@ -93,11 +97,13 @@ export class UserList implements OnInit {
         } else {
           this.toastService.error('Update Failed', res.error || 'Check your entry');
         }
+        this.cdr.detectChanges();
       },
       error: (err) => {
         this.isSaving = false;
         const msg = err.error?.Error || err.error?.message || 'Update failed';
         this.toastService.error('Error', msg);
+        this.cdr.detectChanges();
       }
     });
   }

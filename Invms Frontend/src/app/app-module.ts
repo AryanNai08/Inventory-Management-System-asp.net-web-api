@@ -29,7 +29,7 @@ export function initializeApp(storageService: StorageService) {
   ],
   providers: [
     provideHttpClient(
-      withInterceptors([authInterceptor])
+      withInterceptors([authInterceptor, errorInterceptor])
     ),
     {
       provide: APP_INITIALIZER,

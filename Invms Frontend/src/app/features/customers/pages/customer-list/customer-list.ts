@@ -4,6 +4,7 @@ import { CustomerService } from '../../services/customer.service';
 import { ToastService } from '../../../../core/services/toast';
 import { StorageService } from '../../../../core/services/storage.service';
 import { PaginationParams } from '../../../../core/models/api.model';
+import { ChangeDetectorRef } from '@angular/core';
 
 @Component({
   selector: 'app-customer-list',
@@ -38,7 +39,8 @@ export class CustomerList implements OnInit {
     private customerService: CustomerService,
     private toastService: ToastService,
     private storageService: StorageService,
-    private fb: FormBuilder
+    private fb: FormBuilder,
+    private cdr: ChangeDetectorRef
   ) {
     this.checkPermissions();
     this.customerForm = this.fb.group({
@@ -81,11 +83,13 @@ export class CustomerList implements OnInit {
           this.hasNextPage = paginated.hasNextPage;
           this.hasPreviousPage = paginated.hasPreviousPage;
         }
+        this.cdr.detectChanges();
       },
       error: (err) => {
         this.isLoading = false;
         const msg = err.error?.Error || err.error?.message || 'Failed to fetch customers';
         this.toastService.error('Error', msg);
+        this.cdr.detectChanges();
       }
     });
   }
@@ -140,11 +144,13 @@ export class CustomerList implements OnInit {
         } else {
           this.toastService.error('Failed', res.error || 'Operation failed');
         }
+        this.cdr.detectChanges();
       },
       error: (err) => {
         this.isSaving = false;
         const msg = err.error?.Error || err.error?.message || 'Operation failed';
         this.toastService.error('Error', msg);
+        this.cdr.detectChanges();
       }
     });
   }

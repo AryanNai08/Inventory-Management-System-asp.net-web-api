@@ -3,6 +3,7 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { WarehouseService } from '../../services/warehouse.service';
 import { ToastService } from '../../../../core/services/toast';
 import { StorageService } from '../../../../core/services/storage.service';
+import { ChangeDetectorRef } from '@angular/core';
 
 @Component({
   selector: 'app-warehouse-list',
@@ -29,7 +30,8 @@ export class WarehouseList implements OnInit {
     private warehouseService: WarehouseService,
     private toastService: ToastService,
     private storageService: StorageService,
-    private fb: FormBuilder
+    private fb: FormBuilder,
+    private cdr: ChangeDetectorRef
   ) {
     this.checkPermissions();
     this.warehouseForm = this.fb.group({
@@ -58,11 +60,13 @@ export class WarehouseList implements OnInit {
         if (res.status && res.data) {
           this.warehouses = res.data;
         }
+        this.cdr.detectChanges();
       },
       error: (err) => {
         this.isLoading = false;
         const msg = err.error?.Error || err.error?.message || 'Failed to fetch warehouses';
         this.toastService.error('Error', msg);
+        this.cdr.detectChanges();
       }
     });
   }
@@ -110,11 +114,13 @@ export class WarehouseList implements OnInit {
         } else {
           this.toastService.error('Failed', res.error || 'Operation failed');
         }
+        this.cdr.detectChanges();
       },
       error: (err) => {
         this.isSaving = false;
         const msg = err.error?.Error || err.error?.message || 'Operation failed';
         this.toastService.error('Error', msg);
+        this.cdr.detectChanges();
       }
     });
   }

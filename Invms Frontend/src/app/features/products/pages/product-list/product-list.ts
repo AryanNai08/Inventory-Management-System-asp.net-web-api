@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { ProductService, Product } from '../../services/product.service';
 import { CategoryService } from '../../../categories/services/category.service';
 import { SupplierService } from '../../../suppliers/services/supplier.service';
@@ -46,7 +46,8 @@ export class ProductList implements OnInit {
     private supplierService: SupplierService,
     private toastService: ToastService,
     private storageService: StorageService,
-    private fb: FormBuilder
+    private fb: FormBuilder,
+    private cdr: ChangeDetectorRef
   ) {
     this.checkPermissions();
     this.productForm = this.fb.group({
@@ -108,11 +109,13 @@ export class ProductList implements OnInit {
           this.hasNextPage = paginated.hasNextPage;
           this.hasPreviousPage = paginated.hasPreviousPage;
         }
+        this.cdr.detectChanges();
       },
       error: (err: any) => {
         this.isLoading = false;
         const msg = err.error?.Error || err.error?.message || 'Failed to fetch products';
         this.toastService.error('Error', msg);
+        this.cdr.detectChanges();
       }
     });
   }
@@ -177,11 +180,13 @@ export class ProductList implements OnInit {
         } else {
           this.toastService.error('Failed', res.error || 'Operation failed');
         }
+        this.cdr.detectChanges();
       },
       error: (err: any) => {
         setTimeout(() => this.isSaving = false);
         const msg = err.error?.Error || err.error?.message || 'Operation failed';
         this.toastService.error('Error', msg);
+        this.cdr.detectChanges();
       }
     });
   }

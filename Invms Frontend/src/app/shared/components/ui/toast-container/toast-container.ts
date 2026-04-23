@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { ToastService, ToastMessage } from '../../../../core/services/toast';
 import { Subscription } from 'rxjs';
 
@@ -13,8 +13,7 @@ export class ToastContainer implements OnInit, OnDestroy {
   private subscription?: Subscription;
 
   constructor(
-    private toastService: ToastService,
-    private cdr: ChangeDetectorRef
+    private toastService: ToastService
   ) {}
 
   ngOnInit(): void {
@@ -24,12 +23,6 @@ export class ToastContainer implements OnInit, OnDestroy {
       // Use array spread to ensure reference change for Change Detection
       this.toasts = [...this.toasts, toast];
       
-      // Use detectChanges to force immediate sync with the DOM
-      setTimeout(() => {
-        this.cdr.detectChanges();
-        console.log('[ToastContainer] Array updated, length:', this.toasts.length);
-      }, 0);
-      
       // Auto-remove after 5 seconds
       setTimeout(() => this.remove(toast), 5000);
     });
@@ -37,7 +30,6 @@ export class ToastContainer implements OnInit, OnDestroy {
 
   remove(toast: ToastMessage): void {
     this.toasts = this.toasts.filter(t => t.id !== toast.id);
-    this.cdr.detectChanges();
   }
 
   ngOnDestroy(): void {

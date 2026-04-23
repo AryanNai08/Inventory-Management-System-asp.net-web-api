@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, NgZone } from '@angular/core';
 import { Subject } from 'rxjs';
 
 export interface ToastMessage {
@@ -16,19 +16,20 @@ export class ToastService {
   toasts$ = this.toastSubject.asObservable();
   private counter = 0;
 
+  constructor(private ngZone: NgZone) {}
+
   show(type: 'success' | 'error' | 'info', title: string, message: string) {
     console.log(`[ToastService] New Toast: ${type} - ${title}: ${message}`);
     
-    // Wrap in setTimeout to avoid NG0100 ExpressionChangedAfterItHasBeenCheckedError
-    // when triggered during a component's check cycle (like Login)
-    setTimeout(() => {
+    // Explicitly run inside the Angular zone to ensure change detection triggers
+    this.ngZone.run(() => {
       this.toastSubject.next({
         id: ++this.counter,
         type,
         title,
         message
       });
-    }, 0);
+    });
   }
 
   success(title: string, message: string) {
