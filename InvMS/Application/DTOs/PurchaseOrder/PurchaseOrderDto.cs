@@ -17,6 +17,10 @@ namespace Application.DTOs.PurchaseOrder
         public string WarehouseName { get; set; } = string.Empty;
         public decimal TotalAmount { get; set; }
         public string? Notes { get; set; }
+        public string? CreatedBy { get; set; }
+        public DateTime CreatedDate { get; set; }
+        public string? UpdatedBy { get; set; }
+        public DateTime? ModifiedDate { get; set; }
 
         public List<PurchaseOrderItemDto> Items { get; set; } = new List<PurchaseOrderItemDto>();
     }

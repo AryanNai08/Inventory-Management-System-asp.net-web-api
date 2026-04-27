@@ -83,6 +83,15 @@ export const API_CONFIG = {
       SUMMARY: '/api/Dashboard/summary',
       TOP_SELLING: '/api/Dashboard/top-selling',
       LOW_STOCK: '/api/Dashboard/low-stock'
+    },
+    PURCHASE_ORDERS: {
+      GET_ALL: '/api/PurchaseOrder/GetAllOrders',
+      BY_ID: (id: number) => `/api/PurchaseOrder/${id}`,
+      CREATE: '/api/PurchaseOrder/CreateOrder',
+      UPDATE: (id: number) => `/api/PurchaseOrder/${id}`,
+      APPROVE: (id: number) => `/api/PurchaseOrder/${id}/approve`,
+      RECEIVE: (id: number) => `/api/PurchaseOrder/${id}/receive`,
+      CANCEL: (id: number) => `/api/PurchaseOrder/${id}/cancel`
     }
   }
 };

@@ -146,21 +146,6 @@ namespace Application.Mappings
                     StockStatusHelper.GetStatus(src.TotalStock, src.ReorderLevel)))
                 .ForMember(dest => dest.RowVersion, opt => opt.MapFrom(src => Convert.ToBase64String(src.RowVersion)));
 
-            //purchaseorder
-            //create
-            CreateMap<CreatePurchaseOrderDto, PurchaseOrder>();
-            //createpurchaseorderitem
-            CreateMap<CreatePurchaseOrderItemDto, PurchaseOrderItem>();
-            //readpurchaseorder
-            CreateMap<PurchaseOrder, PurchaseOrderDto>()
-                .ForMember(dest => dest.SupplierName, opt => opt.MapFrom(src => src.Supplier.Name))
-                .ForMember(dest => dest.WarehouseName, opt => opt.MapFrom(src => src.Warehouse != null ? src.Warehouse.Name : "Unknown Warehouse"))
-                .ForMember(dest => dest.StatusName, opt => opt.MapFrom(src => src.Status.Name));
-            //readpurchaseorderitem
-            CreateMap<PurchaseOrderItem, PurchaseOrderItemDto>()
-                .ForMember(dest => dest.ProductName, opt => opt.MapFrom(src => src.Product.Name))
-                .ForMember(dest => dest.ProductSku, opt => opt.MapFrom(src => src.Product.Sku));
-
             // Purchase Order Mappings
             CreateMap<CreatePurchaseOrderDto, PurchaseOrder>()
                 .ForMember(dest => dest.PurchaseOrderItems, opt => opt.MapFrom(src => src.Items));

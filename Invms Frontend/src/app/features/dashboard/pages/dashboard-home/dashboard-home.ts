@@ -9,6 +9,7 @@ import { CustomerService } from '../../../customers/services/customer.service';
 import { WarehouseService } from '../../../warehouses/services/warehouse.service';
 import { RoleService } from '../../../roles/services/role.service';
 import { ProductService } from '../../../products/services/product.service';
+import { PurchaseOrderService } from '../../../purchase-orders/services/purchase-order.service';
 
 @Component({
   selector: 'app-dashboard-home',
@@ -24,6 +25,7 @@ export class DashboardHome implements OnInit, OnDestroy {
   get canViewCustomers() { return this.storageService.hasPermission('ViewCustomers'); }
   get canViewWarehouses() { return this.storageService.hasPermission('ViewWarehouses'); }
   get canViewProducts() { return this.storageService.hasPermission('ViewProducts'); }
+  get canViewPurchaseOrders() { return this.storageService.hasPermission('ViewPurchaseOrders'); }
   get canViewReports() { return this.storageService.hasPermission('ViewReports'); }
 
   username = '';
@@ -34,6 +36,7 @@ export class DashboardHome implements OnInit, OnDestroy {
   customerCount = 0;
   warehouseCount = 0;
   productCount = 0;
+  purchaseOrderCount = 0;
   isLoading = false;
 
   private routerSubscription?: Subscription;
@@ -47,6 +50,7 @@ export class DashboardHome implements OnInit, OnDestroy {
     private warehouseService: WarehouseService,
     private roleService: RoleService,
     private productService: ProductService,
+    private poService: PurchaseOrderService,
     private router: Router,
     private cd: ChangeDetectorRef
   ) {
@@ -74,6 +78,7 @@ export class DashboardHome implements OnInit, OnDestroy {
     if (this.canViewCustomers) this.fetchCustomerCount();
     if (this.canViewWarehouses) this.fetchWarehouseCount();
     if (this.canViewProducts) this.fetchProductCount();
+    if (this.canViewPurchaseOrders) this.fetchPurchaseOrderCount();
 
     // Force a check if values updated immediately
     this.cd.detectChanges();
@@ -160,6 +165,18 @@ export class DashboardHome implements OnInit, OnDestroy {
       next: (res: any) => {
         if (res.status) {
           this.productCount = res.data?.totalCount || 0;
+          this.cd.detectChanges();
+        }
+      }
+    });
+  }
+
+  fetchPurchaseOrderCount(): void {
+    const params = { pageNumber: 1, pageSize: 1 };
+    this.poService.getAllOrders(params).subscribe({
+      next: (res: any) => {
+        if (res.status) {
+          this.purchaseOrderCount = res.data?.totalCount || 0;
           this.cd.detectChanges();
         }
       }

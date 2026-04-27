@@ -62,6 +62,7 @@ namespace Infrastructure.Repositories
         {
             var query = _dbContext.PurchaseOrders
                 .Include(p => p.Supplier)
+                .Include(p => p.Warehouse)
                 .Include(p => p.Status)
                 .AsQueryable();
 
@@ -95,6 +96,7 @@ namespace Infrastructure.Repositories
         {
             return await _dbContext.PurchaseOrders
                 .Include(p => p.Supplier)
+                .Include(p => p.Warehouse)
                 .Include(p => p.Status)
                 .Include(p => p.PurchaseOrderItems)
                     .ThenInclude(poi => poi.Product)
