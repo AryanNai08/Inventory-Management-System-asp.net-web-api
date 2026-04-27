@@ -19,6 +19,9 @@ namespace Application.DTOs.SalesOrder
         public string? Notes { get; set; }
         public List<string> Warnings { get; set; } = new();
 
+        public string? CreatedBy { get; set; }
+        public string? UpdatedBy { get; set; }
+        public DateTime? ModifiedDate { get; set; }
         public List<SalesOrderItemDto> Items {  get; set; }
     }
 }

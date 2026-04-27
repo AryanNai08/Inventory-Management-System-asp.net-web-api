@@ -54,6 +54,7 @@ namespace Infrastructure.Repositories
             var query = _dbContext.SalesOrders
                 .Include(s => s.Customer)
                 .Include(s => s.Status)
+                .Include(s => s.Warehouse)
                 .AsQueryable();
 
             // Sorting
@@ -87,6 +88,7 @@ namespace Infrastructure.Repositories
             return await _dbContext.SalesOrders
                 .Include(s => s.Customer)
                 .Include(s => s.Status)
+                .Include(s => s.Warehouse)
                 .Include(s => s.SalesOrderItems)
                 .ThenInclude(s => s.Product)
                 .FirstOrDefaultAsync(s => s.Id == id);
@@ -112,6 +114,7 @@ namespace Infrastructure.Repositories
             var query = _dbContext.SalesOrders
                 .Include(s => s.Customer)
                 .Include(s => s.Status)
+                .Include(s => s.Warehouse)
                 .AsQueryable();
 
             if (statusId.HasValue)

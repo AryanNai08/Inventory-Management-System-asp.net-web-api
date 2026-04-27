@@ -32,4 +32,8 @@ export class WarehouseService {
   deleteWarehouse(id: number): Observable<APIResponse<any>> {
     return this.http.delete<APIResponse<any>>(`${this.apiUrl}${this.endpoints.DELETE(id)}`);
   }
+
+  getWarehouseStock(id: number): Observable<APIResponse<any[]>> {
+    return this.http.get<APIResponse<any[]>>(`${this.apiUrl}${this.endpoints.GET_STOCK(id)}`);
+  }
 }

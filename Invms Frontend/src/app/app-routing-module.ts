@@ -57,6 +57,11 @@ export const routes: Routes = [
     path: 'purchase-orders',
     canActivate: [authGuard],
     loadChildren: () => import('./features/purchase-orders/purchase-order-module').then(m => m.PurchaseOrderModule)
+  },
+  {
+    path: 'sales-orders',
+    canActivate: [authGuard],
+    loadChildren: () => import('./features/sales-orders/sales-order-module').then(m => m.SalesOrderModule)
   }
 ];
 

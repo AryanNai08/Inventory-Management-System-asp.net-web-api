@@ -15,5 +15,6 @@ namespace Application.Interfaces.Warehouse
         public Task<bool> UpdateAsync(int id, UpdateWarehouseDto dto);
 
         public Task<bool> SoftDeleteAsync(int id);
+        public Task<List<WarehouseStockDto>> GetWarehouseStockAsync(int warehouseId);
     }
 }

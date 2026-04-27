@@ -8,5 +8,6 @@ namespace Domain.Interfaces
         Task<ProductWarehouseStock?> GetByProductAndWarehouseAsync(int productId, int warehouseId);
         Task AddAsync(ProductWarehouseStock stock);
         Task UpdateAsync(ProductWarehouseStock stock);
+        Task<List<ProductWarehouseStock>> GetByWarehouseAsync(int warehouseId);
     }
 }

@@ -10,6 +10,7 @@ import { WarehouseService } from '../../../warehouses/services/warehouse.service
 import { RoleService } from '../../../roles/services/role.service';
 import { ProductService } from '../../../products/services/product.service';
 import { PurchaseOrderService } from '../../../purchase-orders/services/purchase-order.service';
+import { SalesOrderService } from '../../../sales-orders/services/sales-order.service';
 
 @Component({
   selector: 'app-dashboard-home',
@@ -26,6 +27,7 @@ export class DashboardHome implements OnInit, OnDestroy {
   get canViewWarehouses() { return this.storageService.hasPermission('ViewWarehouses'); }
   get canViewProducts() { return this.storageService.hasPermission('ViewProducts'); }
   get canViewPurchaseOrders() { return this.storageService.hasPermission('ViewPurchaseOrders'); }
+  get canViewSalesOrders() { return this.storageService.hasPermission('ViewSalesOrders'); }
   get canViewReports() { return this.storageService.hasPermission('ViewReports'); }
 
   username = '';
@@ -37,6 +39,7 @@ export class DashboardHome implements OnInit, OnDestroy {
   warehouseCount = 0;
   productCount = 0;
   purchaseOrderCount = 0;
+  salesOrderCount = 0;
   isLoading = false;
 
   private routerSubscription?: Subscription;
@@ -51,6 +54,7 @@ export class DashboardHome implements OnInit, OnDestroy {
     private roleService: RoleService,
     private productService: ProductService,
     private poService: PurchaseOrderService,
+    private salesService: SalesOrderService,
     private router: Router,
     private cd: ChangeDetectorRef
   ) {
@@ -79,6 +83,7 @@ export class DashboardHome implements OnInit, OnDestroy {
     if (this.canViewWarehouses) this.fetchWarehouseCount();
     if (this.canViewProducts) this.fetchProductCount();
     if (this.canViewPurchaseOrders) this.fetchPurchaseOrderCount();
+    if (this.canViewSalesOrders) this.fetchSalesOrderCount();
 
     // Force a check if values updated immediately
     this.cd.detectChanges();
@@ -177,6 +182,18 @@ export class DashboardHome implements OnInit, OnDestroy {
       next: (res: any) => {
         if (res.status) {
           this.purchaseOrderCount = res.data?.totalCount || 0;
+          this.cd.detectChanges();
+        }
+      }
+    });
+  }
+
+  fetchSalesOrderCount(): void {
+    const params = { pageNumber: 1, pageSize: 1 };
+    this.salesService.getAllOrders(params).subscribe({
+      next: (res) => {
+        if (res.status) {
+          this.salesOrderCount = res.data.totalCount || 0;
           this.cd.detectChanges();
         }
       }

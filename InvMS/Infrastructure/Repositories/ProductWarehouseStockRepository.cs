@@ -30,5 +30,13 @@ namespace Infrastructure.Repositories
         {
             _dbContext.ProductWarehouseStocks.Update(stock);
         }
+
+        public async Task<List<ProductWarehouseStock>> GetByWarehouseAsync(int warehouseId)
+        {
+            return await _dbContext.ProductWarehouseStocks
+                .Include(s => s.Product)
+                .Where(s => s.WarehouseId == warehouseId)
+                .ToListAsync();
+        }
     }
 }

@@ -87,5 +87,15 @@ namespace InvMS.Controller
             var result = await _warehouseService.SoftDeleteAsync(id);
             return Ok(new APIResponse<bool>(result, "Warehouse deleted successfully"));
         }
+
+        [HttpGet]
+        [Route("{id:int}/stock")]
+        [Authorize(Policy = "ViewWarehouses")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        public async Task<ActionResult<APIResponse<List<WarehouseStockDto>>>> GetStock(int id)
+        {
+            var result = await _warehouseService.GetWarehouseStockAsync(id);
+            return Ok(new APIResponse<List<WarehouseStockDto>>(result, "Warehouse stock fetched successfully"));
+        }
     }
 }

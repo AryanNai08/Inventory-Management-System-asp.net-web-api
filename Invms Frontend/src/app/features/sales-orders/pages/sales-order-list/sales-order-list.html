@@ -1,0 +1,419 @@
+<div class="min-h-screen bg-[#f8fafc] p-8">
+  <!-- Header Section -->
+  <div class="max-w-[1600px] mx-auto mb-10">
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-6">
+      <div class="space-y-2">
+        <!-- <div class="flex items-center gap-3 text-sm font-bold text-indigo-600 uppercase tracking-[0.2em]">
+          <span class="w-8 h-[2px] bg-indigo-600"></span>
+          Revenue & Distribution
+        </div> -->
+        <div class="flex items-center gap-4">
+          <button (click)="goBack()"
+            class="p-3 bg-white border border-slate-100 rounded-2xl text-slate-400 hover:text-indigo-600 hover:shadow-lg transition-all active:scale-95">
+            <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7" />
+            </svg>
+          </button>
+          <div>
+            <h1 class="text-5xl font-black text-slate-900 tracking-tight">Sales <span
+                class="text-indigo-600">Terminal</span></h1>
+            <p class="text-slate-500 text-lg font-medium">Manage customer orders, stock shipments, and fulfillment.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-4">
+        <button (click)="openCreateModal()"
+          class="group relative px-8 py-4 bg-slate-900 text-white rounded-2xl font-black text-sm tracking-widest uppercase overflow-hidden transition-all hover:scale-105 active:scale-95 shadow-2xl shadow-slate-200">
+          <div class="relative z-10 flex items-center gap-3">
+            <svg class="w-5 h-5 group-hover:rotate-90 transition-transform duration-500" fill="none" viewBox="0 0 24 24"
+              stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4" />
+            </svg>
+            Create New Sales Order
+          </div>
+          <div
+            class="absolute inset-0 bg-gradient-to-r from-indigo-600 to-blue-600 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
+          </div>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Stats Grid -->
+  <div class="max-w-[1600px] mx-auto grid grid-cols-1 md:grid-cols-4 gap-6 mb-10">
+    <div class="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm">
+      <div class="text-slate-400 text-xs font-black uppercase tracking-widest mb-4">Total Orders</div>
+      <div class="text-3xl font-black text-slate-900">{{ totalCount }}</div>
+    </div>
+    <div class="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm transition-all hover:shadow-md group">
+      <div
+        class="text-slate-400 text-xs font-black uppercase tracking-widest mb-4 group-hover:text-indigo-500 transition-colors">
+        Pending Fulfillment</div>
+      <div class="text-3xl font-black text-amber-600">{{ pendingCount }}</div>
+    </div>
+  </div>
+
+  <!-- Main Content Card -->
+  <div
+    class="max-w-[1600px] mx-auto bg-white rounded-[2.5rem] shadow-xl shadow-slate-200/60 border border-slate-100 overflow-hidden">
+    <!-- Table Header/Search -->
+    <div
+      class="px-10 py-8 border-b border-slate-50 flex flex-col md:flex-row justify-between items-center gap-6 bg-slate-50/30">
+      <div class="relative w-full md:w-96 group">
+        <input type="text" [(ngModel)]="pagination.searchTerm" (keyup.enter)="fetchOrders()"
+          placeholder="Search Order # or Customer..."
+          class="w-full pl-14 pr-6 py-4 bg-white border-2 border-slate-100 rounded-2xl text-sm font-bold transition-all focus:border-indigo-500 focus:ring-0 group-hover:border-slate-200">
+        <svg
+          class="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 group-focus-within:text-indigo-500 transition-colors"
+          fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+        </svg>
+      </div>
+    </div>
+
+    <!-- Table -->
+    <div class="overflow-x-auto">
+      <table class="w-full border-collapse">
+        <thead>
+          <tr class="bg-slate-50/50">
+            <th
+              class="px-10 py-6 text-left text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] border-b border-slate-100">
+              Order Reference</th>
+            <th
+              class="px-10 py-6 text-left text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] border-b border-slate-100">
+              Customer</th>
+            <th
+              class="px-10 py-6 text-left text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] border-b border-slate-100">
+              Warehouse</th>
+            <th
+              class="px-10 py-6 text-left text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] border-b border-slate-100">
+              Total Amount</th>
+            <th
+              class="px-10 py-6 text-center text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] border-b border-slate-100">
+              Status</th>
+            <th
+              class="px-10 py-6 text-right text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] border-b border-slate-100">
+              Actions</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-50">
+          <tr *ngFor="let o of orders" class="group hover:bg-slate-50/80 transition-all duration-300 cursor-pointer"
+            (click)="openDetail(o)">
+            <td class="px-10 py-7">
+              <div class="flex flex-col">
+                <span class="text-sm font-black text-slate-900 group-hover:text-indigo-600 transition-colors">{{
+                  o.orderNumber }}</span>
+                <span class="text-[11px] font-bold text-slate-400 mt-1">{{ o.orderDate | date:'mediumDate' }}</span>
+              </div>
+            </td>
+            <td class="px-10 py-7 text-sm font-bold text-slate-600">{{ o.customerName }}</td>
+            <td class="px-10 py-7 text-sm font-bold text-slate-600">{{ o.warehouseName }}</td>
+            <td class="px-10 py-7">
+              <span class="text-sm font-black text-slate-900">{{ o.totalAmount | currency }}</span>
+            </td>
+            <td class="px-10 py-7">
+              <div class="flex justify-center">
+                <span
+                  [class]="getStatusClass(o.statusName) + ' px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest border'">
+                  {{ o.statusName }}
+                </span>
+              </div>
+            </td>
+            <td class="px-10 py-7 text-right">
+              <button class="p-3 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-xl transition-all">
+                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                </svg>
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Pagination -->
+    <div class="px-10 py-8 border-t border-slate-50 bg-slate-50/30 flex justify-between items-center">
+      <span class="text-sm font-bold text-slate-400 italic">Showing {{ orders.length }} of {{ totalCount }}
+        orders</span>
+      <div class="flex gap-2">
+        <button (click)="onPageChange(pagination.pageNumber - 1)" [disabled]="pagination.pageNumber === 1"
+          class="px-5 py-2.5 bg-white border border-slate-200 rounded-xl text-xs font-black uppercase tracking-widest hover:bg-slate-50 disabled:opacity-50 transition-all">Previous</button>
+        <button (click)="onPageChange(pagination.pageNumber + 1)" [disabled]="orders.length < pagination.pageSize"
+          class="px-5 py-2.5 bg-white border border-slate-200 rounded-xl text-xs font-black uppercase tracking-widest hover:bg-slate-50 disabled:opacity-50 transition-all">Next</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- CREATE/EDIT MODAL -->
+<div *ngIf="isModalOpen"
+  class="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-slate-900/40 backdrop-blur-md animate-in fade-in duration-300">
+  <div
+    class="relative w-full max-w-5xl bg-white rounded-3xl shadow-2xl overflow-hidden animate-in zoom-in-95 slide-in-from-bottom-8 duration-300">
+    <div class="px-8 py-6 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
+      <div>
+        <h3 class="text-xl font-black text-slate-900 tracking-tight">
+          {{ selectedOrderId ? 'Edit Sales Order' : 'New Sales Order' }}
+        </h3>
+        <p class="text-sm font-bold text-slate-400">Specify customer items and delivery details.</p>
+      </div>
+      <button (click)="closeModal()" class="text-slate-400 hover:text-slate-600 p-1">
+        <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </button>
+    </div>
+
+    <form [formGroup]="orderForm" (ngSubmit)="onSubmit()" class="p-8">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+        <div class="space-y-2">
+          <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Select Customer</label>
+          <select formControlName="customerId"
+            class="w-full px-5 py-4 bg-slate-50 border-none rounded-2xl text-sm font-bold focus:ring-2 focus:ring-indigo-500 transition-all">
+            <option value="">Choose Customer...</option>
+            <option *ngFor="let c of customers" [value]="c.id">{{ c.name }}</option>
+          </select>
+        </div>
+        <div class="space-y-2">
+          <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Select Warehouse (Stock
+            Source)</label>
+          <select formControlName="warehouseId"
+            class="w-full px-5 py-4 bg-slate-50 border-none rounded-2xl text-sm font-bold focus:ring-2 focus:ring-indigo-500 transition-all">
+            <option value="">Choose Warehouse...</option>
+            <option *ngFor="let w of warehouses" [value]="w.id">{{ w.name }}</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Items Section -->
+      <div class="mb-8">
+        <div class="flex items-center justify-between mb-4">
+          <h4 class="text-sm font-black text-slate-900 uppercase tracking-widest">Order Items</h4>
+          <button type="button" (click)="addItem()"
+            class="text-indigo-600 text-xs font-black uppercase tracking-widest hover:text-indigo-700">+ Add
+            Product</button>
+        </div>
+
+        <div formArrayName="items" class="space-y-4 max-h-[300px] overflow-y-auto pr-2 custom-scrollbar">
+          <div *ngFor="let item of items.controls; let i=index" [formGroupName]="i"
+            class="flex items-center gap-4 p-5 bg-slate-50 rounded-2xl border border-slate-100 group animate-in slide-in-from-right duration-300"
+            [style.animation-delay.ms]="i * 50">
+
+            <div class="flex-1 space-y-1">
+              <label class="text-[9px] font-black text-slate-400 uppercase tracking-tighter">Product</label>
+              <select formControlName="productId"
+                class="w-full bg-transparent border-none p-0 text-sm font-bold focus:ring-0">
+                <option value="">Select Product...</option>
+                <option *ngFor="let p of products" [value]="p.id">
+                  {{ p.name }} (Available: {{ warehouseStockMap[p.id] || 0 }})
+                </option>
+              </select>
+            </div>
+
+            <div class="w-24 space-y-1 text-center">
+              <label class="text-[9px] font-black text-slate-400 uppercase tracking-tighter">Qty</label>
+              <input type="number" formControlName="quantity"
+                class="w-full bg-transparent border-none p-0 text-sm font-bold text-center focus:ring-0">
+            </div>
+
+            <div class="w-32 space-y-1">
+              <label class="text-[9px] font-black text-slate-400 uppercase tracking-tighter">Unit Price</label>
+              <div class="flex items-center gap-1">
+                <span class="text-sm font-bold text-slate-400">$</span>
+                <input type="number" formControlName="unitPrice"
+                  class="w-full bg-transparent border-none p-0 text-sm font-bold focus:ring-0">
+              </div>
+            </div>
+
+            <div class="w-32 space-y-1 text-right">
+              <label class="text-[9px] font-black text-slate-400 uppercase tracking-tighter">Subtotal</label>
+              <div class="text-sm font-black text-indigo-600">
+                {{ (item.get('quantity')?.value || 0) * (item.get('unitPrice')?.value || 0) | currency }}
+              </div>
+            </div>
+
+            <button type="button" (click)="removeItem(i)"
+              class="p-2 text-rose-300 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-all">
+              <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+              </svg>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="flex items-center justify-between pt-8 border-t border-slate-100">
+        <div>
+          <div class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Estimated Total</div>
+          <div class="text-4xl font-black text-slate-900 tracking-tighter">{{ calculateTotal() | currency }}</div>
+        </div>
+        <div class="flex gap-4">
+          <button type="button" (click)="closeModal()"
+            class="px-8 py-4 text-sm font-black text-slate-400 uppercase tracking-widest hover:text-slate-600 transition-all">Cancel</button>
+          <button type="submit" [disabled]="orderForm.invalid || isSaving"
+            class="px-10 py-4 bg-indigo-600 text-white rounded-2xl font-black text-sm tracking-widest uppercase hover:bg-indigo-700 hover:shadow-xl hover:shadow-indigo-100 transition-all disabled:opacity-50 flex items-center gap-2">
+            <svg *ngIf="isSaving" class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg"
+              fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor"
+                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+              </path>
+            </svg>
+            {{ isSaving ? 'Processing...' : (selectedOrderId ? 'Update Order' : 'Create Sales Order') }}
+          </button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- DETAIL SIDEBAR (Glassmorphism) -->
+<div *ngIf="selectedOrder" class="fixed inset-0 z-[110] flex justify-end">
+  <!-- Backdrop -->
+  <div class="absolute inset-0 bg-slate-900/20 backdrop-blur-sm animate-in fade-in duration-500"
+    (click)="closeDetail()"></div>
+
+  <!-- Sidebar Content -->
+  <div
+    class="relative w-full max-w-2xl bg-white/90 backdrop-blur-2xl shadow-[-20px_0_80px_rgba(0,0,0,0.1)] h-full overflow-y-auto animate-in slide-in-from-right duration-500 border-l border-white/50">
+    <!-- Loading Overlay -->
+    <div *ngIf="isLoading"
+      class="absolute inset-0 z-50 flex items-center justify-center bg-white/50 backdrop-blur-[2px]">
+      <div class="flex flex-col items-center gap-3">
+        <div class="w-10 h-10 border-4 border-indigo-600/20 border-t-indigo-600 rounded-full animate-spin"></div>
+        <span class="text-[10px] font-black uppercase tracking-widest text-slate-400">Loading Data...</span>
+      </div>
+    </div>
+
+    <div *ngIf="selectedOrder; let o" class="flex flex-col h-full">
+      <!-- Header -->
+      <div class="p-10 border-b border-slate-100/50 bg-white/40">
+        <div class="flex justify-between items-start mb-8">
+          <div
+            [class]="getStatusClass(o.statusName) + ' px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest border'">
+            {{ o.statusName }}
+          </div>
+          <button (click)="closeDetail()" class="text-slate-400 hover:text-slate-600 transition-colors">
+            <svg class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+        <h2 class="text-3xl font-black text-slate-900 tracking-tighter mb-2">{{ o.orderNumber }}</h2>
+        <p class="text-slate-500 font-bold uppercase tracking-widest text-[10px]">Sales Record & Fulfillment</p>
+      </div>
+
+      <!-- Content -->
+      <div class="flex-1 p-10 space-y-12">
+        <!-- Main Info -->
+        <div class="grid grid-cols-2 gap-10">
+          <div>
+            <label class="text-[10px] font-black text-slate-300 uppercase tracking-widest block mb-3">Customer</label>
+            <div class="text-lg font-black text-slate-800">{{ o.customerName }}</div>
+          </div>
+          <div>
+            <label class="text-[10px] font-black text-slate-300 uppercase tracking-widest block mb-3">Ship From</label>
+            <div class="text-lg font-black text-slate-800">{{ o.warehouseName }}</div>
+          </div>
+        </div>
+
+        <!-- Items Table -->
+        <div>
+          <label class="text-[10px] font-black text-slate-300 uppercase tracking-widest block mb-6">Order
+            Breakdown</label>
+          <div class="space-y-4">
+            <div *ngFor="let item of o.items"
+              class="flex items-center justify-between p-6 bg-slate-50/50 rounded-3xl border border-slate-100/50">
+              <div class="flex items-center gap-5">
+                <div class="w-12 h-12 bg-white rounded-2xl flex items-center justify-center text-indigo-600 shadow-sm">
+                  <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m-8-4V7m8 4v10M4 7l8 4" />
+                  </svg>
+                </div>
+                <div>
+                  <div class="text-sm font-black text-slate-800">{{ item.productName }}</div>
+                  <div class="text-[10px] font-bold text-slate-400 mt-0.5">SKU: {{ item.productSku }}</div>
+                </div>
+              </div>
+              <div class="text-right">
+                <div class="text-sm font-black text-slate-900">{{ item.quantity }} × {{ item.unitPrice | currency }}
+                </div>
+                <div class="text-[11px] font-bold text-indigo-500 mt-1">{{ item.quantity * item.unitPrice | currency }}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Total -->
+        <div class="pt-10 border-t border-slate-100 flex justify-between items-end">
+          <div>
+            <div class="text-[10px] font-black text-slate-300 uppercase tracking-widest mb-1">Grand Total</div>
+            <div class="text-3xl font-black text-slate-900 tracking-tighter">{{ o.totalAmount | currency }}</div>
+          </div>
+        </div>
+
+        <!-- Audit Info -->
+        <div class="pt-8 border-t border-slate-50 grid grid-cols-2 gap-10">
+          <!-- Created By Section -->
+          <div class="space-y-3">
+            <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest block">Created By</label>
+            <div class="flex items-center gap-3">
+              <div class="h-10 w-10 rounded-full bg-indigo-50 flex items-center justify-center text-indigo-600 text-xs font-black shadow-sm border border-indigo-100">
+                {{ (o.createdBy?.charAt(0) || 'U') | uppercase }}
+              </div>
+              <span class="text-sm font-black text-slate-900">{{ o.createdBy || 'System' }}</span>
+            </div>
+            <div class="text-[11px] font-bold text-slate-400 pl-13">
+              {{ o.orderDate | date:'MMM d, y, h:mm:ss a' }}
+            </div>
+          </div>
+
+          <!-- Last Modified By Section -->
+          <div *ngIf="o.updatedBy || o.modifiedDate" class="space-y-3">
+            <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest block">Last Modified By</label>
+            <div class="flex items-center gap-3">
+              <div class="h-10 w-10 rounded-full bg-slate-50 flex items-center justify-center text-slate-500 text-xs font-black shadow-sm border border-slate-200">
+                {{ ((o.updatedBy || o.createdBy || 'U').charAt(0)) | uppercase }}
+              </div>
+              <span class="text-sm font-black text-slate-900">{{ o.updatedBy || o.createdBy || 'System' }}</span>
+            </div>
+            <div class="text-[11px] font-bold text-slate-400 pl-13">
+              {{ (o.modifiedDate || o.orderDate) | date:'MMM d, y, h:mm:ss a' }}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="p-8 border-t border-slate-50 bg-slate-50/30 flex gap-4">
+        <button *ngIf="canManage && o.statusName.toLowerCase() === 'pending'" (click)="openEditModal(o)"
+          class="flex-1 py-4 bg-white border border-indigo-200 text-indigo-600 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-indigo-50 transition-all">
+          Edit Order
+        </button>
+        <button *ngIf="canManage && o.statusName.toLowerCase() === 'pending'" (click)="onConfirm(o.id)"
+          class="flex-1 py-4 bg-indigo-600 text-white rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-indigo-700 transition-all">
+          Confirm Stock
+        </button>
+        <button *ngIf="canManage && o.statusName.toLowerCase() === 'confirmed'" (click)="onShip(o.id)"
+          class="flex-1 py-4 bg-blue-600 text-white rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-blue-700 transition-all">
+          Ship Order
+        </button>
+        <button *ngIf="canManage && o.statusName.toLowerCase() === 'shipped'" (click)="onDeliver(o.id)"
+          class="flex-1 py-4 bg-emerald-600 text-white rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-emerald-700 transition-all">
+          Mark Delivered
+        </button>
+        <button
+          *ngIf="(isAdmin || canDelete) && ['pending', 'confirmed', 'shipped'].includes(o.statusName.toLowerCase())"
+          (click)="onCancel(o.id)"
+          class="flex-1 py-4 bg-white border border-red-200 text-red-600 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-red-50 transition-all">
+          Cancel
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

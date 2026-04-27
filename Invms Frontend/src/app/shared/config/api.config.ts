@@ -46,7 +46,8 @@ export const API_CONFIG = {
       BY_ID: (id: number) => `/api/Warehouses/${id}`,
       CREATE: '/api/Warehouses/CreateWarehouse',
       UPDATE: (id: number) => `/api/Warehouses/${id}`,
-      DELETE: (id: number) => `/api/Warehouses/${id}`
+      DELETE: (id: number) => `/api/Warehouses/${id}`,
+      GET_STOCK: (id: number) => `/api/Warehouses/${id}/stock`
     },
     PRODUCTS: {
       GET_ALL: '/api/Products/GetAllProducts',
@@ -92,6 +93,16 @@ export const API_CONFIG = {
       APPROVE: (id: number) => `/api/PurchaseOrder/${id}/approve`,
       RECEIVE: (id: number) => `/api/PurchaseOrder/${id}/receive`,
       CANCEL: (id: number) => `/api/PurchaseOrder/${id}/cancel`
+    },
+    SALES_ORDERS: {
+      GET_ALL: '/api/sales-orders',
+      BY_ID: (id: number) => `/api/sales-orders/${id}`,
+      CREATE: '/api/sales-orders',
+      UPDATE: (id: number) => `/api/sales-orders/${id}`,
+      APPROVE: (id: number) => `/api/sales-orders/${id}/confirm`,
+      SHIP: (id: number) => `/api/sales-orders/${id}/ship`,
+      DELIVER: (id: number) => `/api/sales-orders/${id}/deliver`,
+      CANCEL: (id: number) => `/api/sales-orders/${id}`
     }
   }
 };

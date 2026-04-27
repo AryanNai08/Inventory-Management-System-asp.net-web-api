@@ -15,13 +15,20 @@ namespace Application.Services
     {
         private readonly IWarehouseRepository _warehouseRepository;
         private readonly IProductRepository _productRepository;
+        private readonly IProductWarehouseStockRepository _stockRepository;
         private readonly IMapper _mapper;
         private readonly IUnitOfWork _unitOfWork;
 
-        public WarehouseService(IWarehouseRepository warehouseRepository, IProductRepository productRepository, IMapper mapper, IUnitOfWork unitOfWork)
+        public WarehouseService(
+            IWarehouseRepository warehouseRepository, 
+            IProductRepository productRepository, 
+            IProductWarehouseStockRepository stockRepository,
+            IMapper mapper, 
+            IUnitOfWork unitOfWork)
         {
             _warehouseRepository = warehouseRepository;
             _productRepository = productRepository;
+            _stockRepository = stockRepository;
             _mapper = mapper;
             _unitOfWork = unitOfWork;
         }
@@ -125,6 +132,18 @@ namespace Application.Services
             await _warehouseRepository.UpdateAsync(warehouse);
             await _unitOfWork.SaveChangesAsync();
             return true;
+        }
+
+        public async Task<List<WarehouseStockDto>> GetWarehouseStockAsync(int warehouseId)
+        {
+            var stocks = await _stockRepository.GetByWarehouseAsync(warehouseId);
+            return stocks.Select(s => new WarehouseStockDto
+            {
+                ProductId = s.ProductId,
+                ProductName = s.Product?.Name ?? "Unknown",
+                ProductSku = s.Product?.Sku ?? "N/A",
+                Quantity = s.Quantity
+            }).ToList();
         }
     }
 }

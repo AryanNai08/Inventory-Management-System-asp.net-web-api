@@ -19,6 +19,7 @@ export interface PaginatedResult<T> {
 export interface PaginationParams {
   pageNumber: number;
   pageSize: number;
+  searchTerm?: string;
   sortColumn?: string;
   sortOrder?: 'asc' | 'desc';
 }

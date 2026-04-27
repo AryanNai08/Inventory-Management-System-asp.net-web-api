@@ -67,6 +67,12 @@
       <span class="font-bold text-sm">Purchase Orders</span>
     </a>
 
+    <a *ngIf="canViewSalesOrders" routerLink="/sales-orders" routerLinkActive="bg-blue-600 text-white shadow-lg shadow-blue-500/30" 
+       class="flex items-center gap-3 rounded-xl px-4 py-3 text-slate-600 hover:bg-slate-50 hover:text-slate-900 transition-all duration-200 group">
+      <svg class="h-5 w-5 opacity-70 group-hover:opacity-100" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" /></svg>
+      <span class="font-bold text-sm">Sales Orders</span>
+    </a>
+
     <!-- Administration Section -->
     <ng-container *ngIf="canManageUsers || canRegisterUsers || canManageRoles">
       <div class="mt-6 px-3 pb-2 text-[10px] font-black uppercase tracking-widest text-slate-400">Administration</div>
