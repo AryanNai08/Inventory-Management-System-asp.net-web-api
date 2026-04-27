@@ -46,8 +46,9 @@ namespace Application.Services
             var readModel = await _productRepository.GetProjectedByIdAsync(newproduct.Id);
             var result = _mapper.Map<ProductDto>(readModel);
             
-            // Apply Security
-            if (!_currentUserService.IsInRole("Admin")) result.PurchasePrice = null;
+            // Apply Security (Allow Admin and Manager)
+            if (!_currentUserService.IsInRole("Admin") && !_currentUserService.IsInRole("Manager")) 
+                result.PurchasePrice = null;
             
             return result;
         }
@@ -60,11 +61,13 @@ namespace Application.Services
             {
                 throw new NotFoundException("No Products found!!");
             }
-
+            
             bool isAdmin = _currentUserService.IsInRole("Admin");
+            bool isManager = _currentUserService.IsInRole("Manager");
+
             var dtos = paginatedReadModels.Items.Select(rm => {
                 var dto = _mapper.Map<ProductDto>(rm);
-                if (!isAdmin) dto.PurchasePrice = null;
+                if (!isAdmin && !isManager) dto.PurchasePrice = null;
                 return dto;
             }).ToList();
             
@@ -86,7 +89,8 @@ namespace Application.Services
             }
 
             var dto = _mapper.Map<ProductDto>(readModel);
-            if (!_currentUserService.IsInRole("Admin")) dto.PurchasePrice = null;
+            if (!_currentUserService.IsInRole("Admin") && !_currentUserService.IsInRole("Manager")) 
+                dto.PurchasePrice = null;
 
             return dto;
         }

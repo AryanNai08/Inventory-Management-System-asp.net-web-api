@@ -8,6 +8,7 @@ import { SupplierService } from '../../../suppliers/services/supplier.service';
 import { CustomerService } from '../../../customers/services/customer.service';
 import { WarehouseService } from '../../../warehouses/services/warehouse.service';
 import { RoleService } from '../../../roles/services/role.service';
+import { ProductService } from '../../../products/services/product.service';
 
 @Component({
   selector: 'app-dashboard-home',
@@ -22,6 +23,7 @@ export class DashboardHome implements OnInit, OnDestroy {
   get canViewCategories() { return this.storageService.hasPermission('ViewCategories'); }
   get canViewCustomers() { return this.storageService.hasPermission('ViewCustomers'); }
   get canViewWarehouses() { return this.storageService.hasPermission('ViewWarehouses'); }
+  get canViewProducts() { return this.storageService.hasPermission('ViewProducts'); }
   get canViewReports() { return this.storageService.hasPermission('ViewReports'); }
 
   username = '';
@@ -31,6 +33,7 @@ export class DashboardHome implements OnInit, OnDestroy {
   supplierCount = 0;
   customerCount = 0;
   warehouseCount = 0;
+  productCount = 0;
   isLoading = false;
 
   private routerSubscription?: Subscription;
@@ -43,6 +46,7 @@ export class DashboardHome implements OnInit, OnDestroy {
     private customerService: CustomerService,
     private warehouseService: WarehouseService,
     private roleService: RoleService,
+    private productService: ProductService,
     private router: Router,
     private cd: ChangeDetectorRef
   ) {
@@ -69,6 +73,7 @@ export class DashboardHome implements OnInit, OnDestroy {
     if (this.storageService.hasPermission('ViewSuppliers')) this.fetchSupplierCount();
     if (this.canViewCustomers) this.fetchCustomerCount();
     if (this.canViewWarehouses) this.fetchWarehouseCount();
+    if (this.canViewProducts) this.fetchProductCount();
 
     // Force a check if values updated immediately
     this.cd.detectChanges();
@@ -143,6 +148,18 @@ export class DashboardHome implements OnInit, OnDestroy {
       next: (res: any) => {
         if (res.status) {
           this.customerCount = res.data?.totalCount || 0;
+          this.cd.detectChanges();
+        }
+      }
+    });
+  }
+
+  fetchProductCount(): void {
+    const params = { pageNumber: 1, pageSize: 1 };
+    this.productService.getAllProducts(params).subscribe({
+      next: (res: any) => {
+        if (res.status) {
+          this.productCount = res.data?.totalCount || 0;
           this.cd.detectChanges();
         }
       }

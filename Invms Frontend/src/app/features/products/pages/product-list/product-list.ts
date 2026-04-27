@@ -1,4 +1,4 @@
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef, HostListener, OnDestroy } from '@angular/core';
 import { ProductService, Product } from '../../services/product.service';
 import { CategoryService } from '../../../categories/services/category.service';
 import { SupplierService } from '../../../suppliers/services/supplier.service';
@@ -14,7 +14,7 @@ import { Observable } from 'rxjs';
   templateUrl: './product-list.html',
   styleUrl: './product-list.scss'
 })
-export class ProductList implements OnInit {
+export class ProductList implements OnInit, OnDestroy {
   products: Product[] = [];
   categories: any[] = [];
   suppliers: any[] = [];
@@ -39,6 +39,16 @@ export class ProductList implements OnInit {
   selectedProductId: number | null = null;
   isSaving = false;
   currentRowVersion: any = null;
+
+  // Detail View State
+  selectedProductForDetail: Product | null = null;
+  isDetailOpen = false;
+  isAdmin = false;
+
+  @HostListener('window:keydown.escape')
+  onEscapePressed() {
+    this.closeDetail();
+  }
 
   constructor(
     private productService: ProductService,
@@ -73,10 +83,15 @@ export class ProductList implements OnInit {
     this.loadDropdowns();
   }
 
+  ngOnDestroy(): void {
+    document.body.classList.remove('no-scroll');
+  }
+
   checkPermissions(): void {
     this.canView = this.storageService.hasPermission('ViewProducts');
     this.canManage = this.storageService.hasPermission('ManageProducts');
     this.canDelete = this.storageService.hasPermission('DeleteProducts');
+    this.isAdmin = this.storageService.isAdmin();
   }
 
   loadDropdowns(): void {
@@ -132,6 +147,10 @@ export class ProductList implements OnInit {
   }
 
   openEditModal(product: Product): void {
+    console.log('Loading product into form:', product);
+    // Close detail drawer first if it's open to prevent modal being blocked
+    this.closeDetail();
+    
     this.selectedProductId = product.id;
     this.currentRowVersion = product.rowVersion;
     this.productForm.patchValue({
@@ -151,6 +170,21 @@ export class ProductList implements OnInit {
     this.isModalOpen = false;
     this.selectedProductId = null;
     this.productForm.reset();
+  }
+
+  // Detail View Logic
+  openDetail(product: Product): void {
+    this.selectedProductForDetail = product;
+    this.isDetailOpen = true;
+    document.body.classList.add('no-scroll');
+    this.cdr.detectChanges();
+  }
+
+  closeDetail(): void {
+    this.isDetailOpen = false;
+    this.selectedProductForDetail = null;
+    document.body.classList.remove('no-scroll');
+    this.cdr.detectChanges();
   }
 
   onSubmit(): void {

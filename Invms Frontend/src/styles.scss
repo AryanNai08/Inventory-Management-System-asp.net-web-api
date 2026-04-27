@@ -22,6 +22,10 @@ body {
   padding: 0;
 }
 
+.no-scroll {
+  overflow: hidden !important;
+}
+
 /* Vibrant Action Buttons (Modern Premium - Matches UI Gradients) */
 .btn-action-edit, .btn-action-delete {
   padding: 8px 18px;

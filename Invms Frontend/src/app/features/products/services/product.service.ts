@@ -22,6 +22,7 @@ export interface Product {
   createdDate?: string;
   updatedBy?: string;
   modifiedDate?: string;
+  stockStatus: number; // 0: OutOfStock, 1: LowStock, 2: InStock
 }
 
 @Injectable({
