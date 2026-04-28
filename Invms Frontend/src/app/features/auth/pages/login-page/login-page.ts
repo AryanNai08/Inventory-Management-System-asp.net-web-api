@@ -3,7 +3,6 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth';
 import { ToastService } from '../../../../core/services/toast';
-import { StorageService } from '../../../../core/services/storage.service';
 
 @Component({
   selector: 'app-login-page',
@@ -20,8 +19,7 @@ export class LoginPage implements OnInit {
     private fb: FormBuilder,
     private router: Router,
     private authService: AuthService,
-    private toastService: ToastService,
-    private storageService: StorageService
+    private toastService: ToastService
   ) {}
 
   ngOnInit(): void {
@@ -38,21 +36,16 @@ export class LoginPage implements OnInit {
 
     this.authService.login(this.loginForm.value).subscribe({
       next: (response) => {
-        setTimeout(() => this.isLoading = false);
+        this.isLoading = false;
         if (response.status) {
-          // Explicitly ensure storage is synced before navigation (Step 4 of plan)
-          this.storageService.saveToken(response.data.token);
-          this.storageService.saveUser(response.data);
-
           this.toastService.success('Login Successful', 'Welcome back to InvMS!');
           this.router.navigate(['/dashboard']);
         } else {
-          const msg = response.message || response.error || 'Invalid username or password';
-          this.toastService.error('Login Failed', msg);
+          this.toastService.error('Login Failed', response.message || 'Invalid username or password');
         }
       },
       error: (err) => {
-        setTimeout(() => this.isLoading = false);
+        this.isLoading = false;
         const msg = err.error?.message || err.error?.error || 'Invalid username or password';
         this.toastService.error('Login Failed', msg);
       }

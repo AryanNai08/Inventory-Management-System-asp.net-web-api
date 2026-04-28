@@ -15,5 +15,6 @@ namespace Application.DTOs.Auth
         public List<string>? Roles { get; set; }
 
         public string RefreshToken { get; set; }
+        public List<string>? Permissions { get; set; }
     }
 }

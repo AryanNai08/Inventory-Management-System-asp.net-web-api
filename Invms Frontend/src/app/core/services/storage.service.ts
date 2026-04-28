@@ -5,7 +5,6 @@ import { BehaviorSubject, Observable } from 'rxjs';
   providedIn: 'root'
 })
 export class StorageService {
-  private readonly TOKEN_KEY = 'auth_token';
   private readonly USER_KEY = 'usr_details';
   private permissionsCache: string[] = [];
   
@@ -17,17 +16,15 @@ export class StorageService {
     this.refreshPermissionsCache();
   }
 
-  saveToken(token: string): void {
-    localStorage.setItem(this.TOKEN_KEY, token);
-    this.refreshPermissionsCache();
-  }
-
-  getToken(): string | null {
-    return localStorage.getItem(this.TOKEN_KEY);
-  }
-
   saveUser(user: any): void {
-    localStorage.setItem(this.USER_KEY, JSON.stringify(user));
+    // We only save identity data, NEVER the token
+    const userData = {
+      username: user.username,
+      roles: user.roles || [],
+      permissions: user.permissions || []
+    };
+    localStorage.setItem(this.USER_KEY, JSON.stringify(userData));
+    this.refreshPermissionsCache();
   }
 
   getUser(): any | null {
@@ -36,34 +33,24 @@ export class StorageService {
   }
 
   public refreshPermissionsCache(): void {
-    const token = this.getToken();
-    if (!token) {
+    const user = this.getUser();
+    if (!user) {
       this.permissionsCache = [];
-      this.initializedSubject.next(true); // Always signal ready (even if empty)
+      this.initializedSubject.next(true);
       return;
     }
 
     try {
-      const payloadBase64Url = token.split('.')[1];
-      // Robust decoding for Base64Url (JWT standard)
-      const base64 = payloadBase64Url.replace(/-/g, '+').replace(/_/g, '/');
-      const decodedJson = atob(base64);
-      const decoded = JSON.parse(decodedJson);
-
-      // Backend uses "Permission" (Capitalized, Singular)
-      const permissionClaim = decoded['Permission'] || decoded['permission'] || [];
-      if (Array.isArray(permissionClaim)) {
-        this.permissionsCache = permissionClaim.map(p => p.toLowerCase());
-      } else if (typeof permissionClaim === 'string') {
-        this.permissionsCache = [permissionClaim.toLowerCase()];
+      const permissions = user.permissions || [];
+      if (Array.isArray(permissions)) {
+        this.permissionsCache = permissions.map((p: string) => p.toLowerCase());
       } else {
         this.permissionsCache = [];
       }
       
-      // Notify all listening components that permissions are fully hydrated
       this.initializedSubject.next(true);
     } catch (e) {
-      console.error('Error decoding JWT permissions:', e);
+      console.error('Error hydrating permissions:', e);
       this.permissionsCache = [];
       this.initializedSubject.next(true);
     }
@@ -91,8 +78,12 @@ export class StorageService {
     return this.permissionsCache;
   }
 
+  // Helper for AuthGuard
+  isLoggedIn(): boolean {
+    return !!this.getUser();
+  }
+
   clean(): void {
-    localStorage.removeItem(this.TOKEN_KEY);
     localStorage.removeItem(this.USER_KEY);
     this.permissionsCache = [];
     this.initializedSubject.next(false);

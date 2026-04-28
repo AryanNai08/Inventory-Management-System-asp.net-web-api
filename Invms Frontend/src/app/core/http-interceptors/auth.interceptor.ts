@@ -2,26 +2,20 @@ import { inject } from '@angular/core';
 import { HttpRequest, HttpHandlerFn, HttpEvent, HttpInterceptorFn, HttpErrorResponse } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
-import { StorageService } from '../services/storage.service';
 import { ToastService } from '../services/toast';
 import { AuthService } from '../../features/auth/services/auth';
 import { API_CONFIG } from '../../shared/config/api.config';
 
 export const authInterceptor: HttpInterceptorFn = (req: HttpRequest<unknown>, next: HttpHandlerFn): Observable<HttpEvent<unknown>> => {
-  const storageService = inject(StorageService);
   const authService = inject(AuthService);
   const toastService = inject(ToastService);
   
-  const token = storageService.getToken();
-
-  // Attach token if available
-  if (token) {
-    req = req.clone({
-      setHeaders: {
-        Authorization: `Bearer ${token}`
-      }
-    });
-  }
+  // SECURE COOKIE APPROACH: 
+  // We no longer read tokens from LocalStorage or attach Authorization headers.
+  // Instead, we force withCredentials: true so the browser automatically sends HttpOnly cookies.
+  req = req.clone({
+    withCredentials: true
+  });
 
   return next(req).pipe(
     catchError((error: HttpErrorResponse) => {
@@ -31,6 +25,7 @@ export const authInterceptor: HttpInterceptorFn = (req: HttpRequest<unknown>, ne
                              req.url.includes(API_CONFIG.ENDPOINTS.AUTH.REFRESH);
         
         if (!isAuthRequest) {
+          // Attempt silent refresh via the refresh-token cookie
           return authService.handle401(req, next);
         }
       } 

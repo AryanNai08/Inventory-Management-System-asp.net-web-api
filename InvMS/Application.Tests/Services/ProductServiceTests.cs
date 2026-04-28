@@ -8,6 +8,7 @@ using Domain.Interfaces;
 using Domain.Entities;
 using Domain.Exceptions;
 using Domain.Common;
+using Domain.Models;
 
 namespace Application.Tests.Services
 {
@@ -23,7 +24,12 @@ namespace Application.Tests.Services
             _productService = new ProductService(
                 _mockProductRepository.Object,
                 MockMapper.Object,
-                MockUnitOfWork.Object);
+                MockUnitOfWork.Object,
+                MockCurrentUserService.Object);
+                
+            // Default setup for current user (Admin by default)
+            MockCurrentUserService.Setup(x => x.IsInRole("Admin")).Returns(true);
+            MockCurrentUserService.Setup(x => x.IsInRole("Manager")).Returns(false);
         }
 
         #region CreateAsync Tests
@@ -46,14 +52,15 @@ namespace Application.Tests.Services
         {
             var createProductDto = new CreateProductDto { Sku = "PROD-001", Name = "Product", PurchasePrice = 100, SalePrice = 120 };
             var newProduct = TestDataBuilder.CreateTestProduct(sku: "PROD-001");
+            var readModel = new ProductReadModel { Id = 1, Sku = "PROD-001", Name = "Product" };
             var productDto = new ProductDto { Id = 1, Sku = "PROD-001", Name = "Product", PurchasePrice = 100, SalePrice = 120 };
 
             _mockProductRepository.Setup(x => x.GetBySkuAsync("PROD-001")).ReturnsAsync((Product)null);
             _mockProductRepository.Setup(x => x.AddAsync(It.IsAny<Product>())).Returns(Task.CompletedTask);
-            _mockProductRepository.Setup(x => x.GetByIdAsync(It.IsAny<int>())).ReturnsAsync(newProduct);
+            _mockProductRepository.Setup(x => x.GetProjectedByIdAsync(It.IsAny<int>())).ReturnsAsync(readModel);
             MockUnitOfWork.Setup(x => x.SaveChangesAsync()).ReturnsAsync(1);
             MockMapper.Setup(x => x.Map<Product>(createProductDto)).Returns(newProduct);
-            MockMapper.Setup(x => x.Map<ProductDto>(newProduct)).Returns(productDto);
+            MockMapper.Setup(x => x.Map<ProductDto>(readModel)).Returns(productDto);
 
             // Act
             var result = await _productService.CreateAsync(createProductDto);
@@ -72,9 +79,9 @@ namespace Application.Tests.Services
         {
             // Arrange
             var paginationParams = new PaginationParams { PageNumber = 1, PageSize = 10 };
-            var emptyResult = new PaginatedResult<Product>(new List<Product>(), 0, 1, 10);
+            var emptyResult = new PaginatedResult<ProductReadModel>(new List<ProductReadModel>(), 0, 1, 10);
 
-            _mockProductRepository.Setup(x => x.GetAllAsync(paginationParams)).ReturnsAsync(emptyResult);
+            _mockProductRepository.Setup(x => x.GetProjectedAllAsync(paginationParams)).ReturnsAsync(emptyResult);
 
             // Act & Assert
             await Assert.ThrowsAsync<NotFoundException>(() => _productService.GetAllAsync(paginationParams));
@@ -85,21 +92,19 @@ namespace Application.Tests.Services
         {
             // Arrange
             var paginationParams = new PaginationParams { PageNumber = 1, PageSize = 10 };
-            var products = new List<Product>
+            var readModels = new List<ProductReadModel>
             {
-                TestDataBuilder.CreateTestProduct(1, "PROD-001"),
-                TestDataBuilder.CreateTestProduct(2, "PROD-002")
+                new ProductReadModel { Id = 1, Sku = "PROD-001" },
+                new ProductReadModel { Id = 2, Sku = "PROD-002" }
             };
-            var paginatedProducts = new PaginatedResult<Product>(products, 2, 1, 10);
+            var paginatedReadModels = new PaginatedResult<ProductReadModel>(readModels, 2, 1, 10);
 
-            var productDtos = new List<ProductDto>
-            {
-                new ProductDto { Id = 1, Sku = "PROD-001" },
-                new ProductDto { Id = 2, Sku = "PROD-002" }
-            };
+            var productDto1 = new ProductDto { Id = 1, Sku = "PROD-001" };
+            var productDto2 = new ProductDto { Id = 2, Sku = "PROD-002" };
 
-            _mockProductRepository.Setup(x => x.GetAllAsync(paginationParams)).ReturnsAsync(paginatedProducts);
-            MockMapper.Setup(x => x.Map<List<ProductDto>>(products)).Returns(productDtos);
+            _mockProductRepository.Setup(x => x.GetProjectedAllAsync(paginationParams)).ReturnsAsync(paginatedReadModels);
+            MockMapper.Setup(x => x.Map<ProductDto>(readModels[0])).Returns(productDto1);
+            MockMapper.Setup(x => x.Map<ProductDto>(readModels[1])).Returns(productDto2);
 
             // Act
             var result = await _productService.GetAllAsync(paginationParams);
@@ -128,7 +133,7 @@ namespace Application.Tests.Services
         public async Task GetByIdAsync_Should_Throw_NotFoundException_When_ProductNotFound()
         {
             // Arrange
-            _mockProductRepository.Setup(x => x.GetByIdAsync(1)).ReturnsAsync((Product)null);
+            _mockProductRepository.Setup(x => x.GetProjectedByIdAsync(1)).ReturnsAsync((ProductReadModel)null);
 
             // Act & Assert
             await Assert.ThrowsAsync<NotFoundException>(() => _productService.GetByIdAsync(1));
@@ -138,11 +143,11 @@ namespace Application.Tests.Services
         public async Task GetByIdAsync_Should_ReturnProduct_When_ProductExists()
         {
             // Arrange
-            var product = TestDataBuilder.CreateTestProduct(1);
+            var readModel = new ProductReadModel { Id = 1, Sku = "PROD-001" };
             var productDto = new ProductDto { Id = 1, Sku = "PROD-001" };
 
-            _mockProductRepository.Setup(x => x.GetByIdAsync(1)).ReturnsAsync(product);
-            MockMapper.Setup(x => x.Map<ProductDto>(product)).Returns(productDto);
+            _mockProductRepository.Setup(x => x.GetProjectedByIdAsync(1)).ReturnsAsync(readModel);
+            MockMapper.Setup(x => x.Map<ProductDto>(readModel)).Returns(productDto);
 
             // Act
             var result = await _productService.GetByIdAsync(1);

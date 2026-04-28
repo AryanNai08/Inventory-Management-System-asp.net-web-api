@@ -149,7 +149,8 @@ namespace Application.Services
                 Username = user.Username,
                 Token = token,
                 RefreshToken = refreshTokenVal,
-                Roles = user.Roles.Select(r => r.Name).ToList()
+                Roles = user.Roles.Select(r => r.Name).ToList(),
+                Permissions = privileges.ToList()
             };
         }
 
@@ -220,7 +221,8 @@ namespace Application.Services
                 Username = user.Username,
                 Token = token,
                 RefreshToken = newRefreshTokenVal,
-                Roles = user.Roles.Select(r => r.Name).ToList()
+                Roles = user.Roles.Select(r => r.Name).ToList(),
+                Permissions = privileges.ToList()
             };
         }
 

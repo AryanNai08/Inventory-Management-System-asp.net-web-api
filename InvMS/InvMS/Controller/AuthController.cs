@@ -50,14 +50,14 @@ namespace InvMS.Controller
             {
                 HttpOnly = true,
                 Secure = true,
-                SameSite = SameSiteMode.Strict,
+                SameSite = SameSiteMode.None,
                 Expires = DateTime.UtcNow.AddMinutes(15)
             });
             Response.Cookies.Append("refreshtoken", response.RefreshToken, new CookieOptions
             {
                 HttpOnly = true,
                 Secure = true,
-                SameSite = SameSiteMode.Strict,
+                SameSite = SameSiteMode.None,
                 Expires = DateTime.UtcNow.AddDays(7)
             });
 
@@ -81,22 +81,33 @@ namespace InvMS.Controller
 
         [HttpPost("refresh")]
         [AllowAnonymous]
-        public async Task<ActionResult<APIResponse<LoginResponseDto>>> RefreshToken([FromBody] RefreshTokenDto dto)
+        public async Task<ActionResult<APIResponse<LoginResponseDto>>> RefreshToken()
         {
-            var response = await _authService.RefreshTokenAsync(dto);
+            var refreshToken = Request.Cookies["refreshtoken"];
+            if (string.IsNullOrEmpty(refreshToken))
+            {
+                return Unauthorized(new APIResponse<LoginResponseDto> 
+                { 
+                    Data = null, 
+                    Message = "Refresh token missing", 
+                    Status = false 
+                });
+            }
+
+            var response = await _authService.RefreshTokenAsync(new RefreshTokenDto { RefreshToken = refreshToken });
 
             Response.Cookies.Append("accesstoken", response.Token, new CookieOptions
             {
                 HttpOnly = true,
                 Secure = true,
-                SameSite = SameSiteMode.Strict,
+                SameSite = SameSiteMode.None,
                 Expires = DateTime.UtcNow.AddMinutes(15)
             });
             Response.Cookies.Append("refreshtoken", response.RefreshToken, new CookieOptions
             {
                 HttpOnly = true,
                 Secure = true,
-                SameSite = SameSiteMode.Strict,
+                SameSite = SameSiteMode.None,
                 Expires = DateTime.UtcNow.AddDays(7)
             });
 

@@ -12,17 +12,20 @@ namespace Application.Tests.Fixtures
     {
         protected readonly Mock<IMapper> MockMapper;
         protected readonly Mock<IUnitOfWork> MockUnitOfWork;
+        protected readonly Mock<ICurrentUserService> MockCurrentUserService;
 
         protected ServiceTestFixture()
         {
             MockMapper = new Mock<IMapper>();
             MockUnitOfWork = new Mock<IUnitOfWork>();
+            MockCurrentUserService = new Mock<ICurrentUserService>();
         }
 
         protected void ResetAllMocks()
         {
             MockMapper.Reset();
             MockUnitOfWork.Reset();
+            MockCurrentUserService.Reset();
         }
     }
 

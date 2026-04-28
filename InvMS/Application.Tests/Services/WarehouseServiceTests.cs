@@ -14,16 +14,19 @@ namespace Application.Tests.Services
     {
         private readonly Mock<IWarehouseRepository> _mockWarehouseRepository;
         private readonly Mock<IProductRepository> _mockProductRepository;
+        private readonly Mock<IProductWarehouseStockRepository> _mockStockRepository;
         private readonly WarehouseService _warehouseService;
 
         public WarehouseServiceTests()
         {
             _mockWarehouseRepository = new Mock<IWarehouseRepository>();
             _mockProductRepository = new Mock<IProductRepository>();
+            _mockStockRepository = new Mock<IProductWarehouseStockRepository>();
 
             _warehouseService = new WarehouseService(
                 _mockWarehouseRepository.Object,
                 _mockProductRepository.Object,
+                _mockStockRepository.Object,
                 MockMapper.Object,
                 MockUnitOfWork.Object);
         }
