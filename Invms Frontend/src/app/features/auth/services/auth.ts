@@ -6,6 +6,7 @@ import { Router } from '@angular/router';
 import { API_CONFIG } from '../../../shared/config/api.config';
 import { StorageService } from '../../../core/services/storage.service';
 import { APIResponse } from '../../../core/models/api.model';
+import { ToastService } from '../../../core/services/toast';
 
 @Injectable({
   providedIn: 'root'
@@ -20,7 +21,8 @@ export class AuthService {
 
   constructor(
     private http: HttpClient, 
-    private storageService: StorageService
+    private storageService: StorageService,
+    private toastService: ToastService
   ) {}
 
   login(dto: any): Observable<APIResponse<any>> {
@@ -86,11 +88,13 @@ export class AuthService {
             this.refreshTokenSubject.next(res.data.token);
             return next(this.addToken(req, res.data.token));
           }
+          this.toastService.error('Session Expired', 'Please login again to continue.');
           this.logout();
           return throwError(() => new Error('Refresh failed'));
         }),
         catchError((err) => {
           this.isRefreshing = false;
+          this.toastService.error('Session Expired', 'Please login again to continue.');
           this.logout();
           return throwError(() => err);
         })

@@ -90,7 +90,7 @@ namespace InvMS.Controller
                 HttpOnly = true,
                 Secure = true,
                 SameSite = SameSiteMode.Strict,
-                Expires = DateTime.UtcNow.AddMinutes(1)
+                Expires = DateTime.UtcNow.AddMinutes(15)
             });
             Response.Cookies.Append("refreshtoken", response.RefreshToken, new CookieOptions
             {
