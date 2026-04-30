@@ -1,0 +1,292 @@
+<div class="p-8 max-w-[1600px] mx-auto animate-in fade-in slide-in-from-bottom-4 duration-700">
+  <!-- Header Section -->
+  <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+    <div class="flex items-center gap-4">
+      <button routerLink="/dashboard"
+        class="p-2.5 rounded-xl border border-slate-200 bg-white text-slate-400 hover:text-slate-600 hover:bg-slate-50 transition-all active:scale-95 shadow-sm">
+        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.1" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+        </svg>
+      </button>
+      <div>
+        <h1 class="text-3xl font-black text-slate-900 tracking-tight">Stock Adjustments</h1>
+        <p class="text-slate-500 font-medium">Record and track manual inventory changes.</p>
+      </div>
+    </div>
+    <div class="flex items-center gap-3">
+      <button (click)="fetchAdjustments()"
+        class="p-2.5 rounded-xl border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 transition-all active:scale-95 shadow-sm">
+        <svg class="w-5 h-5" [class.animate-spin]="isLoading" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+        </svg>
+      </button>
+      <button *ngIf="canManage" (click)="openCreateModal()"
+        class="flex items-center gap-2 px-5 py-2.5 bg-indigo-600 text-white rounded-xl font-bold hover:bg-indigo-700 hover:shadow-lg hover:shadow-indigo-200 transition-all active:scale-95 shadow-md">
+        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+        </svg>
+        New Adjustment
+      </button>
+    </div>
+  </div>
+
+  <!-- Table Container -->
+  <div class="bg-white/70 backdrop-blur-xl border border-white/50 rounded-2xl shadow-xl shadow-slate-200/50 overflow-hidden">
+    <div class="overflow-x-auto">
+      <table class="w-full text-left border-collapse min-w-[1000px]">
+        <thead>
+          <tr class="border-b border-slate-100/50 bg-slate-50/50 text-[10px] font-black uppercase tracking-widest text-slate-400">
+            <th class="px-6 py-5">Product Info</th>
+            <th class="px-6 py-5">Warehouse</th>
+            <th class="px-6 py-5 text-center">Change</th>
+            <th class="px-6 py-5">Type</th>
+            <th class="px-6 py-5">Adjusted By</th>
+            <th class="px-6 py-5">Date</th>
+            <th class="px-6 py-5 text-right"></th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-50">
+          <tr *ngIf="isLoading && adjustments.length === 0">
+            <td colspan="7" class="px-6 py-20 text-center">
+              <div class="flex flex-col items-center gap-3">
+                <div class="w-12 h-12 border-4 border-indigo-100 border-t-indigo-600 rounded-full animate-spin"></div>
+                <p class="text-slate-400 font-bold">Fetching Adjustments...</p>
+              </div>
+            </td>
+          </tr>
+
+          <tr *ngIf="!isLoading && adjustments.length === 0">
+            <td colspan="7" class="px-6 py-24 text-center">
+              <p class="text-lg font-black text-slate-900">No Stock Adjustments Found</p>
+              <p class="text-sm font-bold text-slate-500">Record inventory corrections here.</p>
+            </td>
+          </tr>
+
+          <tr *ngFor="let a of adjustments" (click)="canView && openDetail(a)"
+            class="group hover:bg-slate-50/80 transition-all cursor-pointer border-l-4 border-transparent hover:border-indigo-500">
+            <td class="px-6 py-6">
+              <div>
+                <p class="text-[15px] font-black text-slate-900 tracking-tight group-hover:text-indigo-600 transition-colors">
+                  {{ a.productName }}
+                </p>
+                <p class="text-[11px] font-bold text-slate-400 mt-0.5 tracking-wider uppercase">
+                  SKU: {{ a.productSku }}
+                </p>
+              </div>
+            </td>
+            <td class="px-6 py-6 text-sm font-bold text-slate-700">
+              {{ a.warehouseName }}
+            </td>
+            <td class="px-6 py-6 text-center text-lg" [ngClass]="getQtyClass(a.quantityChange)">
+              {{ a.quantityChange > 0 ? '+' : '' }}{{ a.quantityChange }}
+            </td>
+            <td class="px-6 py-6">
+              <span class="px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-wider bg-slate-100 text-slate-600">
+                {{ a.adjustmentTypeName }}
+              </span>
+            </td>
+            <td class="px-6 py-6">
+              <div class="flex items-center gap-2">
+                <div class="h-8 w-8 rounded-full bg-indigo-50 flex items-center justify-center text-indigo-600 text-xs font-black">
+                  {{ a.adjustedByUserName.charAt(0).toUpperCase() }}
+                </div>
+                <span class="text-sm font-bold text-slate-700">{{ a.adjustedByUserName }}</span>
+              </div>
+            </td>
+            <td class="px-6 py-6 text-xs font-bold text-slate-400">
+              {{ a.adjustmentDate | date:'medium' }}
+            </td>
+            <td class="px-6 py-6 text-right">
+              <button class="p-2 text-slate-300 group-hover:text-indigo-500 transition-all">
+                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" /></svg>
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Pagination -->
+    <div *ngIf="totalPages > 1" class="px-6 py-4 bg-slate-50/50 border-t border-slate-100 flex items-center justify-between">
+      <p class="text-xs font-bold text-slate-500">Showing {{ adjustments.length }} of {{ totalCount }} records</p>
+      <div class="flex items-center gap-2">
+        <button [disabled]="!hasPreviousPage" (click)="onPageChange(currentPage - 1)"
+          class="p-2 rounded-lg border border-slate-200 bg-white text-slate-600 disabled:opacity-40">
+          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7" /></svg>
+        </button>
+        <button [disabled]="!hasNextPage" (click)="onPageChange(currentPage + 1)"
+          class="p-2 rounded-lg border border-slate-200 bg-white text-slate-600 disabled:opacity-40">
+          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7" /></svg>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Create Modal -->
+  <div *ngIf="isModalOpen" class="fixed inset-0 z-[100] flex items-center justify-center p-4">
+    <div class="absolute inset-0 bg-slate-900/40 backdrop-blur-sm animate-in fade-in duration-300" (click)="closeModal()"></div>
+    <div class="relative w-full max-w-2xl bg-white rounded-3xl shadow-2xl overflow-hidden animate-in zoom-in-95 slide-in-from-bottom-8 duration-300">
+      <div class="px-8 py-6 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
+        <div>
+          <h3 class="text-xl font-black text-slate-900 tracking-tight">New Stock Adjustment</h3>
+          <p class="text-sm font-bold text-slate-400">Record a manual inventory correction.</p>
+        </div>
+        <button (click)="closeModal()" class="text-slate-400 hover:text-slate-600 p-1">
+          <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12" /></svg>
+        </button>
+      </div>
+
+      <form [formGroup]="adjustmentForm" (ngSubmit)="onSubmit()" class="p-8">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+          <div>
+            <label class="block text-[11px] font-black uppercase tracking-widest text-slate-400 mb-2 ms-1">Product</label>
+            <select formControlName="productId" class="w-full px-4 py-3 bg-slate-50 border-2 border-transparent focus:border-indigo-500 focus:bg-white rounded-2xl outline-none font-bold text-slate-700 transition-all appearance-none text-sm">
+              <option value="">Select Product</option>
+              <option *ngFor="let p of products" [value]="p.id">{{ p.name }} ({{ p.sku }})</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-[11px] font-black uppercase tracking-widest text-slate-400 mb-2 ms-1">Warehouse</label>
+            <select formControlName="warehouseId" class="w-full px-4 py-3 bg-slate-50 border-2 border-transparent focus:border-indigo-500 focus:bg-white rounded-2xl outline-none font-bold text-slate-700 transition-all appearance-none text-sm">
+              <option value="">Select Warehouse</option>
+              <option *ngFor="let w of warehouses" [value]="w.id">{{ w.name }}</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Stock Info Context -->
+        <div *ngIf="adjustmentForm.get('productId')?.value && adjustmentForm.get('warehouseId')?.value" 
+             class="mb-6 p-4 rounded-2xl bg-indigo-50/50 border border-indigo-100 flex items-center justify-between">
+          <div class="flex items-center gap-3">
+            <div class="h-10 w-10 rounded-xl bg-white border border-indigo-100 flex items-center justify-center text-indigo-600 shadow-sm">
+              <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" /></svg>
+            </div>
+            <div>
+              <p class="text-[10px] font-black uppercase tracking-widest text-indigo-400">Context Awareness</p>
+              <p class="text-sm font-black text-indigo-900" *ngIf="!isLoadingStock">Current Stock: {{ currentStock }} units</p>
+              <p class="text-sm font-black text-indigo-900" *ngIf="isLoadingStock">Fetching current stock...</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+          <div>
+            <label class="block text-[11px] font-black uppercase tracking-widest text-slate-400 mb-2 ms-1">Adjustment Type</label>
+            <select formControlName="adjustmentTypeId" class="w-full px-4 py-3 bg-slate-50 border-2 border-transparent focus:border-indigo-500 focus:bg-white rounded-2xl outline-none font-bold text-slate-700 transition-all appearance-none text-sm">
+              <option value="">Select Type</option>
+              <option *ngFor="let t of adjustmentTypes" [value]="t.id">{{ t.name }}</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-[11px] font-black uppercase tracking-widest text-slate-400 mb-2 ms-1">Direction</label>
+            <div class="flex p-1 bg-slate-50 rounded-2xl border-2 border-transparent">
+              <button type="button" 
+                (click)="adjustmentForm.patchValue({direction: 'increase'})"
+                [class]="adjustmentForm.get('direction')?.value === 'increase' ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-200' : 'text-slate-500 hover:bg-white'"
+                class="flex-1 py-2 rounded-xl text-xs font-black uppercase tracking-widest transition-all">
+                Increase
+              </button>
+              <button type="button" 
+                (click)="adjustmentForm.patchValue({direction: 'decrease'})"
+                [class]="adjustmentForm.get('direction')?.value === 'decrease' ? 'bg-red-500 text-white shadow-lg shadow-red-200' : 'text-slate-500 hover:bg-white'"
+                class="flex-1 py-2 rounded-xl text-xs font-black uppercase tracking-widest transition-all">
+                Decrease
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+          <div>
+            <label class="block text-[11px] font-black uppercase tracking-widest text-slate-400 mb-2 ms-1">Quantity</label>
+            <input type="number" formControlName="quantity" min="1" class="w-full px-4 py-3 bg-slate-50 border-2 border-transparent focus:border-indigo-500 focus:bg-white rounded-2xl outline-none font-bold text-slate-700 transition-all text-sm">
+            <p *ngIf="adjustmentForm.get('quantity')?.touched && adjustmentForm.get('quantity')?.invalid" class="text-[10px] text-red-500 font-bold mt-1 ms-1 uppercase tracking-wider">Must be at least 1</p>
+          </div>
+          <div>
+            <label class="block text-[11px] font-black uppercase tracking-widest text-slate-400 mb-2 ms-1">Reason (Min 5 chars)</label>
+            <input type="text" formControlName="reason" placeholder="e.g. Broken packaging..." class="w-full px-4 py-3 bg-slate-50 border-2 border-transparent focus:border-indigo-500 focus:bg-white rounded-2xl outline-none font-bold text-slate-700 transition-all text-sm">
+            <p *ngIf="adjustmentForm.get('reason')?.touched && adjustmentForm.get('reason')?.invalid" class="text-[10px] text-red-500 font-bold mt-1 ms-1 uppercase tracking-wider">Please provide a valid reason</p>
+          </div>
+        </div>
+
+        <div class="flex items-center justify-end gap-3 pt-4 border-t border-slate-100">
+          <button type="button" (click)="closeModal()" class="px-6 py-3 text-slate-400 font-black text-xs uppercase tracking-widest hover:text-slate-600 transition-all">Cancel</button>
+          <button type="submit" [disabled]="adjustmentForm.invalid || isSaving" 
+            class="px-10 py-4 bg-indigo-600 text-white rounded-2xl font-black text-sm tracking-widest uppercase hover:bg-indigo-700 hover:shadow-xl hover:shadow-indigo-100 transition-all disabled:opacity-50 flex items-center gap-2">
+            <svg *ngIf="isSaving" class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+            {{ isSaving ? 'Recording...' : 'Record Adjustment' }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Detail Drawer -->
+  <div *ngIf="isDetailOpen" class="fixed inset-0 z-[110] flex justify-end">
+    <div class="absolute inset-0 bg-slate-900/40 backdrop-blur-sm animate-in fade-in duration-500" (click)="closeDetail()"></div>
+    <div *ngIf="selectedAdjustmentDetail as a" class="relative w-full max-w-xl bg-white h-full shadow-2xl animate-in slide-in-from-right duration-500 flex flex-col border-l border-slate-100">
+      <div class="p-8 border-b border-slate-50 flex items-center justify-between bg-slate-50/30">
+        <div>
+          <h2 class="text-2xl font-black text-slate-900 tracking-tight">Adjustment Details</h2>
+          <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mt-1">Audit Record #{{ a.id }}</p>
+        </div>
+        <button (click)="closeDetail()" class="p-3 hover:bg-slate-100 rounded-2xl transition-all text-slate-400 hover:text-slate-900">
+          <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12" /></svg>
+        </button>
+      </div>
+
+      <div class="flex-1 overflow-y-auto p-8 custom-scrollbar">
+        <!-- Change Highlight -->
+        <div class="mb-10 p-8 rounded-3xl border border-slate-100 bg-slate-50/50 flex flex-col items-center justify-center text-center">
+          <p class="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-3">Quantity Adjusted</p>
+          <p class="text-6xl font-black tracking-tighter" [ngClass]="getQtyClass(a.quantityChange)">
+            {{ a.quantityChange > 0 ? '+' : '' }}{{ a.quantityChange }}
+          </p>
+          <p class="mt-4 px-4 py-2 bg-white border border-slate-100 rounded-xl text-xs font-black uppercase tracking-widest text-slate-600 shadow-sm">
+            {{ a.adjustmentTypeName }}
+          </p>
+        </div>
+
+        <!-- Info Grid -->
+        <div class="space-y-8">
+          <div>
+            <h4 class="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-3">Product</h4>
+            <p class="text-lg font-black text-slate-800">{{ a.productName }}</p>
+            <p class="text-xs font-bold text-slate-400 uppercase mt-1 tracking-wider">SKU: {{ a.productSku }}</p>
+          </div>
+          <div>
+            <h4 class="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-3">Warehouse</h4>
+            <p class="text-lg font-black text-slate-800">{{ a.warehouseName }}</p>
+          </div>
+          <div>
+            <h4 class="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-3">Reason</h4>
+            <p class="p-5 rounded-2xl bg-amber-50/50 border border-amber-100 text-sm font-bold text-amber-900 italic">
+              "{{ a.reason || 'No reason provided.' }}"
+            </p>
+          </div>
+        </div>
+
+        <!-- Audit Details -->
+        <div class="mt-12 pt-8 border-t border-slate-100 grid grid-cols-2 gap-8">
+          <div>
+            <p class="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2">Adjusted By</p>
+            <div class="flex items-center gap-2">
+              <div class="h-8 w-8 rounded-full bg-blue-100 flex items-center justify-center text-xs font-bold text-blue-600">
+                {{ a.adjustedByUserName.charAt(0).toUpperCase() }}
+              </div>
+              <p class="text-sm font-bold text-slate-700">{{ a.adjustedByUserName }}</p>
+            </div>
+          </div>
+          <div>
+            <p class="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2">Date & Time</p>
+            <p class="text-sm font-bold text-slate-700">{{ a.adjustmentDate | date:'medium' }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

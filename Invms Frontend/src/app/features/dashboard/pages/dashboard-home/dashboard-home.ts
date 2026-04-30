@@ -11,6 +11,7 @@ import { RoleService } from '../../../roles/services/role.service';
 import { ProductService } from '../../../products/services/product.service';
 import { PurchaseOrderService } from '../../../purchase-orders/services/purchase-order.service';
 import { SalesOrderService } from '../../../sales-orders/services/sales-order.service';
+import { StockAdjustmentService } from '../../../stock-adjustments/services/stock-adjustment.service';
 
 @Component({
   selector: 'app-dashboard-home',
@@ -29,6 +30,7 @@ export class DashboardHome implements OnInit, OnDestroy {
   get canViewPurchaseOrders() { return this.storageService.hasPermission('ViewPurchaseOrders'); }
   get canViewSalesOrders() { return this.storageService.hasPermission('ViewSalesOrders'); }
   get canViewReports() { return this.storageService.hasPermission('ViewReports'); }
+  get canViewStockAdjustments() { return this.storageService.hasPermission('ViewStockAdjustments'); }
 
   username = '';
   userCount = 0;
@@ -40,6 +42,7 @@ export class DashboardHome implements OnInit, OnDestroy {
   productCount = 0;
   purchaseOrderCount = 0;
   salesOrderCount = 0;
+  adjustmentCount = 0;
   isLoading = false;
 
   private routerSubscription?: Subscription;
@@ -55,6 +58,7 @@ export class DashboardHome implements OnInit, OnDestroy {
     private productService: ProductService,
     private poService: PurchaseOrderService,
     private salesService: SalesOrderService,
+    private adjustmentService: StockAdjustmentService,
     private router: Router,
     private cd: ChangeDetectorRef
   ) {
@@ -84,6 +88,7 @@ export class DashboardHome implements OnInit, OnDestroy {
     if (this.canViewProducts) this.fetchProductCount();
     if (this.canViewPurchaseOrders) this.fetchPurchaseOrderCount();
     if (this.canViewSalesOrders) this.fetchSalesOrderCount();
+    if (this.canViewStockAdjustments) this.fetchAdjustmentCount();
 
     // Force a check if values updated immediately
     this.cd.detectChanges();
@@ -194,6 +199,18 @@ export class DashboardHome implements OnInit, OnDestroy {
       next: (res) => {
         if (res.status) {
           this.salesOrderCount = res.data.totalCount || 0;
+          this.cd.detectChanges();
+        }
+      }
+    });
+  }
+
+  fetchAdjustmentCount(): void {
+    const params = { pageNumber: 1, pageSize: 1 };
+    this.adjustmentService.getAllAdjustments(params).subscribe({
+      next: (res) => {
+        if (res.status) {
+          this.adjustmentCount = res.data.totalCount || 0;
           this.cd.detectChanges();
         }
       }
