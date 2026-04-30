@@ -1,8 +1,9 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { HttpClient, HttpContext } from '@angular/common/http';
+import { Observable, catchError, of, throwError } from 'rxjs';
 import { APIResponse, PaginatedResult, PaginationParams } from '../../../core/models/api.model';
 import { API_CONFIG } from '../../../shared/config/api.config';
+import { BYPASS_ERROR_TOAST } from '../../../core/http-interceptors/interceptor-tokens';
 
 export interface Product {
   id: number;
@@ -44,7 +45,30 @@ export class ProductService {
     if (params.searchTerm) {
       queryParams.searchTerm = params.searchTerm;
     }
-    return this.http.get<APIResponse<PaginatedResult<Product>>>(`${this.apiUrl}${this.endpoints.GET_ALL}`, { params: queryParams });
+    return this.http.get<APIResponse<PaginatedResult<Product>>>(`${this.apiUrl}${this.endpoints.GET_ALL}`, { 
+      params: queryParams,
+      context: new HttpContext().set(BYPASS_ERROR_TOAST, true)
+    }).pipe(
+      catchError(err => {
+        if (err.status === 404) {
+          return of({ 
+            status: true, 
+            statusCode: 200, 
+            message: 'No products found', 
+            data: { 
+              items: [], 
+              totalCount: 0,
+              pageNumber: 1,
+              pageSize: 10,
+              totalPages: 0,
+              hasNextPage: false,
+              hasPreviousPage: false
+            } 
+          } as APIResponse<PaginatedResult<Product>>);
+        }
+        return throwError(() => err);
+      })
+    );
   }
 
   getProductById(id: number): Observable<APIResponse<Product>> {
@@ -68,11 +92,35 @@ export class ProductService {
     if (name) params.name = name;
     if (categoryId) params.categoryId = categoryId.toString();
     if (supplierId) params.supplierId = supplierId.toString();
-    return this.http.get<APIResponse<Product[]>>(`${this.apiUrl}${this.endpoints.SEARCH}`, { params });
+    return this.http.get<APIResponse<Product[]>>(`${this.apiUrl}${this.endpoints.SEARCH}`, { 
+      params,
+      context: new HttpContext().set(BYPASS_ERROR_TOAST, true)
+    }).pipe(
+      catchError(err => {
+        if (err.status === 404) {
+          return of({ 
+            status: true, 
+            statusCode: 200, 
+            message: 'No products found', 
+            data: [] 
+          } as APIResponse<Product[]>);
+        }
+        return throwError(() => err);
+      })
+    );
   }
 
   getLowStock(): Observable<APIResponse<Product[]>> {
-    return this.http.get<APIResponse<Product[]>>(`${this.apiUrl}${this.endpoints.LOW_STOCK}`);
+    return this.http.get<APIResponse<Product[]>>(`${this.apiUrl}${this.endpoints.LOW_STOCK}`, {
+      context: new HttpContext().set(BYPASS_ERROR_TOAST, true)
+    }).pipe(
+      catchError(err => {
+        if (err.status === 404) {
+          return of({ status: true, statusCode: 200, message: 'No low stock products', data: [] } as APIResponse<Product[]>);
+        }
+        return throwError(() => err);
+      })
+    );
   }
 
   getProductStockBreakdown(id: number): Observable<APIResponse<any>> {

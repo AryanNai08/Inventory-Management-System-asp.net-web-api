@@ -71,8 +71,13 @@
 
           <tr *ngIf="!isLoading && adjustments.length === 0">
             <td colspan="7" class="px-6 py-24 text-center">
-              <p class="text-lg font-black text-slate-900">No Stock Adjustments Found</p>
-              <p class="text-sm font-bold text-slate-500">Record inventory corrections here.</p>
+              <div class="max-w-xs mx-auto space-y-4 opacity-40">
+                <svg class="w-16 h-16 mx-auto text-slate-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                </svg>
+                <p class="text-lg font-black text-slate-900">{{ searchTerm ? 'No records match your filter' : 'No Adjustments Found' }}</p>
+                <p class="text-sm font-bold text-slate-500">{{ searchTerm ? 'Try adjusting your search or filters.' : 'Record and track manual inventory corrections by creating your first adjustment.' }}</p>
+              </div>
             </td>
           </tr>
 

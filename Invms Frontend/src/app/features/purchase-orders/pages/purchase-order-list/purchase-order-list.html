@@ -69,8 +69,13 @@
 
           <tr *ngIf="!isLoading && orders.length === 0">
             <td colspan="5" class="px-6 py-24 text-center">
-              <p class="text-lg font-black text-slate-900">No Purchase Orders Found</p>
-              <p class="text-sm font-bold text-slate-500">Create your first procurement request.</p>
+              <div class="max-w-xs mx-auto space-y-4 opacity-40">
+                <svg class="w-16 h-16 mx-auto text-slate-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01m-.01 4h.01" />
+                </svg>
+                <p class="text-lg font-black text-slate-900">{{ searchTerm ? 'No records match your filter' : 'No Purchase Orders Found' }}</p>
+                <p class="text-sm font-bold text-slate-500">{{ searchTerm ? 'Try adjusting your search or filters.' : 'Track and manage inventory procurement by creating your first order.' }}</p>
+              </div>
             </td>
           </tr>
 

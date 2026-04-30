@@ -1,8 +1,9 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { Observable, forkJoin, of } from 'rxjs';
+import { HttpClient, HttpContext } from '@angular/common/http';
+import { Observable, forkJoin, of, catchError, throwError } from 'rxjs';
 import { API_CONFIG } from '../../../shared/config/api.config';
 import { APIResponse } from '../../../core/models/api.model';
+import { BYPASS_ERROR_TOAST } from '../../../core/http-interceptors/interceptor-tokens';
 
 export interface Privilege {
   id: number;
@@ -27,7 +28,21 @@ export class RoleService {
 
   // Role CRUD
   getAllRoles(): Observable<APIResponse<Role[]>> {
-    return this.http.get<APIResponse<Role[]>>(`${this.apiUrl}${API_CONFIG.ENDPOINTS.ROLES.GET_ALL}`);
+    return this.http.get<APIResponse<Role[]>>(`${this.apiUrl}${API_CONFIG.ENDPOINTS.ROLES.GET_ALL}`, {
+      context: new HttpContext().set(BYPASS_ERROR_TOAST, true)
+    }).pipe(
+      catchError(err => {
+        if (err.status === 404) {
+          return of({ 
+            status: true, 
+            statusCode: 200, 
+            message: 'No roles found', 
+            data: [] 
+          } as APIResponse<Role[]>);
+        }
+        return throwError(() => err);
+      })
+    );
   }
 
   createRole(role: any): Observable<APIResponse<boolean>> {
@@ -44,12 +59,30 @@ export class RoleService {
 
   // Privileges master list
   getAllPrivileges(): Observable<APIResponse<Privilege[]>> {
-    return this.http.get<APIResponse<Privilege[]>>(`${this.apiUrl}${API_CONFIG.ENDPOINTS.PRIVILEGES.GET_ALL}`);
+    return this.http.get<APIResponse<Privilege[]>>(`${this.apiUrl}${API_CONFIG.ENDPOINTS.PRIVILEGES.GET_ALL}`, {
+      context: new HttpContext().set(BYPASS_ERROR_TOAST, true)
+    }).pipe(
+      catchError(err => {
+        if (err.status === 404) {
+          return of({ status: true, statusCode: 200, message: 'No privileges found', data: [] } as APIResponse<Privilege[]>);
+        }
+        return throwError(() => err);
+      })
+    );
   }
 
   // Role Mapping Read
   getRolePrivileges(roleId: number): Observable<APIResponse<Privilege[]>> {
-    return this.http.get<APIResponse<Privilege[]>>(`${this.apiUrl}${API_CONFIG.ENDPOINTS.ROLE_PRIVILEGES.BY_ROLE(roleId)}`);
+    return this.http.get<APIResponse<Privilege[]>>(`${this.apiUrl}${API_CONFIG.ENDPOINTS.ROLE_PRIVILEGES.BY_ROLE(roleId)}`, {
+      context: new HttpContext().set(BYPASS_ERROR_TOAST, true)
+    }).pipe(
+      catchError(err => {
+        if (err.status === 404) {
+          return of({ status: true, statusCode: 200, message: 'No privileges for this role', data: [] } as APIResponse<Privilege[]>);
+        }
+        return throwError(() => err);
+      })
+    );
   }
 
   // Atomic Assignment

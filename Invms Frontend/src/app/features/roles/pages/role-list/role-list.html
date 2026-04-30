@@ -79,9 +79,16 @@
               </div>
             </td>
           </tr>
-          <tr *ngIf="filteredRoles.length === 0 && !isLoading">
-            <td colspan="3" class="px-6 py-12 text-center text-slate-400 font-medium italic">
-              {{ searchTerm ? 'No roles match your filter.' : 'No roles registered. Initialize system governance.' }}
+          <!-- Empty State -->
+          <tr *ngIf="!isLoading && filteredRoles.length === 0">
+            <td colspan="3" class="px-6 py-24 text-center">
+              <div class="max-w-xs mx-auto space-y-4 opacity-40">
+                <svg class="w-16 h-16 mx-auto text-slate-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04a11.357 11.357 0 00-1.573 7.411c.59 4.4 3.763 8.053 8.327 9.563a11.576 11.576 0 001.732.332a11.274 11.274 0 001.732-.332c4.564-1.51 7.737-5.163 8.327-9.563a11.357 11.357 0 00-1.573-7.411z" />
+                </svg>
+                <p class="text-lg font-black text-slate-900">{{ searchTerm ? 'No records match your filter' : 'No Roles Found' }}</p>
+                <p class="text-sm font-bold text-slate-500">{{ searchTerm ? 'Try adjusting your search or filters.' : 'Define access topologies and system capabilities by adding your first role.' }}</p>
+              </div>
             </td>
           </tr>
         </tbody>

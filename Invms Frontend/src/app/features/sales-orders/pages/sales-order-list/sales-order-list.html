@@ -96,6 +96,28 @@
           </tr>
         </thead>
         <tbody class="divide-y divide-slate-50">
+          <!-- Loading State -->
+          <tr *ngIf="isLoading && orders.length === 0">
+            <td colspan="6" class="px-10 py-20 text-center">
+              <div class="flex flex-col items-center gap-3">
+                <div class="w-12 h-12 border-4 border-indigo-100 border-t-indigo-600 rounded-full animate-spin"></div>
+                <p class="text-slate-400 font-bold tracking-widest uppercase text-[10px]">Syncing Sales Terminal...</p>
+              </div>
+            </td>
+          </tr>
+
+          <!-- Empty State -->
+          <tr *ngIf="!isLoading && orders.length === 0">
+            <td colspan="6" class="px-10 py-24 text-center">
+              <div class="max-w-xs mx-auto space-y-4 opacity-40">
+                <svg class="w-16 h-16 mx-auto text-slate-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+                </svg>
+                <p class="text-lg font-black text-slate-900">{{ searchTerm ? 'No records match your filter' : 'No Sales Orders Found' }}</p>
+                <p class="text-sm font-bold text-slate-500">{{ searchTerm ? 'Try adjusting your search or filters.' : 'Manage customer orders and fulfillment by creating your first sales record.' }}</p>
+              </div>
+            </td>
+          </tr>
           <tr *ngFor="let o of orders" class="group hover:bg-slate-50/80 transition-all duration-300 cursor-pointer"
             (click)="openDetail(o)">
             <td class="px-10 py-7">

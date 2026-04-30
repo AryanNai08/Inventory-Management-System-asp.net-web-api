@@ -1,8 +1,9 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { HttpClient, HttpContext } from '@angular/common/http';
+import { Observable, catchError, of, throwError } from 'rxjs';
 import { APIResponse, PaginatedResult, PaginationParams } from '../../../core/models/api.model';
 import { API_CONFIG } from '../../../shared/config/api.config';
+import { BYPASS_ERROR_TOAST } from '../../../core/http-interceptors/interceptor-tokens';
 
 export interface PurchaseOrderItem {
   id: number;
@@ -53,7 +54,30 @@ export class PurchaseOrderService {
     if (params.searchTerm) {
       queryParams.searchTerm = params.searchTerm;
     }
-    return this.http.get<APIResponse<PaginatedResult<PurchaseOrder>>>(`${this.apiUrl}${this.endpoints.GET_ALL}`, { params: queryParams });
+    return this.http.get<APIResponse<PaginatedResult<PurchaseOrder>>>(`${this.apiUrl}${this.endpoints.GET_ALL}`, { 
+      params: queryParams,
+      context: new HttpContext().set(BYPASS_ERROR_TOAST, true)
+    }).pipe(
+      catchError(err => {
+        if (err.status === 404) {
+          return of({ 
+            status: true, 
+            statusCode: 200, 
+            message: 'No purchase orders found', 
+            data: { 
+              items: [], 
+              totalCount: 0,
+              pageNumber: 1,
+              pageSize: 10,
+              totalPages: 0,
+              hasNextPage: false,
+              hasPreviousPage: false
+            } 
+          } as APIResponse<PaginatedResult<PurchaseOrder>>);
+        }
+        return throwError(() => err);
+      })
+    );
   }
 
   getOrderById(id: number): Observable<APIResponse<PurchaseOrder>> {

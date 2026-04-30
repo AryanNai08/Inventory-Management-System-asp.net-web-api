@@ -1,8 +1,9 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { HttpClient, HttpContext } from '@angular/common/http';
+import { Observable, catchError, of, throwError } from 'rxjs';
 import { APIResponse, PaginatedResult, PaginationParams } from '../../../core/models/api.model';
 import { API_CONFIG } from '../../../shared/config/api.config';
+import { BYPASS_ERROR_TOAST } from '../../../core/http-interceptors/interceptor-tokens';
 
 export interface AdjustmentType {
   id: number;
@@ -52,7 +53,30 @@ export class StockAdjustmentService {
     if (params.searchTerm) {
       queryParams.searchTerm = params.searchTerm;
     }
-    return this.http.get<APIResponse<PaginatedResult<StockAdjustment>>>(`${this.apiUrl}${this.endpoints.GET_ALL}`, { params: queryParams });
+    return this.http.get<APIResponse<PaginatedResult<StockAdjustment>>>(`${this.apiUrl}${this.endpoints.GET_ALL}`, { 
+      params: queryParams,
+      context: new HttpContext().set(BYPASS_ERROR_TOAST, true)
+    }).pipe(
+      catchError(err => {
+        if (err.status === 404) {
+          return of({ 
+            status: true, 
+            statusCode: 200, 
+            message: 'No stock adjustments found', 
+            data: { 
+              items: [], 
+              totalCount: 0,
+              pageNumber: 1,
+              pageSize: 10,
+              totalPages: 0,
+              hasNextPage: false,
+              hasPreviousPage: false
+            } 
+          } as APIResponse<PaginatedResult<StockAdjustment>>);
+        }
+        return throwError(() => err);
+      })
+    );
   }
 
   getAdjustmentById(id: number): Observable<APIResponse<StockAdjustment>> {
@@ -64,6 +88,15 @@ export class StockAdjustmentService {
   }
 
   getAdjustmentTypes(): Observable<APIResponse<AdjustmentType[]>> {
-    return this.http.get<APIResponse<AdjustmentType[]>>(`${this.apiUrl}${this.endpoints.TYPES}`);
+    return this.http.get<APIResponse<AdjustmentType[]>>(`${this.apiUrl}${this.endpoints.TYPES}`, {
+      context: new HttpContext().set(BYPASS_ERROR_TOAST, true)
+    }).pipe(
+      catchError(err => {
+        if (err.status === 404) {
+          return of({ status: true, statusCode: 200, message: 'No adjustment types', data: [] } as APIResponse<AdjustmentType[]>);
+        }
+        return throwError(() => err);
+      })
+    );
   }
 }

@@ -4,6 +4,7 @@ import { Observable, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { Router } from '@angular/router';
 import { ToastService } from '../services/toast';
+import { BYPASS_ERROR_TOAST } from './interceptor-tokens';
 
 export const errorInterceptor: HttpInterceptorFn = (req: HttpRequest<unknown>, next: HttpHandlerFn): Observable<HttpEvent<unknown>> => {
   const router = inject(Router);
@@ -22,6 +23,11 @@ export const errorInterceptor: HttpInterceptorFn = (req: HttpRequest<unknown>, n
       }
 
       if (error.status === 401) {
+        return throwError(() => error);
+      }
+
+      // Bypass toast if explicitly requested via context
+      if (req.context.get(BYPASS_ERROR_TOAST)) {
         return throwError(() => error);
       }
 

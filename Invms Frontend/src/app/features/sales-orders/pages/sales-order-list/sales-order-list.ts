@@ -35,6 +35,7 @@ export class SalesOrderListComponent implements OnInit, OnDestroy {
     searchTerm: ''
   };
   totalCount = 0;
+  searchTerm: string = '';
 
   orderForm: FormGroup;
 
@@ -377,6 +378,7 @@ export class SalesOrderListComponent implements OnInit, OnDestroy {
   }
 
   onSearch(term: string) {
+    this.searchTerm = term;
     this.pagination.searchTerm = term;
     this.pagination.pageNumber = 1;
     this.fetchOrders();

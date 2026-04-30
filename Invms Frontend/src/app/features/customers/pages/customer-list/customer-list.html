@@ -78,8 +78,14 @@
 
             <!-- Empty State -->
             <tr *ngIf="!isLoading && customers.length === 0">
-              <td colspan="6" class="px-6 py-20 text-center">
-                <p class="text-slate-400 font-bold">No customers found. Start by adding one!</p>
+              <td colspan="6" class="px-6 py-24 text-center">
+                <div class="max-w-xs mx-auto space-y-4 opacity-40">
+                  <svg class="w-16 h-16 mx-auto text-slate-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                  </svg>
+                  <p class="text-lg font-black text-slate-900">{{ searchTerm ? 'No records match your filter' : 'No Customers Found' }}</p>
+                  <p class="text-sm font-bold text-slate-500">{{ searchTerm ? 'Try adjusting your search or filters.' : 'Maintain accurate client contact and delivery details by adding your first customer.' }}</p>
+                </div>
               </td>
             </tr>
 

@@ -80,8 +80,14 @@
 
             <!-- Empty State -->
             <tr *ngIf="!isLoading && filteredCategories.length === 0">
-              <td colspan="5" class="px-6 py-20 text-center">
-                <p class="text-slate-400 font-bold">No categories found matching "{{searchTerm}}".</p>
+              <td colspan="5" class="px-6 py-24 text-center">
+                <div class="max-w-xs mx-auto space-y-4 opacity-40">
+                  <svg class="w-16 h-16 mx-auto text-slate-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
+                  </svg>
+                  <p class="text-lg font-black text-slate-900">{{ searchTerm ? 'No records match your filter' : 'No Categories Found' }}</p>
+                  <p class="text-sm font-bold text-slate-500">{{ searchTerm ? 'Try adjusting your search or filters.' : 'Organize your products effectively by adding your first category.' }}</p>
+                </div>
               </td>
             </tr>
 
