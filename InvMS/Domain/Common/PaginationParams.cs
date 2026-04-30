@@ -14,5 +14,6 @@ namespace Domain.Common
 
         public string? SortColumn { get; set; }
         public string? SortOrder { get; set; } = "asc"; // "asc" or "desc"
+        public string? SearchTerm { get; set; }
     }
 }

@@ -23,6 +23,8 @@ namespace Application.Tests.Services
 
             _productService = new ProductService(
                 _mockProductRepository.Object,
+                MockWarehouseRepository.Object,
+                MockStockRepository.Object,
                 MockMapper.Object,
                 MockUnitOfWork.Object,
                 MockCurrentUserService.Object);

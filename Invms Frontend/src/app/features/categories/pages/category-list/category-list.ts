@@ -13,7 +13,9 @@ import { ChangeDetectorRef } from '@angular/core';
 })
 export class CategoryList implements OnInit {
   categories: any[] = [];
+  filteredCategories: any[] = [];
   isLoading = false;
+  searchTerm: string = '';
   
   // Role Access
   canCreate = false;
@@ -59,6 +61,7 @@ export class CategoryList implements OnInit {
         this.isLoading = false;
         if (res.status) {
           this.categories = res.data || [];
+          this.applyFilter();
         }
         this.cdr.detectChanges();
       },
@@ -143,4 +146,20 @@ export class CategoryList implements OnInit {
   }
 
 
+  onSearch(term: string): void {
+    this.searchTerm = term;
+    this.applyFilter();
+  }
+
+  applyFilter(): void {
+    if (!this.searchTerm) {
+      this.filteredCategories = [...this.categories];
+    } else {
+      const term = this.searchTerm.toLowerCase();
+      this.filteredCategories = this.categories.filter(c => 
+        c.name.toLowerCase().includes(term) || 
+        (c.description && c.description.toLowerCase().includes(term))
+      );
+    }
+  }
 }

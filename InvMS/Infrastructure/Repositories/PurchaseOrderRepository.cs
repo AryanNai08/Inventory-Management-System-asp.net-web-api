@@ -66,6 +66,15 @@ namespace Infrastructure.Repositories
                 .Include(p => p.Status)
                 .AsQueryable();
 
+            if (!string.IsNullOrWhiteSpace(@params.SearchTerm))
+            {
+                var term = @params.SearchTerm.ToLower();
+                query = query.Where(p => 
+                    p.OrderNumber.ToLower().Contains(term) || 
+                    p.Supplier.Name.ToLower().Contains(term) || 
+                    p.Warehouse.Name.ToLower().Contains(term));
+            }
+
             // Sorting
             if (!string.IsNullOrWhiteSpace(@params.SortColumn))
             {

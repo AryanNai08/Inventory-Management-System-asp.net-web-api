@@ -13,12 +13,16 @@ namespace Application.Tests.Fixtures
         protected readonly Mock<IMapper> MockMapper;
         protected readonly Mock<IUnitOfWork> MockUnitOfWork;
         protected readonly Mock<ICurrentUserService> MockCurrentUserService;
+        protected readonly Mock<IWarehouseRepository> MockWarehouseRepository;
+        protected readonly Mock<IProductWarehouseStockRepository> MockStockRepository;
 
         protected ServiceTestFixture()
         {
             MockMapper = new Mock<IMapper>();
             MockUnitOfWork = new Mock<IUnitOfWork>();
             MockCurrentUserService = new Mock<ICurrentUserService>();
+            MockWarehouseRepository = new Mock<IWarehouseRepository>();
+            MockStockRepository = new Mock<IProductWarehouseStockRepository>();
         }
 
         protected void ResetAllMocks()
@@ -26,6 +30,8 @@ namespace Application.Tests.Fixtures
             MockMapper.Reset();
             MockUnitOfWork.Reset();
             MockCurrentUserService.Reset();
+            MockWarehouseRepository.Reset();
+            MockStockRepository.Reset();
         }
     }
 

@@ -40,6 +40,9 @@ export class ProductList implements OnInit, OnDestroy {
   isSaving = false;
   currentRowVersion: any = null;
 
+  // Search State
+  searchTerm: string = '';
+
   // Detail View State
   selectedProductForDetail: Product | null = null;
   isDetailOpen = false;
@@ -115,7 +118,8 @@ export class ProductList implements OnInit, OnDestroy {
       pageNumber: this.currentPage,
       pageSize: this.pageSize,
       sortColumn: 'Id',
-      sortOrder: 'desc'
+      sortOrder: 'desc',
+      searchTerm: this.searchTerm
     };
 
     this.productService.getAllProducts(params).subscribe({
@@ -138,6 +142,12 @@ export class ProductList implements OnInit, OnDestroy {
         this.cdr.detectChanges();
       }
     });
+  }
+
+  onSearch(term: string): void {
+    this.searchTerm = term;
+    this.currentPage = 1;
+    this.fetchProducts();
   }
 
   onPageChange(page: number): void {

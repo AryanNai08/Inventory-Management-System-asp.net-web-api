@@ -23,6 +23,7 @@ export class PurchaseOrderList implements OnInit, OnDestroy {
   isLoading = false;
   isSaving = false;
   isAdmin = false;
+  searchTerm: string = '';
 
   // RBAC Flags
   canView = false;
@@ -115,7 +116,8 @@ export class PurchaseOrderList implements OnInit, OnDestroy {
       pageNumber: this.currentPage,
       pageSize: this.pageSize,
       sortColumn: 'Id',
-      sortOrder: 'desc'
+      sortOrder: 'desc',
+      searchTerm: this.searchTerm
     };
 
     this.poService.getAllOrders(params).subscribe({
@@ -137,6 +139,12 @@ export class PurchaseOrderList implements OnInit, OnDestroy {
         this.cdr.detectChanges();
       }
     });
+  }
+
+  onSearch(term: string): void {
+    this.searchTerm = term;
+    this.currentPage = 1;
+    this.fetchOrders();
   }
 
   onPageChange(page: number): void {

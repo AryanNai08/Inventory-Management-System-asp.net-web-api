@@ -1,7 +1,7 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, Routes } from '@angular/router';
-import { ReactiveFormsModule, FormsModule } from '@angular/forms';
+import { SharedModule } from '../../shared/shared.module';
 import { RoleList } from './pages/role-list/role-list';
 
 const routes: Routes = [
@@ -13,10 +13,8 @@ const routes: Routes = [
     RoleList
   ],
   imports: [
-    CommonModule,
-    RouterModule.forChild(routes),
-    ReactiveFormsModule,
-    FormsModule
+    SharedModule,
+    RouterModule.forChild(routes)
   ]
 })
 export class RoleModule { }

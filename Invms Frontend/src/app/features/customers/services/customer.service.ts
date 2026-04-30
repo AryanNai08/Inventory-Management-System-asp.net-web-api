@@ -24,6 +24,9 @@ export class CustomerService {
     if (params.sortOrder) {
       httpParams = httpParams.set('sortOrder', params.sortOrder);
     }
+    if (params.searchTerm) {
+      httpParams = httpParams.set('searchTerm', params.searchTerm);
+    }
 
     return this.http.get<APIResponse<PaginatedResult<any>>>(`${this.apiUrl}${this.endpoints.GET_ALL}`, { params: httpParams });
   }

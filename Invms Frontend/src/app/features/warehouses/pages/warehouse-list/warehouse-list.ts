@@ -13,7 +13,9 @@ import { ChangeDetectorRef } from '@angular/core';
 })
 export class WarehouseList implements OnInit {
   warehouses: any[] = [];
+  filteredWarehouses: any[] = [];
   isLoading = false;
+  searchTerm: string = '';
   
   // Permission Flags
   canView = false;
@@ -59,6 +61,7 @@ export class WarehouseList implements OnInit {
         this.isLoading = false;
         if (res.status && res.data) {
           this.warehouses = res.data;
+          this.applyFilter();
         }
         this.cdr.detectChanges();
       },
@@ -144,5 +147,22 @@ export class WarehouseList implements OnInit {
         this.toastService.error('Error', msg);
       }
     });
+  }
+  onSearch(term: string): void {
+    this.searchTerm = term;
+    this.applyFilter();
+  }
+
+  applyFilter(): void {
+    if (!this.searchTerm) {
+      this.filteredWarehouses = [...this.warehouses];
+    } else {
+      const term = this.searchTerm.toLowerCase();
+      this.filteredWarehouses = this.warehouses.filter(w => 
+        w.name.toLowerCase().includes(term) || 
+        w.location.toLowerCase().includes(term) ||
+        (w.description && w.description.toLowerCase().includes(term))
+      );
+    }
   }
 }

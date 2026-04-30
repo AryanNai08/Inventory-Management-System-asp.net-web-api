@@ -30,6 +30,15 @@ namespace Infrastructure.Repositories
                 .Where(s => !s.IsDeleted)
                 .AsQueryable();
 
+            if (!string.IsNullOrWhiteSpace(@params.SearchTerm))
+            {
+                var term = @params.SearchTerm.ToLower();
+                query = query.Where(s => 
+                    s.Name.ToLower().Contains(term) || 
+                    s.City.ToLower().Contains(term) || 
+                    s.Email.ToLower().Contains(term));
+            }
+
             // Sorting
             if (!string.IsNullOrWhiteSpace(@params.SortColumn))
             {

@@ -22,6 +22,7 @@ export class StockAdjustmentList implements OnInit, OnDestroy {
   isLoading = false;
   isSaving = false;
   isAdmin = false;
+  searchTerm: string = '';
 
   // RBAC
   canView = false;
@@ -137,7 +138,8 @@ export class StockAdjustmentList implements OnInit, OnDestroy {
       pageNumber: this.currentPage,
       pageSize: this.pageSize,
       sortColumn: 'Id',
-      sortOrder: 'desc'
+      sortOrder: 'desc',
+      searchTerm: this.searchTerm
     };
 
     this.stockService.getAllAdjustments(params).subscribe({
@@ -158,6 +160,12 @@ export class StockAdjustmentList implements OnInit, OnDestroy {
         this.cdr.detectChanges();
       }
     });
+  }
+
+  onSearch(term: string): void {
+    this.searchTerm = term;
+    this.currentPage = 1;
+    this.fetchAdjustments();
   }
 
   onPageChange(page: number): void {

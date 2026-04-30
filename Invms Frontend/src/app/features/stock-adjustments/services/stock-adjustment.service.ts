@@ -43,12 +43,15 @@ export class StockAdjustmentService {
   constructor(private http: HttpClient) {}
 
   getAllAdjustments(params: PaginationParams): Observable<APIResponse<PaginatedResult<StockAdjustment>>> {
-    const queryParams = {
+    const queryParams: any = {
       pageNumber: params.pageNumber.toString(),
       pageSize: params.pageSize.toString(),
       sortColumn: params.sortColumn || 'Id',
       sortOrder: params.sortOrder || 'desc'
     };
+    if (params.searchTerm) {
+      queryParams.searchTerm = params.searchTerm;
+    }
     return this.http.get<APIResponse<PaginatedResult<StockAdjustment>>>(`${this.apiUrl}${this.endpoints.GET_ALL}`, { params: queryParams });
   }
 

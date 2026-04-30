@@ -15,6 +15,7 @@ import { ChangeDetectorRef } from '@angular/core';
 export class SupplierList implements OnInit {
   suppliers: any[] = [];
   isLoading = false;
+  searchTerm: string = '';
   
   // PBAC Flags
   canViewSuppliers = false;
@@ -70,7 +71,8 @@ export class SupplierList implements OnInit {
       pageNumber: this.currentPage,
       pageSize: this.pageSize,
       sortColumn: 'Name',
-      sortOrder: 'asc'
+      sortOrder: 'asc',
+      searchTerm: this.searchTerm
     };
 
     this.supplierService.getAllSuppliers(params).subscribe({
@@ -93,6 +95,12 @@ export class SupplierList implements OnInit {
         this.cdr.detectChanges();
       }
     });
+  }
+
+  onSearch(term: string): void {
+    this.searchTerm = term;
+    this.currentPage = 1;
+    this.fetchSuppliers();
   }
 
   onPageChange(page: number): void {

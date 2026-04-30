@@ -1,7 +1,7 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, Routes } from '@angular/router';
-import { ReactiveFormsModule, FormsModule } from '@angular/forms';
+import { SharedModule } from '../../shared/shared.module';
 import { StockAdjustmentList } from './pages/stock-adjustment-list/stock-adjustment-list';
 
 const routes: Routes = [
@@ -13,9 +13,7 @@ const routes: Routes = [
     StockAdjustmentList
   ],
   imports: [
-    CommonModule,
-    ReactiveFormsModule,
-    FormsModule,
+    SharedModule,
     RouterModule.forChild(routes)
   ]
 })

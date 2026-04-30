@@ -13,7 +13,9 @@ import { ChangeDetectorRef } from '@angular/core';
 })
 export class UserList implements OnInit {
   users: any[] = [];
+  filteredUsers: any[] = [];
   isLoading = false;
+  searchTerm: string = '';
   
   // Permission Access
   canManageUsers = false;
@@ -56,6 +58,7 @@ export class UserList implements OnInit {
         this.isLoading = false;
         if (res.status) {
           this.users = res.data || [];
+          this.applyFilter();
         }
         this.cdr.detectChanges();
       },
@@ -145,5 +148,23 @@ export class UserList implements OnInit {
       return `${username}(${user.roles[0]})`;
     }
     return username;
+  }
+  onSearch(term: string): void {
+    this.searchTerm = term;
+    this.applyFilter();
+  }
+
+  applyFilter(): void {
+    if (!this.searchTerm) {
+      this.filteredUsers = [...this.users];
+    } else {
+      const term = this.searchTerm.toLowerCase();
+      this.filteredUsers = this.users.filter(u => 
+        (u.fullName && u.fullName.toLowerCase().includes(term)) || 
+        (u.username && u.username.toLowerCase().includes(term)) ||
+        (u.email && u.email.toLowerCase().includes(term)) ||
+        (u.roles && u.roles.some((r: string) => r.toLowerCase().includes(term)))
+      );
+    }
   }
 }

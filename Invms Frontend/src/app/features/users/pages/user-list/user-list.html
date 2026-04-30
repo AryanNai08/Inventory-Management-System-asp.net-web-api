@@ -32,6 +32,19 @@
     </div>
   </div>
 
+  <!-- Search Bar -->
+  <div class="mb-6 flex flex-col md:flex-row items-center justify-between gap-4">
+    <app-search-bar 
+      placeholder="Filter by name, email or role..." 
+      (onSearch)="onSearch($event)">
+    </app-search-bar>
+    
+    <div class="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-slate-400">
+      <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+      Instant Filter Active
+    </div>
+  </div>
+
   <!-- Table Container -->
   <div class="relative group">
     <div
@@ -65,8 +78,15 @@
               </td>
             </tr>
 
+            <!-- Empty State -->
+            <tr *ngIf="!isLoading && filteredUsers.length === 0">
+              <td colspan="5" class="px-6 py-20 text-center">
+                <p class="text-slate-400 font-bold">No users found matching "{{searchTerm}}".</p>
+              </td>
+            </tr>
+
             <!-- Data Rows -->
-            <tr *ngFor="let user of users" class="group hover:bg-blue-50/30 transition-colors">
+            <tr *ngFor="let user of filteredUsers" class="group hover:bg-blue-50/30 transition-colors">
               <td class="px-6 py-5">
                 <div class="flex items-center gap-4">
                   <div

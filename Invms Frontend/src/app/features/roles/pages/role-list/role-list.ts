@@ -13,7 +13,9 @@ import { ChangeDetectorRef } from '@angular/core';
 })
 export class RoleList implements OnInit {
   roles: Role[] = [];
+  filteredRoles: Role[] = [];
   allPrivileges: Privilege[] = [];
+  searchTerm: string = '';
   
   // Privilege tracking sets
   originalPrivilegeIds: number[] = [];
@@ -52,6 +54,7 @@ export class RoleList implements OnInit {
     this.roleService.getAllRoles().subscribe({
       next: (res) => {
         this.roles = res.data || [];
+        this.applyFilter();
         this.isLoading = false;
         this.cdr.detectChanges();
       },
@@ -186,5 +189,21 @@ export class RoleList implements OnInit {
     this.isModalOpen = false;
     this.isProcessing = false;
     this.isLoading = false;
+  }
+  onSearch(term: string): void {
+    this.searchTerm = term;
+    this.applyFilter();
+  }
+
+  applyFilter(): void {
+    if (!this.searchTerm) {
+      this.filteredRoles = [...this.roles];
+    } else {
+      const term = this.searchTerm.toLowerCase();
+      this.filteredRoles = this.roles.filter(r => 
+        r.name.toLowerCase().includes(term) || 
+        (r.description && r.description.toLowerCase().includes(term))
+      );
+    }
   }
 }

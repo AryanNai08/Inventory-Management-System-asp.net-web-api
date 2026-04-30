@@ -35,12 +35,15 @@ export class ProductService {
   constructor(private http: HttpClient) {}
 
   getAllProducts(params: PaginationParams): Observable<APIResponse<PaginatedResult<Product>>> {
-    const queryParams = {
+    const queryParams: any = {
       pageNumber: params.pageNumber.toString(),
       pageSize: params.pageSize.toString(),
       sortColumn: params.sortColumn || 'Id',
       sortOrder: params.sortOrder || 'asc'
     };
+    if (params.searchTerm) {
+      queryParams.searchTerm = params.searchTerm;
+    }
     return this.http.get<APIResponse<PaginatedResult<Product>>>(`${this.apiUrl}${this.endpoints.GET_ALL}`, { params: queryParams });
   }
 

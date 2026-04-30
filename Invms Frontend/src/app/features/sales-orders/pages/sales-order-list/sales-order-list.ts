@@ -376,6 +376,12 @@ export class SalesOrderListComponent implements OnInit, OnDestroy {
     return 'bg-slate-100 text-slate-700 border-slate-200';
   }
 
+  onSearch(term: string) {
+    this.pagination.searchTerm = term;
+    this.pagination.pageNumber = 1;
+    this.fetchOrders();
+  }
+
   onPageChange(page: number) {
     this.pagination.pageNumber = page;
     this.fetchOrders();

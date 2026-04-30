@@ -44,12 +44,15 @@ export class PurchaseOrderService {
   constructor(private http: HttpClient) {}
 
   getAllOrders(params: PaginationParams): Observable<APIResponse<PaginatedResult<PurchaseOrder>>> {
-    const queryParams = {
+    const queryParams: any = {
       pageNumber: params.pageNumber.toString(),
       pageSize: params.pageSize.toString(),
       sortColumn: params.sortColumn || 'Id',
       sortOrder: params.sortOrder || 'desc'
     };
+    if (params.searchTerm) {
+      queryParams.searchTerm = params.searchTerm;
+    }
     return this.http.get<APIResponse<PaginatedResult<PurchaseOrder>>>(`${this.apiUrl}${this.endpoints.GET_ALL}`, { params: queryParams });
   }
 

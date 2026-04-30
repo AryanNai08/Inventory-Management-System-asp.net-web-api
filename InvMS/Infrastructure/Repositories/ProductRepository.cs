@@ -20,7 +20,18 @@ namespace Infrastructure.Repositories
         {
             var baseQuery = _dbContext.Products
                 .Where(p => !p.IsDeleted)
-                .AsNoTracking();
+                .AsQueryable();
+
+            if (!string.IsNullOrWhiteSpace(@params.SearchTerm))
+            {
+                var term = @params.SearchTerm.ToLower();
+                baseQuery = baseQuery.Where(p => 
+                    p.Name.ToLower().Contains(term) || 
+                    p.Sku.ToLower().Contains(term) || 
+                    (p.Description != null && p.Description.ToLower().Contains(term)));
+            }
+
+            baseQuery = baseQuery.AsNoTracking();
 
             // 1. Calculate TotalCount
             var count = await baseQuery.CountAsync();
@@ -107,6 +118,15 @@ namespace Infrastructure.Repositories
                 .Include(p => p.Supplier)
                 .Where(p => !p.IsDeleted)
                 .AsQueryable();
+
+            if (!string.IsNullOrWhiteSpace(@params.SearchTerm))
+            {
+                var term = @params.SearchTerm.ToLower();
+                query = query.Where(p => 
+                    p.Name.ToLower().Contains(term) || 
+                    p.Sku.ToLower().Contains(term) || 
+                    (p.Description != null && p.Description.ToLower().Contains(term)));
+            }
 
             // Sorting
             if (!string.IsNullOrWhiteSpace(@params.SortColumn))
