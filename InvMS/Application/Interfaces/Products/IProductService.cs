@@ -21,5 +21,6 @@ namespace Application.Interfaces.Products
         public Task<List<ProductDto>> GetLowStockProducts();
         public Task<List<ProductDto>> GetOutOfStockProducts();
         public Task<bool> PatchAsync(int id, JsonPatchDocument<UpdateProductDto> patchDoc);
+        public Task<ProductStockBreakdownResponseDto> GetStockBreakdownAsync(int productId);
     }
 }

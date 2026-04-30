@@ -45,6 +45,11 @@ export class ProductList implements OnInit, OnDestroy {
   isDetailOpen = false;
   isAdmin = false;
 
+  // Breakdown State
+  stockBreakdown: any = null;
+  isLoadingBreakdown = false;
+  lastBreakdownProductId: number | null = null;
+
   @HostListener('window:keydown.escape')
   onEscapePressed() {
     this.closeDetail();
@@ -177,12 +182,38 @@ export class ProductList implements OnInit, OnDestroy {
     this.selectedProductForDetail = product;
     this.isDetailOpen = true;
     document.body.classList.add('no-scroll');
+    this.fetchStockBreakdown(product.id);
     this.cdr.detectChanges();
+  }
+
+  fetchStockBreakdown(productId: number): void {
+    if (this.lastBreakdownProductId === productId && this.stockBreakdown) {
+      return; // Use cached
+    }
+
+    this.isLoadingBreakdown = true;
+    this.stockBreakdown = null;
+    this.productService.getProductStockBreakdown(productId).subscribe({
+      next: (res) => {
+        this.isLoadingBreakdown = false;
+        if (res.status) {
+          this.stockBreakdown = res.data;
+          this.lastBreakdownProductId = productId;
+        }
+        this.cdr.detectChanges();
+      },
+      error: () => {
+        this.isLoadingBreakdown = false;
+        this.cdr.detectChanges();
+      }
+    });
   }
 
   closeDetail(): void {
     this.isDetailOpen = false;
     this.selectedProductForDetail = null;
+    this.stockBreakdown = null;
+    this.lastBreakdownProductId = null;
     document.body.classList.remove('no-scroll');
     this.cdr.detectChanges();
   }

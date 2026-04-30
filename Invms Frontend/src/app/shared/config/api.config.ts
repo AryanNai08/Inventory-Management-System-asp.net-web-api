@@ -56,7 +56,8 @@ export const API_CONFIG = {
       UPDATE: (id: number) => `/api/Products/${id}`,
       DELETE: (id: number) => `/api/Products/${id}`,
       LOW_STOCK: '/api/Products/low-stock',
-      SEARCH: '/api/Products/search'
+      SEARCH: '/api/Products/search',
+      STOCK_LOCATIONS: (id: number) => `/api/Products/${id}/stock-locations`
     },
     ROLES: {
       GET_ALL: '/api/Roles/all',
@@ -103,6 +104,12 @@ export const API_CONFIG = {
       SHIP: (id: number) => `/api/sales-orders/${id}/ship`,
       DELIVER: (id: number) => `/api/sales-orders/${id}/deliver`,
       CANCEL: (id: number) => `/api/sales-orders/${id}`
+    },
+    STOCK_ADJUSTMENTS: {
+      GET_ALL: '/api/StockAdjustments',
+      BY_ID: (id: number) => `/api/StockAdjustments/${id}`,
+      CREATE: '/api/StockAdjustments',
+      TYPES: '/api/StockAdjustments/types'
     }
   }
 };

@@ -266,6 +266,52 @@
           </div>
         </section>
 
+        <!-- Stock Breakdown (New) -->
+        <section class="space-y-4 animate-in fade-in duration-700">
+          <div class="flex items-center justify-between px-1">
+            <h4 class="text-[11px] font-black uppercase tracking-widest text-slate-400">Warehouse Distribution</h4>
+            <div *ngIf="stockBreakdown" class="px-3 py-1 rounded-full bg-slate-900 text-[10px] font-black text-white uppercase tracking-tighter">
+              Total: {{ stockBreakdown.totalStock }} Units
+            </div>
+          </div>
+          
+          <div class="bg-slate-50/50 rounded-3xl border border-slate-100 overflow-hidden shadow-inner">
+            <!-- Loading -->
+            <div *ngIf="isLoadingBreakdown" class="p-10 flex flex-col items-center gap-2">
+              <div class="w-6 h-6 border-2 border-slate-200 border-t-blue-600 rounded-full animate-spin"></div>
+              <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Locating Stock...</p>
+            </div>
+
+            <!-- Table -->
+            <table *ngIf="!isLoadingBreakdown && stockBreakdown" class="w-full text-left">
+              <thead>
+                <tr class="border-b border-slate-100 bg-slate-100/30">
+                  <th class="px-6 py-4 text-[9px] font-black uppercase tracking-widest text-slate-400">Warehouse</th>
+                  <th class="px-6 py-4 text-[9px] font-black uppercase tracking-widest text-slate-400 text-right">Quantity</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-slate-100">
+                <tr *ngFor="let loc of stockBreakdown.locations" class="hover:bg-white transition-colors">
+                  <td class="px-6 py-4">
+                    <p class="text-xs font-black text-slate-700">{{ loc.warehouseName }}</p>
+                  </td>
+                  <td class="px-6 py-4 text-right">
+                    <span [ngClass]="loc.quantity > 0 ? 'text-emerald-600 bg-emerald-50' : 'text-slate-400 bg-slate-100'" 
+                          class="px-3 py-1 rounded-lg text-xs font-black tabular-nums">
+                      {{ loc.quantity }}
+                    </span>
+                  </td>
+                </tr>
+                <tr *ngIf="stockBreakdown.locations.length === 0">
+                   <td colspan="2" class="px-6 py-10 text-center italic text-slate-400 text-sm">
+                      No stock records found for any warehouse.
+                   </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
         <!-- Metadata -->
         <section class="pt-6 border-t border-slate-100">
           <div class="grid grid-cols-2 gap-6 hover:grayscale-0 transition-all duration-500">

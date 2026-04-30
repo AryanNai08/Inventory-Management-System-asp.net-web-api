@@ -198,5 +198,14 @@ namespace InvMS.Controller
             await _productService.PatchAsync(id, patchDoc);
             return Ok(new APIResponse<string>("Product updated partially", "Patch successful"));
         }
+
+        [HttpGet]
+        [Route("{id:int}/stock-locations")]
+        [Authorize(Policy = "ViewProducts")]
+        public async Task<ActionResult<APIResponse<ProductStockBreakdownResponseDto>>> GetStockLocations(int id)
+        {
+            var result = await _productService.GetStockBreakdownAsync(id);
+            return Ok(new APIResponse<ProductStockBreakdownResponseDto>(result, "Stock locations fetched successfully"));
+        }
     }
 }

@@ -38,5 +38,13 @@ namespace Infrastructure.Repositories
                 .Where(s => s.WarehouseId == warehouseId)
                 .ToListAsync();
         }
+
+        public async Task<List<ProductWarehouseStock>> GetByProductAsync(int productId)
+        {
+            return await _dbContext.ProductWarehouseStocks
+                .Include(s => s.Warehouse)
+                .Where(s => s.ProductId == productId)
+                .ToListAsync();
+        }
     }
 }

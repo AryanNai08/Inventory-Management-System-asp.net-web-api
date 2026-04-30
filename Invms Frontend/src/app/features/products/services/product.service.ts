@@ -71,4 +71,8 @@ export class ProductService {
   getLowStock(): Observable<APIResponse<Product[]>> {
     return this.http.get<APIResponse<Product[]>>(`${this.apiUrl}${this.endpoints.LOW_STOCK}`);
   }
+
+  getProductStockBreakdown(id: number): Observable<APIResponse<any>> {
+    return this.http.get<APIResponse<any>>(`${this.apiUrl}${this.endpoints.STOCK_LOCATIONS(id)}`);
+  }
 }

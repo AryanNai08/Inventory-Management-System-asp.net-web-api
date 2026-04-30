@@ -14,17 +14,23 @@ namespace Application.Services
     public class ProductService : IProductService
     {
         private readonly IProductRepository _productRepository;
+        private readonly IWarehouseRepository _warehouseRepository;
+        private readonly IProductWarehouseStockRepository _stockRepository;
         private readonly IMapper _mapper;
         private readonly IUnitOfWork _unitOfWork;
         private readonly ICurrentUserService _currentUserService;
 
         public ProductService(
             IProductRepository productRepository, 
+            IWarehouseRepository warehouseRepository,
+            IProductWarehouseStockRepository stockRepository,
             IMapper mapper, 
             IUnitOfWork unitOfWork,
             ICurrentUserService currentUserService)
         {
             _productRepository = productRepository;
+            _warehouseRepository = warehouseRepository;
+            _stockRepository = stockRepository;
             _mapper = mapper;
             _unitOfWork = unitOfWork;
             _currentUserService = currentUserService;
@@ -191,6 +197,28 @@ namespace Application.Services
             await _productRepository.UpdateAsync(product);
             await _unitOfWork.SaveChangesAsync();
             return true;
+        }
+
+        public async Task<ProductStockBreakdownResponseDto> GetStockBreakdownAsync(int productId)
+        {
+            var product = await _productRepository.GetByIdAsync(productId);
+            if (product == null) throw new NotFoundException($"Product {productId} not found");
+
+            var allWarehouses = await _warehouseRepository.GetAllAsync();
+            var stocks = await _stockRepository.GetByProductAsync(productId);
+
+            var locations = allWarehouses.Select(w => new ProductStockBreakdownDto
+            {
+                WarehouseId = w.Id,
+                WarehouseName = w.Name,
+                Quantity = stocks.FirstOrDefault(s => s.WarehouseId == w.Id)?.Quantity ?? 0
+            }).ToList();
+
+            return new ProductStockBreakdownResponseDto
+            {
+                TotalStock = locations.Sum(l => l.Quantity),
+                Locations = locations
+            };
         }
     }
 }
