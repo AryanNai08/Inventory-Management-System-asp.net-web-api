@@ -1,12 +1,21 @@
-<div class="flex h-screen bg-gray-50 font-sans">
+<div class="flex h-screen bg-slate-50 font-sans overflow-hidden">
   <!-- Sidebar -->
-  <app-sidebar class="w-64 flex-shrink-0 border-r border-gray-200 bg-white hidden md:flex flex-col"></app-sidebar>
+  <div [class]="(isSidebarOpen$ | async) ? 'translate-x-0' : '-translate-x-full md:-ml-64'"
+    class="fixed inset-y-0 left-0 z-50 w-64 transform bg-white transition-all duration-300 ease-in-out md:relative md:translate-x-0 border-r border-slate-200 flex flex-col shadow-2xl md:shadow-none">
+    <app-sidebar class="h-full"></app-sidebar>
+  </div>
 
   <!-- Main Content -->
-  <div class="flex flex-1 flex-col overflow-hidden">
+  <div class="flex flex-1 flex-col overflow-hidden min-w-0">
     <app-topbar></app-topbar>
     <main class="flex-1 overflow-y-auto p-4 md:p-6 bg-slate-50">
       <router-outlet></router-outlet>
     </main>
+
+    <!-- Backdrop for mobile -->
+    <div *ngIf="isSidebarOpen$ | async" 
+         (click)="toggleSidebar()"
+         class="fixed inset-0 z-40 bg-slate-900/30 backdrop-blur-sm md:hidden animate-in fade-in duration-300">
+    </div>
   </div>
 </div>

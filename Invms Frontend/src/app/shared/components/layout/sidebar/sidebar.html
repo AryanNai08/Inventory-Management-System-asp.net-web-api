@@ -1,6 +1,14 @@
 <div class="flex h-full flex-col p-4 shadow-sm bg-white">
-  <div class="mb-8 flex items-center justify-center pt-2">
+  <div class="mb-8 flex items-center justify-between pt-2">
     <h1 class="text-2xl font-black text-blue-600 tracking-wider">InvMS<span class="text-slate-800">.pro</span></h1>
+    
+    <!-- Mobile Close Button -->
+    <button (click)="toggleSidebar()" 
+            class="md:hidden p-2 rounded-xl bg-slate-50 text-slate-400 hover:text-slate-900 hover:bg-slate-100 transition-all active:scale-90 border border-slate-100">
+      <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12" />
+      </svg>
+    </button>
   </div>
   
   <!-- User Profile Section -->

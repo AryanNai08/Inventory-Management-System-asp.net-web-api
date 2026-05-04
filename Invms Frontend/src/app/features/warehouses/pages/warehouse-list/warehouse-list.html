@@ -1,16 +1,17 @@
-<div class="p-8 max-w-[1600px] mx-auto animate-in fade-in slide-in-from-bottom-4 duration-700">
+<div class="p-4 md:p-8 w-full min-h-screen bg-white -mx-4 md:-mx-8 -mt-4 md:-mt-8 animate-in fade-in duration-700">
+
   <!-- Header Section -->
-  <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
-    <div class="flex items-center gap-4">
+  <div class="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-10">
+    <div class="flex items-center gap-5">
       <button routerLink="/dashboard"
-        class="p-2.5 rounded-xl border border-slate-200 bg-white text-slate-400 hover:text-slate-600 hover:bg-slate-50 transition-all active:scale-95 shadow-sm">
-        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.1" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+        class="p-3 rounded-2xl border border-slate-200 bg-white text-slate-400 hover:text-slate-900 hover:border-slate-300 transition-all active:scale-95 shadow-sm">
+        <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
         </svg>
       </button>
       <div>
-        <h1 class="text-3xl font-black text-slate-900 tracking-tight">Warehouses</h1>
-        <p class="text-slate-500 font-medium">Manage your storage locations and inventory distribution.</p>
+        <h1 class="text-4xl font-black text-slate-900 tracking-tight">Storage <span class="text-slate-400">Warehouses</span></h1>
+        <p class="text-slate-500 font-bold tracking-tight">Manage your storage locations and inventory distribution</p>
       </div>
     </div>
     <div class="flex items-center gap-3">
@@ -33,11 +34,9 @@
 
   <!-- Search Bar -->
   <div class="mb-6 flex flex-col md:flex-row items-center justify-between gap-4">
-    <app-search-bar 
-      placeholder="Filter by name or location..." 
-      (onSearch)="onSearch($event)">
+    <app-search-bar placeholder="Filter by name or location..." (onSearch)="onSearch($event)">
     </app-search-bar>
-    
+
     <div class="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-slate-400">
       <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
       Instant Filter Active
@@ -57,12 +56,14 @@
         <table class="w-full text-left border-collapse min-w-[1000px]">
           <thead>
             <tr class="border-b border-slate-100/50 bg-slate-50/50">
-              <th class="px-6 py-4 text-[11px] font-black uppercase tracking-widest text-slate-400">Warehouse Identity</th>
+              <th class="px-6 py-4 text-[11px] font-black uppercase tracking-widest text-slate-400">Warehouse Identity
+              </th>
               <th class="px-6 py-4 text-[11px] font-black uppercase tracking-widest text-slate-400">Location</th>
               <th class="px-6 py-4 text-[11px] font-black uppercase tracking-widest text-slate-400">Description</th>
               <th class="px-6 py-4 text-[11px] font-black uppercase tracking-widest text-slate-400">Created By</th>
               <th class="px-6 py-4 text-[11px] font-black uppercase tracking-widest text-slate-400">Last Modified</th>
-              <th class="px-6 py-4 text-right text-[11px] font-black uppercase tracking-widest text-slate-400">Actions</th>
+              <th class="px-6 py-4 text-right text-[11px] font-black uppercase tracking-widest text-slate-400">Actions
+              </th>
             </tr>
           </thead>
           <tbody class="divide-y divide-slate-50">
@@ -81,10 +82,13 @@
               <td colspan="6" class="px-6 py-24 text-center">
                 <div class="max-w-xs mx-auto space-y-4 opacity-40">
                   <svg class="w-16 h-16 mx-auto text-slate-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                      d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
                   </svg>
-                  <p class="text-lg font-black text-slate-900">{{ searchTerm ? 'No records match your filter' : 'No Warehouses Found' }}</p>
-                  <p class="text-sm font-bold text-slate-500">{{ searchTerm ? 'Try adjusting your search or filters.' : 'Define stock locations for effective tracking by adding your first warehouse.' }}</p>
+                  <p class="text-lg font-black text-slate-900">{{ searchTerm ? 'No records match your filter' : 'No
+                    Warehouses Found' }}</p>
+                  <p class="text-sm font-bold text-slate-500">{{ searchTerm ? 'Try adjusting your search or filters.' :
+                    'Define stock locations for effective tracking by adding your first warehouse.' }}</p>
                 </div>
               </td>
             </tr>
@@ -96,7 +100,8 @@
                   <div
                     class="h-10 w-10 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white font-black text-sm shadow-sm ring-4 ring-white">
                     <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
                     </svg>
                   </div>
                   <div>
@@ -107,8 +112,10 @@
               <td class="px-6 py-5">
                 <div class="flex items-center gap-2 text-xs font-bold text-slate-600">
                   <svg class="w-4 h-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                   </svg>
                   {{ w.location }}
                 </div>
@@ -122,7 +129,8 @@
               </td>
               <td class="px-6 py-5">
                 <span class="text-xs font-bold text-slate-600">{{ w.updatedBy || '-' }}</span>
-                <p class="text-[10px] text-slate-400 font-semibold">{{ w.modifiedDate ? (w.modifiedDate | date:'mediumDate') : '-' }}</p>
+                <p class="text-[10px] text-slate-400 font-semibold">{{ w.modifiedDate ? (w.modifiedDate |
+                  date:'mediumDate') : '-' }}</p>
               </td>
               <td class="px-6 py-5 text-right">
                 <div class="flex items-center justify-end gap-2">
@@ -130,7 +138,7 @@
                   <button *ngIf="canManage" (click)="openEditModal(w)" class="btn-action-edit">
                     Edit
                   </button>
-                  
+
                   <!-- RBAC: ONLY Admin can delete -->
                   <button *ngIf="canDelete" (click)="onDelete(w.id)" class="btn-action-delete">
                     Delete
@@ -160,7 +168,8 @@
       class="relative w-full max-w-lg bg-white rounded-3xl shadow-2xl overflow-hidden animate-in zoom-in-95 slide-in-from-bottom-8 duration-300 border border-white/50">
       <div class="px-8 py-6 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
         <div>
-          <h3 class="text-xl font-black text-slate-900 tracking-tight">{{ selectedWarehouseId ? 'Update' : 'New' }} Warehouse</h3>
+          <h3 class="text-xl font-black text-slate-900 tracking-tight">{{ selectedWarehouseId ? 'Update' : 'New' }}
+            Warehouse</h3>
           <p class="text-sm font-bold text-slate-400">Define stock locations for effective tracking.</p>
         </div>
         <button (click)="closeModal()" class="text-slate-400 hover:text-slate-600 p-1">
@@ -173,19 +182,22 @@
       <form [formGroup]="warehouseForm" (ngSubmit)="onSubmit()" class="p-8">
         <div class="space-y-6">
           <div>
-            <label class="block text-[11px] font-black uppercase tracking-widest text-slate-400 mb-2 ms-1">Warehouse Name</label>
+            <label class="block text-[11px] font-black uppercase tracking-widest text-slate-400 mb-2 ms-1">Warehouse
+              Name</label>
             <input formControlName="name" type="text" placeholder="e.g. Central Hub, West Wing..."
               class="w-full px-5 py-3.5 bg-slate-50 border-2 border-transparent focus:border-blue-500 focus:bg-white rounded-2xl outline-none font-bold text-slate-700 transition-all placeholder:text-slate-300">
           </div>
 
           <div>
-            <label class="block text-[11px] font-black uppercase tracking-widest text-slate-400 mb-2 ms-1">Location / Address</label>
+            <label class="block text-[11px] font-black uppercase tracking-widest text-slate-400 mb-2 ms-1">Location /
+              Address</label>
             <input formControlName="location" type="text" placeholder="e.g. Manhattan, NY / Bldg A, Floor 2"
               class="w-full px-5 py-3.5 bg-slate-50 border-2 border-transparent focus:border-blue-500 focus:bg-white rounded-2xl outline-none font-bold text-slate-700 transition-all placeholder:text-slate-300">
           </div>
 
           <div>
-            <label class="block text-[11px] font-black uppercase tracking-widest text-slate-400 mb-2 ms-1">Description</label>
+            <label
+              class="block text-[11px] font-black uppercase tracking-widest text-slate-400 mb-2 ms-1">Description</label>
             <textarea formControlName="description" rows="3" placeholder="Additional details about this warehouse..."
               class="w-full px-5 py-3.5 bg-slate-50 border-2 border-transparent focus:border-blue-500 focus:bg-white rounded-2xl outline-none font-bold text-slate-700 transition-all placeholder:text-slate-300 resize-none"></textarea>
           </div>
@@ -200,7 +212,8 @@
                 d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
               </path>
             </svg>
-             {{ isSaving ? (selectedWarehouseId ? 'Updating...' : 'Creating...') : (selectedWarehouseId ? 'Update Warehouse' : 'Create Warehouse') }}
+            {{ isSaving ? (selectedWarehouseId ? 'Updating...' : 'Creating...') : (selectedWarehouseId ? 'Update
+            Warehouse' : 'Create Warehouse') }}
           </button>
         </div>
       </form>

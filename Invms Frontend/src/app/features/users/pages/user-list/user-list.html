@@ -1,17 +1,17 @@
-<div class="p-8 max-w-[1600px] mx-auto animate-in fade-in slide-in-from-bottom-4 duration-700">
+<div class="p-4 md:p-8 w-full min-h-screen bg-white -mx-4 md:-mx-8 -mt-4 md:-mt-8 animate-in fade-in duration-700">
 
   <!-- Header Section -->
-  <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
-    <div class="flex items-center gap-4">
+  <div class="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-10">
+    <div class="flex items-center gap-5">
       <button routerLink="/dashboard"
-        class="p-2.5 rounded-xl border border-slate-200 bg-white text-slate-400 hover:text-slate-600 hover:bg-slate-50 transition-all active:scale-95 shadow-sm">
-        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.1" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+        class="p-3 rounded-2xl border border-slate-200 bg-white text-slate-400 hover:text-slate-900 hover:border-slate-300 transition-all active:scale-95 shadow-sm">
+        <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
         </svg>
       </button>
       <div>
-        <h1 class="text-3xl font-black text-slate-900 tracking-tight">User Management</h1>
-        <p class="text-slate-500 font-medium">Manage system access and roles across the organization.</p>
+        <h1 class="text-4xl font-black text-slate-900 tracking-tight">Access <span class="text-slate-400">Control</span></h1>
+        <p class="text-slate-500 font-bold tracking-tight">Manage system access and roles across the organization</p>
       </div>
     </div>
     <div class="flex items-center gap-3">
@@ -34,11 +34,9 @@
 
   <!-- Search Bar -->
   <div class="mb-6 flex flex-col md:flex-row items-center justify-between gap-4">
-    <app-search-bar 
-      placeholder="Filter by name, email or role..." 
-      (onSearch)="onSearch($event)">
+    <app-search-bar placeholder="Filter by name, email or role..." (onSearch)="onSearch($event)">
     </app-search-bar>
-    
+
     <div class="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-slate-400">
       <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
       Instant Filter Active
@@ -83,10 +81,13 @@
               <td colspan="6" class="px-6 py-24 text-center">
                 <div class="max-w-xs mx-auto space-y-4 opacity-40">
                   <svg class="w-16 h-16 mx-auto text-slate-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                      d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
                   </svg>
-                  <p class="text-lg font-black text-slate-900">{{ searchTerm ? 'No records match your filter' : 'No Users Found' }}</p>
-                  <p class="text-sm font-bold text-slate-500">{{ searchTerm ? 'Try adjusting your search or filters.' : 'Manage system access across the organization by registering your first user.' }}</p>
+                  <p class="text-lg font-black text-slate-900">{{ searchTerm ? 'No records match your filter' : 'No
+                    Users Found' }}</p>
+                  <p class="text-sm font-bold text-slate-500">{{ searchTerm ? 'Try adjusting your search or filters.' :
+                    'Manage system access across the organization by registering your first user.' }}</p>
                 </div>
               </td>
             </tr>
@@ -132,7 +133,7 @@
                   <button *ngIf="canManageUsers" (click)="onEdit(user)" class="btn-action-edit">
                     Edit
                   </button>
-                  
+
                   <button *ngIf="canManageUsers" (click)="onDelete(user.id)" class="btn-action-delete">
                     Delete
                   </button>

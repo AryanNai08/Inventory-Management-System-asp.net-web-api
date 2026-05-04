@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { AuthService } from '../../../../features/auth/services/auth';
 import { StorageService } from '../../../../core/services/storage.service';
+import { LayoutService } from '../../../../core/services/layout';
 
 @Component({
   selector: 'app-sidebar',
@@ -30,8 +31,13 @@ export class Sidebar implements OnInit {
   constructor(
     private authService: AuthService,
     private storageService: StorageService,
-    private router: Router
+    private router: Router,
+    private layoutService: LayoutService
   ) {}
+
+  toggleSidebar(): void {
+    this.layoutService.toggleSidebar();
+  }
 
   ngOnInit(): void {
     const user = this.storageService.getUser();

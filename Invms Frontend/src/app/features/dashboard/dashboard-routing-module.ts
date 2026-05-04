@@ -7,17 +7,11 @@ import { AppLayout } from '../../shared/components/layout/app-layout/app-layout'
 const routes: Routes = [
   {
     path: '',
-    component: AppLayout,
-    children: [
-      { 
-        path: '', 
-        component: DashboardHome 
-      },
-      {
-        path: 'analytics',
-        component: DashboardAnalytics
-      }
-    ]
+    component: DashboardHome
+  },
+  {
+    path: 'analytics',
+    component: DashboardAnalytics
   }
 ];
 
